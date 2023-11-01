@@ -1,4 +1,4 @@
-import AuthForm from "@/components/auth/auth-form";
+import SignupForm from "@/components/auth/auth-form";
 
 export default function Home() {
   return (
@@ -12,7 +12,7 @@ export default function Home() {
         </p>
       </div>
       <div className="col-6 auth-widget">
-        <AuthForm />
+        <SignupForm />
       </div>
     </div>
   );
