@@ -4,7 +4,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@/types/supabase";
 
-export default function SignupForm() {
+export default function LoginForm() {
   const supabase = createClientComponentClient<Database>();
   return (
     <div className="flex justify-center items-center h-screen w-screen bg-slate-400">

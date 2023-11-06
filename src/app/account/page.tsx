@@ -1,4 +1,4 @@
-import AccountForm from "@/components/account/account-form";
+import { AccountForm } from "@/components/account";
 import { Database } from "@/types/supabase";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";

@@ -1,19 +1,13 @@
-import SignupForm from "@/components/auth/auth-form";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="row">
-      <div className="col-6">
-        <h1 className="header">Supabase Auth + Storage</h1>
-        <p className="">
-          Experience our Auth and Storage through a simple profile management
-          example. Create a user profile and upload an avatar image. Fast,
-          simple, secure.
-        </p>
+    <>
+      <div className="h-screen w-screen bg-cyan-100 flex justify-center">
+        <Link href={"/chat"}>
+          <p className="pt-10 text-xl font-mono text-red-500">Go to chats</p>
+        </Link>
       </div>
-      <div className="col-6 auth-widget">
-        <SignupForm />
-      </div>
-    </div>
+    </>
   );
 }

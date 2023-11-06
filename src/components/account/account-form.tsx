@@ -5,9 +5,8 @@ import {
   createClientComponentClient,
 } from "@supabase/auth-helpers-nextjs";
 import { Database } from "@/types/supabase";
-import Avatar from "@/app/account/avatar";
 
-export default function AccountForm({ session }: { session: Session | null }) {
+export const AccountForm = ({ session }: { session: Session | null }) => {
   const supabase = createClientComponentClient<Database>();
   const [loading, setLoading] = useState(true);
   const [fullname, setFullname] = useState<string | null>(null);
@@ -23,7 +22,7 @@ export default function AccountForm({ session }: { session: Session | null }) {
       const { data, error, status } = await supabase
         .from("profiles")
         .select(`full_name, username, website, avatar_url`)
-        .eq("id", user?.id as any)
+        .eq("id", user?.id!)
         .single();
 
       if (error && status !== 406) {
@@ -79,15 +78,6 @@ export default function AccountForm({ session }: { session: Session | null }) {
 
   return (
     <div className="form-widget">
-      <Avatar
-        uid={(user as any).id}
-        url={avatar_url}
-        size={150}
-        onUpload={(url) => {
-          setAvatarUrl(url);
-          updateProfile({ fullname, username, website, avatar_url: url });
-        }}
-      />
       <div>
         <label htmlFor="email">Email</label>
         <input id="email" type="text" value={session?.user.email} disabled />
@@ -141,4 +131,4 @@ export default function AccountForm({ session }: { session: Session | null }) {
       </div>
     </div>
   );
-}
+};
