@@ -1,4 +1,3 @@
-"use client";
 import { MessageContainer } from "@/components";
 
 export default function ChatRoomContainer({

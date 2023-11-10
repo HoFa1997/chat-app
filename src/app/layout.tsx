@@ -1,9 +1,10 @@
-import { Metadata } from "next";
 import "@/styles/globals.css";
-import { AuthProvider, GlobalProvider } from "@/shared/providers";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Database } from "@/types/supabase";
+import { Metadata } from "next";
+import { GlobalProvider } from "@/shared/providers";
 import { cookies } from "next/headers";
+import { Database } from "@/types/supabase";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -11,8 +12,6 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({
-  // Layouts must accept a children prop.
-  // This will be populated with nested layouts or pages
   children,
 }: {
   children: React.ReactNode;
@@ -26,9 +25,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider session={session}>
-          <GlobalProvider>{children}</GlobalProvider>
-        </AuthProvider>
+        <GlobalProvider session={session}>{children}</GlobalProvider>
       </body>
     </html>
   );

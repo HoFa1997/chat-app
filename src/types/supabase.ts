@@ -33,7 +33,7 @@ export interface Database {
             foreignKeyName: "ChatRooms_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
@@ -130,7 +130,7 @@ export interface Database {
             foreignKeyName: "Mentions_mentioned_user_id_fkey"
             columns: ["mentioned_user_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -182,7 +182,7 @@ export interface Database {
             foreignKeyName: "Messages_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
@@ -253,7 +253,7 @@ export interface Database {
             foreignKeyName: "Reactions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
@@ -292,7 +292,7 @@ export interface Database {
             foreignKeyName: "Replies_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]

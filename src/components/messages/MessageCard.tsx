@@ -1,51 +1,47 @@
 "use client";
-
 import { Database } from "@/types/supabase";
-import {
-  User,
-  createClientComponentClient,
-} from "@supabase/auth-helpers-nextjs";
-import { useState, useEffect } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { TMessages } from ".";
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
-export const MessageCard = ({ data }: { data: TMessages }) => {
+export const MessageCard = async ({
+  data,
+  userId,
+}: {
+  data: TMessages;
+  userId: string;
+}) => {
   const supabase = createClientComponentClient<Database>();
-
-  const [user, setUser] = useState<Profile | null>(null);
-  const [ownerUser, setOwnerUser] = useState<User | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: ownerUser, error: ownerError } =
-        await supabase.auth.getUser();
-      const { data: userData, error: userError } = await supabase
-        .from("profiles")
-        .select()
-        .eq("id", data.user_id!)
-        .single();
-      if (userError) {
-        setUser(null);
-      } else {
-        setUser(userData);
-      }
-      if (ownerError) {
-        setOwnerUser(null);
-      } else {
-        setOwnerUser(ownerUser.user);
-      }
-    };
-    fetchUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supabase.auth.getUser]);
+    const channel = supabase
+      .channel("realtime messages")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "Messages",
+        },
+        () => {
+          router.refresh();
+        }
+      )
+      .subscribe();
 
-  const isSentByCurrentUser = data.user_id === ownerUser?.id;
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, router]);
+  const isSentByCurrentUser = data.user_id.id === userId;
 
   return (
     <div
       className={`flex ${
         isSentByCurrentUser ? "flex-row-reverse" : "flex-row"
-      }`}
+      } my-2`}
     >
       <div
         className={`${
@@ -53,9 +49,7 @@ export const MessageCard = ({ data }: { data: TMessages }) => {
         } rounded-lg p-3 max-w-xs break-all`}
       >
         <p className="text-white">{data.text_content}</p>
-        <p className="text-black text-sm">
-          {user?.full_name || `@${user?.username}`}
-        </p>
+        <p className="text-black text-sm">{`@${data.user_id.full_name}`}</p>
       </div>
     </div>
   );

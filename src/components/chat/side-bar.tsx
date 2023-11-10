@@ -1,36 +1,15 @@
-"use client";
 import { Database } from "@/types/supabase";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { SideBarProfile } from "./side-bar-profile";
-import { useEffect, useState } from "react";
 import { ChatItem } from "./chat-item";
+import { cookies } from "next/headers";
 
 export type TChatRoom = Database["public"]["Tables"]["ChatRooms"]["Row"];
 
-export const SideBar = () => {
-  const supabase = createClientComponentClient<Database>();
+export const SideBar = async () => {
+  const supabase = createServerComponentClient<Database>({ cookies });
 
-  const [chatRoom, setChatRoom] = useState<TChatRoom[] | null>(null);
-  useEffect(() => {
-    const fetchChatRoom = async () => {
-      const user = await supabase.auth.getUser();
-      if (user?.data?.user?.id) {
-        const userId = user.data.user.id;
-        const { data, error } = await supabase
-          .from("ChatRooms")
-          .select()
-          .eq("user_id", userId);
-
-        if (error) {
-          setChatRoom(null);
-        } else {
-          setChatRoom(data);
-        }
-      }
-    };
-    fetchChatRoom();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supabase.auth.getUser]);
+  const { data } = await supabase.from("ChatRooms").select("*");
 
   return (
     <div className="w-1/3 bg-gray-800 text-gray-100 flex flex-col">
@@ -38,8 +17,11 @@ export const SideBar = () => {
         <div className="text-lg font-medium">Chats</div>
         <SideBarProfile />
       </div>
+      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 mx-4">
+        New Chat Room
+      </button>
       <div className="flex-1 overflow-y-auto">
-        {chatRoom?.map((item) => (
+        {data?.map((item) => (
           <ChatItem key={item.room_id} data={item} />
         ))}
       </div>

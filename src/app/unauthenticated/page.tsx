@@ -1,14 +1,18 @@
-import { AccountForm } from "@/components/account";
+import LoginForm from "@/components/auth/login";
 import { Database } from "@/types/supabase";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default async function Account() {
+export default async function Unauthenticated() {
   const supabase = createServerComponentClient<Database>({ cookies });
-
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  return <AccountForm session={session} />;
+  if (session) {
+    redirect("/");
+  }
+
+  return <LoginForm />;
 }
