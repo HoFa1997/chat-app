@@ -1,12 +1,15 @@
 "use client";
 import { Database } from "@/types/supabase";
-import {
-  User,
-  createClientComponentClient,
-} from "@supabase/auth-helpers-nextjs";
-import { useState, useEffect } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useState } from "react";
 
-export const SendMessage = ({ userId }: { userId: string }) => {
+export const SendMessage = ({
+  userId,
+  roomId,
+}: {
+  userId: string;
+  roomId: string;
+}) => {
   const supabase = createClientComponentClient<Database>();
   const [text, setText] = useState("");
 
@@ -24,7 +27,7 @@ export const SendMessage = ({ userId }: { userId: string }) => {
           await supabase.from("Messages").insert({
             user_id: userId,
             text_content: text,
-            room_id: 3,
+            room_id: +roomId,
           });
           setText("");
         }}

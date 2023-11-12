@@ -31,7 +31,7 @@ export const MessageContainer = async ({
 
   return (
     <div className="flex flex-col w-full px-4 py-2 bg-gray-400 justify-between ">
-      <div className="w-full h-full overflow-y-auto">
+      <div className="w-full h-full overflow-y-auto no-scrollbar">
         {messagesData?.map((item: any) => (
           <MessageCard
             data={item}
@@ -40,7 +40,7 @@ export const MessageContainer = async ({
           />
         ))}
       </div>
-      <SendMessage userId={session?.user.id!} />
+      <SendMessage userId={session?.user.id!} roomId={chatRoomId} />
     </div>
   );
 };
