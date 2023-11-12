@@ -1,9 +1,9 @@
 import { Database } from "@/types/supabase";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { ChatItem } from "./chat-item";
+import { ChatItem } from "./ChatItem";
 import { cookies } from "next/headers";
 import NewChatRoomModal from "../room/NewChatRoomModal";
-import { LogoutOnProfile } from "./logout-on-profile";
+import { LogoutOnProfile } from "./LogoutOnProfile";
 
 export type TChatRoom = Database["public"]["Tables"]["ChatRooms"]["Row"];
 
