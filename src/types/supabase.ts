@@ -38,39 +38,49 @@ export interface Database {
           }
         ]
       }
-      ForwardedMessages: {
+      forwardedMessages: {
         Row: {
+          chatRoom_id: number | null
           created_at: string
-          forward_id: number
-          forwarded_message_id: number | null
-          original_message_id: number | null
+          id: number
+          message_id: number | null
+          profile_id: string | null
         }
         Insert: {
+          chatRoom_id?: number | null
           created_at?: string
-          forward_id?: number
-          forwarded_message_id?: number | null
-          original_message_id?: number | null
+          id?: number
+          message_id?: number | null
+          profile_id?: string | null
         }
         Update: {
+          chatRoom_id?: number | null
           created_at?: string
-          forward_id?: number
-          forwarded_message_id?: number | null
-          original_message_id?: number | null
+          id?: number
+          message_id?: number | null
+          profile_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "ForwardedMessages_forwarded_message_id_fkey"
-            columns: ["forwarded_message_id"]
+            foreignKeyName: "forwardedMessages_chatRoom_id_fkey"
+            columns: ["chatRoom_id"]
+            isOneToOne: false
+            referencedRelation: "ChatRooms"
+            referencedColumns: ["room_id"]
+          },
+          {
+            foreignKeyName: "forwardedMessages_message_id_fkey"
+            columns: ["message_id"]
             isOneToOne: false
             referencedRelation: "Messages"
             referencedColumns: ["message_id"]
           },
           {
-            foreignKeyName: "ForwardedMessages_original_message_id_fkey"
-            columns: ["original_message_id"]
+            foreignKeyName: "forwardedMessages_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "Messages"
-            referencedColumns: ["message_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           }
         ]
       }
@@ -106,48 +116,13 @@ export interface Database {
           }
         ]
       }
-      Mentions: {
-        Row: {
-          created_at: string
-          mention_id: number
-          mentioned_user_id: string | null
-          message_id: number | null
-        }
-        Insert: {
-          created_at?: string
-          mention_id?: number
-          mentioned_user_id?: string | null
-          message_id?: number | null
-        }
-        Update: {
-          created_at?: string
-          mention_id?: number
-          mentioned_user_id?: string | null
-          message_id?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Mentions_mentioned_user_id_fkey"
-            columns: ["mentioned_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Mentions_message_id_fkey"
-            columns: ["message_id"]
-            isOneToOne: false
-            referencedRelation: "Messages"
-            referencedColumns: ["message_id"]
-          }
-        ]
-      }
       Messages: {
         Row: {
           created_at: string
           edited_at: string | null
           is_markdown: boolean | null
           message_id: number
+          parent_id: number | null
           room_id: number | null
           text_content: string | null
           user_id: string | null
@@ -157,6 +132,7 @@ export interface Database {
           edited_at?: string | null
           is_markdown?: boolean | null
           message_id?: number
+          parent_id?: number | null
           room_id?: number | null
           text_content?: string | null
           user_id?: string | null
@@ -166,11 +142,19 @@ export interface Database {
           edited_at?: string | null
           is_markdown?: boolean | null
           message_id?: number
+          parent_id?: number | null
           room_id?: number | null
           text_content?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "Messages_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "Messages"
+            referencedColumns: ["message_id"]
+          },
           {
             foreignKeyName: "Messages_room_id_fkey"
             columns: ["room_id"]
@@ -224,18 +208,21 @@ export interface Database {
       }
       Reactions: {
         Row: {
+          char: string | null
           created_at: string
           message_id: number | null
           reaction_id: number
           user_id: string | null
         }
         Insert: {
+          char?: string | null
           created_at?: string
           message_id?: number | null
           reaction_id?: number
           user_id?: string | null
         }
         Update: {
+          char?: string | null
           created_at?: string
           message_id?: number | null
           reaction_id?: number
@@ -251,45 +238,6 @@ export interface Database {
           },
           {
             foreignKeyName: "Reactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      Replies: {
-        Row: {
-          created_at: string
-          message_id: number | null
-          reply_id: number
-          reply_text: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          message_id?: number | null
-          reply_id?: number
-          reply_text?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          message_id?: number | null
-          reply_id?: number
-          reply_text?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Replies_message_id_fkey"
-            columns: ["message_id"]
-            isOneToOne: false
-            referencedRelation: "Messages"
-            referencedColumns: ["message_id"]
-          },
-          {
-            foreignKeyName: "Replies_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
