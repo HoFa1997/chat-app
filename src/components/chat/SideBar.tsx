@@ -4,6 +4,7 @@ import { ChatItem } from "./ChatItem";
 import { cookies } from "next/headers";
 import NewChatRoomModal from "../room/NewChatRoomModal";
 import { LogoutOnProfile } from "./LogoutOnProfile";
+import Link from "next/link";
 
 export type TChatRoom = Database["public"]["Tables"]["ChatRooms"]["Row"];
 
@@ -16,10 +17,16 @@ export const SideBar = async () => {
   return (
     <div className="w-1/3 bg-gray-800 text-gray-100 flex flex-col">
       <div className="flex items-center justify-between p-4 border-b border-gray-700">
-        <div className="text-lg font-medium">Chats</div>
+        <div className="text-lg font-medium">
+          <Link href={"/chat"}>Chats</Link>
+        </div>
         <div className="flex items-center">
-          <div className="mr-2 text-sm font-medium">{userData.user?.email}</div>
-          <LogoutOnProfile />
+          <Link href={"/profile"} className="flex justify-center items-center	">
+            <div className="mr-2 text-sm font-medium">
+              {userData.user?.email}
+            </div>
+            <LogoutOnProfile />
+          </Link>
         </div>
       </div>
 
