@@ -1,8 +1,10 @@
 "use client";
 
-import { Session } from "@supabase/auth-helpers-nextjs";
-import { redirect, usePathname, useRouter } from "next/navigation";
+import { SideBar } from "@/components";
+import { Session } from "@supabase/supabase-js";
+import { redirect, usePathname } from "next/navigation";
 import { ReactNode, useEffect } from "react";
+import { setUserSession } from "../hooks/useAuth";
 
 type Props = {
   children: ReactNode | ReactNode[];
@@ -14,9 +16,18 @@ export const GlobalProvider: React.FC<Props> = ({ children, session }) => {
 
   useEffect(() => {
     if (!session && pathname !== "/unauthenticated") {
+      setUserSession(null);
       redirect("/unauthenticated");
+    } else if (session) {
+      setUserSession(session);
     }
-  }, [pathname, session]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
-  return <>{children}</>;
+  return (
+    <>
+      {session && <SideBar session={session} />}
+      {children}
+    </>
+  );
 };

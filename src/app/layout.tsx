@@ -1,10 +1,9 @@
+import { headers } from "next/headers";
 import "@/styles/globals.css";
 import { Metadata } from "next";
 import { GlobalProvider } from "@/shared/providers";
+import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { Database } from "@/types/supabase";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -16,7 +15,19 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const cookieStore = cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+      },
+    }
+  );
 
   const {
     data: { session },
@@ -24,7 +35,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body>
+      <body className="flex h-screen">
         <GlobalProvider session={session}>{children}</GlobalProvider>
       </body>
     </html>

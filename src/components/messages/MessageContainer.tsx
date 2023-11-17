@@ -1,8 +1,8 @@
+"use client";
 import { MessageCard } from "@/components";
 import { Database } from "@/types/supabase";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { SendMessage } from "./SendMessage";
-import { cookies } from "next/headers";
+import { createBrowserClient } from "@supabase/ssr";
 
 export type TProfile = Database["public"]["Tables"]["profiles"]["Row"];
 export type TMessages = Omit<
@@ -17,7 +17,10 @@ export const MessageContainer = async ({
 }: {
   chatRoomId: string;
 }) => {
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   const { data: messagesData } = await supabase
     .from("Messages")

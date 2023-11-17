@@ -1,9 +1,8 @@
 "use client";
-import { Database } from "@/types/supabase";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { TMessages } from ".";
+import { createBrowserClient } from "@supabase/ssr";
 
 export const MessageCard = async ({
   data,
@@ -12,7 +11,10 @@ export const MessageCard = async ({
   data: TMessages;
   userId: string;
 }) => {
-  const supabase = createClientComponentClient<Database>();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   const router = useRouter();
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 "use client";
 import { Database } from "@/types/supabase";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createBrowserClient } from "@supabase/ssr";
 import { useState } from "react";
 
 export const SendMessage = ({
@@ -10,7 +10,10 @@ export const SendMessage = ({
   userId: string;
   roomId: string;
 }) => {
-  const supabase = createClientComponentClient<Database>();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   const [text, setText] = useState("");
 
   return (

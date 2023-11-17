@@ -1,11 +1,14 @@
+"use client";
 import Link from "next/link";
 import { TChatRoom } from ".";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
 import { Database } from "@/types/supabase";
+import { createBrowserClient } from "@supabase/ssr";
 type TMessage = Database["public"]["Tables"]["Messages"]["Row"];
 export const ChatItem = async ({ data }: { data: TChatRoom }) => {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   const { data: lastMessage } = await supabase
     .from("Messages")
@@ -19,7 +22,7 @@ export const ChatItem = async ({ data }: { data: TChatRoom }) => {
   )?.toLocaleDateString();
 
   return (
-    <Link href={`/chat/${data.room_id}`}>
+    <Link href={`/${data.room_id}`}>
       <div className="p-4 hover:bg-gray-700 cursor-pointer">
         <div className="flex items-center justify-between">
           <div className="text-sm font-medium">{data.room_name}</div>
