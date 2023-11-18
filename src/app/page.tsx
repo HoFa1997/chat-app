@@ -1,9 +1,9 @@
-import { ChatBox } from "@/components/chat/ChatBox";
+import { ChatContainer } from "@/components/chat";
 
 export default function ChatPage() {
   return (
     <div className="flex w-screen">
-      <ChatBox />
+      <ChatContainer />
     </div>
   );
 }

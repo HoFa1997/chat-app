@@ -9,238 +9,346 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      ChatRooms: {
+      channel_members: {
         Row: {
-          created_at: string
-          room_id: number
-          room_name: string | null
-          user_id: string | null
+          channel_id: string | null
+          last_read_message_id: string | null
+          last_read_update: string | null
+          member_id: string | null
         }
         Insert: {
-          created_at?: string
-          room_id?: number
-          room_name?: string | null
-          user_id?: string | null
+          channel_id?: string | null
+          last_read_message_id?: string | null
+          last_read_update?: string | null
+          member_id?: string | null
         }
         Update: {
-          created_at?: string
-          room_id?: number
-          room_name?: string | null
-          user_id?: string | null
+          channel_id?: string | null
+          last_read_message_id?: string | null
+          last_read_update?: string | null
+          member_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "ChatRooms_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "channel_members_channel_id_fkey"
+            columns: ["channel_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_members_last_read_message_id_fkey"
+            columns: ["last_read_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           }
         ]
       }
-      forwardedMessages: {
+      channels: {
         Row: {
-          chatRoom_id: number | null
-          created_at: string
-          id: number
-          message_id: number | null
-          profile_id: string | null
+          created_by: string
+          description: string | null
+          id: string
+          inserted_at: string
+          is_archived: boolean | null
+          is_private: boolean | null
+          is_read_only: boolean | null
+          last_activity_at: string
+          last_message_preview: string | null
+          member_limit: number | null
+          slug: string
         }
         Insert: {
-          chatRoom_id?: number | null
-          created_at?: string
-          id?: number
-          message_id?: number | null
-          profile_id?: string | null
+          created_by: string
+          description?: string | null
+          id?: string
+          inserted_at?: string
+          is_archived?: boolean | null
+          is_private?: boolean | null
+          is_read_only?: boolean | null
+          last_activity_at?: string
+          last_message_preview?: string | null
+          member_limit?: number | null
+          slug: string
         }
         Update: {
-          chatRoom_id?: number | null
-          created_at?: string
-          id?: number
-          message_id?: number | null
-          profile_id?: string | null
+          created_by?: string
+          description?: string | null
+          id?: string
+          inserted_at?: string
+          is_archived?: boolean | null
+          is_private?: boolean | null
+          is_read_only?: boolean | null
+          last_activity_at?: string
+          last_message_preview?: string | null
+          member_limit?: number | null
+          slug?: string
+        }
+        Relationships: []
+      }
+      message_mentions: {
+        Row: {
+          id: string
+          mentioned_user_id: string | null
+          message_id: string | null
+        }
+        Insert: {
+          id?: string
+          mentioned_user_id?: string | null
+          message_id?: string | null
+        }
+        Update: {
+          id?: string
+          mentioned_user_id?: string | null
+          message_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "forwardedMessages_chatRoom_id_fkey"
-            columns: ["chatRoom_id"]
-            isOneToOne: false
-            referencedRelation: "ChatRooms"
-            referencedColumns: ["room_id"]
-          },
-          {
-            foreignKeyName: "forwardedMessages_message_id_fkey"
+            foreignKeyName: "message_mentions_message_id_fkey"
             columns: ["message_id"]
             isOneToOne: false
-            referencedRelation: "Messages"
-            referencedColumns: ["message_id"]
-          },
-          {
-            foreignKeyName: "forwardedMessages_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           }
         ]
       }
-      Media: {
+      messages: {
         Row: {
-          created_at: string
-          media_id: number
-          media_type: string | null
-          media_url: string | null
-          message_id: number | null
-        }
-        Insert: {
-          created_at?: string
-          media_id?: number
-          media_type?: string | null
-          media_url?: string | null
-          message_id?: number | null
-        }
-        Update: {
-          created_at?: string
-          media_id?: number
-          media_type?: string | null
-          media_url?: string | null
-          message_id?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Media_message_id_fkey"
-            columns: ["message_id"]
-            isOneToOne: false
-            referencedRelation: "Messages"
-            referencedColumns: ["message_id"]
-          }
-        ]
-      }
-      Messages: {
-        Row: {
-          created_at: string
+          channel_id: string
+          content: string | null
+          deleted_at: string | null
           edited_at: string | null
-          is_markdown: boolean | null
-          message_id: number
-          parent_id: number | null
-          room_id: number | null
-          text_content: string | null
-          user_id: string | null
+          id: string
+          inserted_at: string
+          media_urls: Json | null
+          metadata: Json | null
+          original_message_id: string | null
+          reactions: Json | null
+          replied_message_preview: string | null
+          reply_to_message_id: string | null
+          type: Database["public"]["Enums"]["message_type"] | null
+          updated_at: string
+          user_id: string
         }
         Insert: {
-          created_at?: string
+          channel_id: string
+          content?: string | null
+          deleted_at?: string | null
           edited_at?: string | null
-          is_markdown?: boolean | null
-          message_id?: number
-          parent_id?: number | null
-          room_id?: number | null
-          text_content?: string | null
-          user_id?: string | null
+          id?: string
+          inserted_at?: string
+          media_urls?: Json | null
+          metadata?: Json | null
+          original_message_id?: string | null
+          reactions?: Json | null
+          replied_message_preview?: string | null
+          reply_to_message_id?: string | null
+          type?: Database["public"]["Enums"]["message_type"] | null
+          updated_at?: string
+          user_id: string
         }
         Update: {
-          created_at?: string
+          channel_id?: string
+          content?: string | null
+          deleted_at?: string | null
           edited_at?: string | null
-          is_markdown?: boolean | null
-          message_id?: number
-          parent_id?: number | null
-          room_id?: number | null
-          text_content?: string | null
-          user_id?: string | null
+          id?: string
+          inserted_at?: string
+          media_urls?: Json | null
+          metadata?: Json | null
+          original_message_id?: string | null
+          reactions?: Json | null
+          replied_message_preview?: string | null
+          reply_to_message_id?: string | null
+          type?: Database["public"]["Enums"]["message_type"] | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "Messages_parent_id_fkey"
-            columns: ["parent_id"]
+            foreignKeyName: "messages_channel_id_fkey"
+            columns: ["channel_id"]
             isOneToOne: false
-            referencedRelation: "Messages"
-            referencedColumns: ["message_id"]
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Messages_room_id_fkey"
-            columns: ["room_id"]
+            foreignKeyName: "messages_original_message_id_fkey"
+            columns: ["original_message_id"]
             isOneToOne: false
-            referencedRelation: "ChatRooms"
-            referencedColumns: ["room_id"]
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Messages_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "messages_reply_to_message_id_fkey"
+            columns: ["reply_to_message_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           }
         ]
       }
-      profiles: {
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          mention_id: string | null
+          message_id: string | null
+          message_preview: string | null
+          read_at: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mention_id?: string | null
+          message_id?: string | null
+          message_preview?: string | null
+          read_at?: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mention_id?: string | null
+          message_id?: string | null
+          message_preview?: string | null
+          read_at?: string | null
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_mention_id_fkey"
+            columns: ["mention_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      pinned_messages: {
+        Row: {
+          channel_id: string
+          id: string
+          message_id: string
+          pinned_at: string
+          pinned_by: string
+        }
+        Insert: {
+          channel_id: string
+          id?: string
+          message_id: string
+          pinned_at?: string
+          pinned_by: string
+        }
+        Update: {
+          channel_id?: string
+          id?: string
+          message_id?: string
+          pinned_at?: string
+          pinned_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pinned_messages_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pinned_messages_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      role_permissions: {
+        Row: {
+          id: string
+          permission: Database["public"]["Enums"]["app_permission"]
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          id?: string
+          permission: Database["public"]["Enums"]["app_permission"]
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          id?: string
+          permission?: Database["public"]["Enums"]["app_permission"]
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      users: {
         Row: {
           avatar_url: string | null
+          email: string | null
           full_name: string | null
           id: string
-          updated_at: string | null
+          status: Database["public"]["Enums"]["user_status"] | null
+          updated_at: string
           username: string | null
           website: string | null
         }
         Insert: {
           avatar_url?: string | null
+          email?: string | null
           full_name?: string | null
           id: string
-          updated_at?: string | null
+          status?: Database["public"]["Enums"]["user_status"] | null
+          updated_at?: string
           username?: string | null
           website?: string | null
         }
         Update: {
           avatar_url?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string
-          updated_at?: string | null
+          status?: Database["public"]["Enums"]["user_status"] | null
+          updated_at?: string
           username?: string | null
           website?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_id_fkey"
+            foreignKeyName: "users_id_fkey"
             columns: ["id"]
             isOneToOne: true
             referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      Reactions: {
-        Row: {
-          char: string | null
-          created_at: string
-          message_id: number | null
-          reaction_id: number
-          user_id: string | null
-        }
-        Insert: {
-          char?: string | null
-          created_at?: string
-          message_id?: number | null
-          reaction_id?: number
-          user_id?: string | null
-        }
-        Update: {
-          char?: string | null
-          created_at?: string
-          message_id?: number | null
-          reaction_id?: number
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "Reactions_message_id_fkey"
-            columns: ["message_id"]
-            isOneToOne: false
-            referencedRelation: "Messages"
-            referencedColumns: ["message_id"]
-          },
-          {
-            foreignKeyName: "Reactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
@@ -250,12 +358,55 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      authorize: {
+        Args: {
+          requested_permission: Database["public"]["Enums"]["app_permission"]
+          user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      app_permission: "channels.delete" | "messages.delete"
-      app_role: "admin" | "moderator" | "quest"
-      user_status: "ONLINE" | "OFFLINE"
+      app_permission:
+        | "channels.create"
+        | "channels.delete"
+        | "channels.edit"
+        | "messages.create"
+        | "messages.delete"
+        | "messages.edit"
+        | "users.view"
+        | "users.edit"
+        | "users.delete"
+        | "roles.create"
+        | "roles.edit"
+        | "roles.delete"
+      app_role: "admin" | "moderator" | "member" | "guest"
+      message_type:
+        | "text"
+        | "image"
+        | "video"
+        | "audio"
+        | "link"
+        | "giphy"
+        | "file"
+      notification_type:
+        | "message"
+        | "channel_invite"
+        | "mention"
+        | "reply"
+        | "thread_update"
+        | "channel_update"
+        | "member_join"
+        | "member_leave"
+        | "user_activity"
+        | "task_assignment"
+        | "event_reminder"
+        | "system_update"
+        | "security_alert"
+        | "like_reaction"
+        | "feedback_request"
+        | "performance_insight"
+      user_status: "ONLINE" | "OFFLINE" | "AWAY" | "BUSY" | "INVISIBLE"
     }
     CompositeTypes: {
       [_ in never]: never

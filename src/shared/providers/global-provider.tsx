@@ -1,10 +1,10 @@
 "use client";
 
-import { SideBar } from "@/components";
 import { Session } from "@supabase/supabase-js";
 import { redirect, usePathname } from "next/navigation";
 import { ReactNode, useEffect } from "react";
 import { setUserSession } from "../hooks/useAuth";
+import { ChannelList } from "@/components/channel/ChannelList";
 
 type Props = {
   children: ReactNode | ReactNode[];
@@ -26,7 +26,7 @@ export const GlobalProvider: React.FC<Props> = ({ children, session }) => {
 
   return (
     <>
-      {session && <SideBar session={session} />}
+      {session && <ChannelList />}
       {children}
     </>
   );

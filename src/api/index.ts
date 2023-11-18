@@ -1,4 +1,3 @@
-export * from "./chat";
+export * from "./channel";
 export * from "./auth";
 export * from "./messages";
-export * from "./channel";

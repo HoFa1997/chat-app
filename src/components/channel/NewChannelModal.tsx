@@ -1,7 +1,6 @@
 "use client";
-
-import { Database } from "@/types/supabase";
-import { createBrowserClient } from "@supabase/ssr";
+import { newChannel } from "@/api";
+import { supabase } from "@/api/supabase";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -9,19 +8,13 @@ interface NewChatRoomModalProps {
   userId: string;
 }
 
-export default function NewChatRoomModal({ userId }: NewChatRoomModalProps) {
+export const NewChannelModal = ({ userId }: NewChatRoomModalProps) => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
   const handleCreate = async () => {
-    await supabase
-      .from("ChatRooms")
-      .insert({ user_id: userId, room_name: name });
+    await newChannel(userId);
     setIsOpen(false);
   };
 
@@ -37,13 +30,14 @@ export default function NewChatRoomModal({ userId }: NewChatRoomModalProps) {
         },
         () => {
           router.refresh();
-        }
+        },
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase, router]);
 
   return (
@@ -57,17 +51,11 @@ export default function NewChatRoomModal({ userId }: NewChatRoomModalProps) {
       {isOpen && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div
-              className="fixed inset-0 transition-opacity"
-              aria-hidden="true"
-            >
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            <span
-              className="hidden sm:inline-block sm:align-middle sm:h-screen"
-              aria-hidden="true"
-            >
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
               &#8203;
             </span>
 
@@ -92,9 +80,7 @@ export default function NewChatRoomModal({ userId }: NewChatRoomModalProps) {
                     </svg>
                   </div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Create a new chat room
-                    </h3>
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">Create a new chat room</h3>
                     <div className="mt-2">
                       <input
                         type="text"
@@ -134,4 +120,4 @@ export default function NewChatRoomModal({ userId }: NewChatRoomModalProps) {
       )}
     </>
   );
-}
+};

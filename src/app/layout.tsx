@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import "@/styles/globals.css";
 import { Metadata } from "next";
 import { GlobalProvider } from "@/shared/providers";
