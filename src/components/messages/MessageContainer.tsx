@@ -1,12 +1,11 @@
 "use client";
-// import { SendMessage } from "./SendMessage";
 import { useEffect, useState } from "react";
-import { TMessage, getAllMessages } from "@/api";
+import { TMessage, TMessageWithUser, getAllMessages } from "@/api";
 import MessageCard from "./MessageCard";
 import SendMessage from "./SendMessage";
 
 export default function MessageContainer({ channelId }: { channelId: string }) {
-  const [messages, setMessages] = useState<TMessage[] | null>(null);
+  const [messages, setMessages] = useState<TMessageWithUser[] | null>(null);
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await getAllMessages(channelId);
@@ -24,7 +23,7 @@ export default function MessageContainer({ channelId }: { channelId: string }) {
           <MessageCard key={item.id} data={item} />
         ))}
       </div>
-      <SendMessage roomId={channelId} />
+      <SendMessage channelId={channelId} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
 import { supabase } from "../supabase";
 
-export const newChannel = async (userId: string) =>
-  await supabase.from("ChatRooms").insert({ user_id: userId, room_name: name });
+export const newChannel = async (created_by: string, slug: string) =>
+  await supabase.from("channels").insert({ created_by, slug }).throwOnError();

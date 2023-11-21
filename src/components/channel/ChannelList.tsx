@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { PostgrestError } from "@supabase/supabase-js";
 import { logout, getAllChannels, TChannel } from "@/api";
 import { ChannelItem } from "./ChannelItem";
+import NewChannelModal from "./NewChannelModal";
 
 export const ChannelList = () => {
   const router = useRouter();
@@ -50,8 +51,8 @@ export const ChannelList = () => {
           </div>
         </div>
       </div>
+      <NewChannelModal />
 
-      {/* <NewChatRoomModal userId={userData.user?.id!} /> */}
       <div className="flex-1 overflow-y-auto">
         {error?.message}
         {channels?.map((item) => (
