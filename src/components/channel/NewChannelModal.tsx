@@ -1,42 +1,22 @@
 "use client";
-
 import { newChannel } from "@/api";
-import { supabase } from "@/api/supabase";
-import { useUserSession } from "@/shared/hooks/useAuth";
+import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-export default function NewChannelModal() {
+type NewChannelModalProps = {
+  userData: User;
+};
+
+export default function NewChannelModal({ userData: user }: NewChannelModalProps) {
   const { refresh } = useRouter();
   const [name, setName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const session = useUserSession();
 
   const handleCreate = async () => {
-    if (session && session.user.id) {
-      await newChannel(session?.user.id, name);
-      setIsOpen(false);
-    }
+    await newChannel(user.id, name);
+    setIsOpen(false);
   };
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("realtime_chat_rooms")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "channels",
-        },
-        () => refresh(),
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [refresh]);
 
   return (
     <>

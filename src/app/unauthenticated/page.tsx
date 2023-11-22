@@ -16,7 +16,7 @@ export default async function Unauthenticated() {
           return cookieStore.get(name)?.value;
         },
       },
-    }
+    },
   );
 
   const {

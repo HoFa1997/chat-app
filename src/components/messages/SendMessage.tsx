@@ -1,24 +1,26 @@
 "use client";
-import { supabase } from "@/api/supabase";
-import { useUserSession } from "@/shared/hooks/useAuth";
+import { supabaseClient } from "@/api/supabase";
+import { User } from "@supabase/supabase-js";
 import { useState } from "react";
 
-export default function SendMessage({ channelId }: { channelId: string }) {
+type SendMessageProps = {
+  channelId: string;
+  user: User;
+};
+
+export default function SendMessage({ channelId, user }: SendMessageProps) {
   const [text, setText] = useState("");
-  const session = useUserSession();
 
   const handleSendMessage = async () => {
-    if (session && session.user.id) {
-      await supabase
-        .from("messages")
-        .insert({
-          content: text,
-          channel_id: channelId,
-          user_id: session.user.id,
-        })
-        .select();
-      setText("");
-    }
+    await supabaseClient
+      .from("messages")
+      .insert({
+        content: text,
+        channel_id: channelId,
+        user_id: user.id,
+      })
+      .select();
+    setText("");
   };
 
   return (

@@ -1,13 +1,14 @@
 import { Database } from "@/types/supabase";
-import { supabase } from "../supabase";
+import { supabaseClient } from "../supabase";
 
 export type TMessage = Database["public"]["Tables"]["messages"]["Row"];
 
 export const getAllMessages = async (channelId: string) =>
-  await supabase
+  await supabaseClient
     .from("messages")
     .select("*, user_id(username,id,avatar_url)")
     .eq("channel_id", channelId)
+    .order("inserted_at", { ascending: true })
     .returns<TMessageWithUser[]>()
     .throwOnError();
 

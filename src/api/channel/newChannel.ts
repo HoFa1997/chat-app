@@ -1,4 +1,4 @@
-import { supabase } from "../supabase";
+import { supabaseClient } from "../supabase";
 
 export const newChannel = async (created_by: string, slug: string) =>
-  await supabase.from("channels").insert({ created_by, slug }).throwOnError();
+  await supabaseClient.from("channels").insert({ created_by, slug }).throwOnError();

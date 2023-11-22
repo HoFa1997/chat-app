@@ -1,8 +1,34 @@
 "use client";
 import Link from "next/link";
 import { TChannel } from "@/api";
+import { useEffect } from "react";
+import { supabaseClient } from "@/api/supabase";
+import { useRouter } from "next/navigation";
 
 export const ChannelItem = ({ data }: { data: TChannel }) => {
+  const { refresh } = useRouter();
+
+  useEffect(() => {
+    const channel = supabaseClient
+      .channel("realtime_channels")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "channels",
+        },
+        () => {
+          refresh();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabaseClient.removeChannel(channel);
+    };
+  }, [refresh]);
+
   return (
     <Link href={`/${data.id}`}>
       <div className="p-4 hover:bg-gray-700 cursor-pointer flex flex-row">

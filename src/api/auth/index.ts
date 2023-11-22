@@ -1,3 +1,2 @@
-import { supabase } from "../supabase";
-
-export const logout = async () => await supabase.auth.signOut();
+export * from "./logout";
+export * from "./user";

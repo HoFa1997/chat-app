@@ -1,36 +1,16 @@
 "use client";
 import { TMessageWithUser } from "@/api";
-import { supabase } from "@/api/supabase";
-import { useUserSession } from "@/shared/hooks/useAuth";
+import { User } from "@supabase/supabase-js";
 import classNames from "classnames";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
-export default function MessageCard({ data }: { data: TMessageWithUser }) {
-  const session = useUserSession();
-  const { refresh } = useRouter();
-  useEffect(() => {
-    const channel = supabase
-      .channel("realtime messages")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "messages",
-        },
-        () => {
-          refresh();
-        },
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [refresh]);
+type TMessageCardProps = {
+  data: TMessageWithUser;
+  user: User;
+};
 
-  const isSentByCurrentUser = data?.user_id.id === session?.user.id;
+export default function MessageCard({ data, user }: TMessageCardProps) {
+  const isSentByCurrentUser = data?.user_id.id === user.id;
 
   return (
     <div className={`flex ${isSentByCurrentUser ? "flex-row-reverse" : "flex-row"} my-4`}>
