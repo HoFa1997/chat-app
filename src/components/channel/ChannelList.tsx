@@ -19,7 +19,7 @@ export default async function ChannelList() {
           <UserInfoCard userData={user} />
         </div>
         <NewChannelModal userData={user} />
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto no-scrollbar">
           {channels?.map((item) => (
             <ChannelItem key={item.id} data={item} />
           ))}
