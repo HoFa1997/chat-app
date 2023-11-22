@@ -10,12 +10,14 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
+    "@hookform/resolvers": "^3.3.2",
     "@supabase/ssr": "^0.0.10",
     "@supabase/supabase-js": "^2.38.4",
     "classnames": "^2.3.2",
     "next": "^14.0.2-canary.26",
     "react": "^18",
     "react-dom": "^18",
+    "react-hook-form": "^7.48.2",
     "zustand": "^4.4.6"
   },
   "devDependencies": {
