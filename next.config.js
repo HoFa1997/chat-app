@@ -9,6 +9,26 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config) => {
+    config.module.rules = [
+      ...config.module.rules,
+      {
+        test: /\.svg$/,
+        issuer: { and: [/\.(tsx|ts)?$/] },
+        use: [
+          {
+            loader: "@svgr/webpack",
+            options: {
+              replaceAttrValues: {
+                "#415262": "currentColor",
+              },
+            },
+          },
+        ],
+      },
+    ];
+    return config;
+  },
 };
 
 module.exports = nextConfig;
