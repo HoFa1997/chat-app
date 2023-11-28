@@ -1,4 +1,5 @@
-import "@/styles/globals.css";
+import "@/styles/globals.scss";
+
 import { Metadata } from "next";
 import { GlobalProvider } from "@/shared/providers";
 import { cookies } from "next/headers";

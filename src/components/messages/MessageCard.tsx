@@ -3,6 +3,8 @@ import { TMessageWithUser } from "@/api";
 import { getColorFromClass } from "@/shared/utils";
 import { User } from "@supabase/supabase-js";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import DOMPurify from "dompurify";
 
 type TMessageCardProps = {
   data: TMessageWithUser;
@@ -10,6 +12,13 @@ type TMessageCardProps = {
 };
 
 export default function MessageCard({ data, user }: TMessageCardProps) {
+  const [htmlContent, setHtmlContent] = useState("");
+
+  useEffect(() => {
+    const sanitizedHtml = DOMPurify.sanitize(data.content);
+    setHtmlContent(sanitizedHtml);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <div className={"flex flex-row my-4 "}>
       <Image
@@ -23,7 +32,8 @@ export default function MessageCard({ data, user }: TMessageCardProps) {
         <p className={`text-xs`} style={{ color: getColorFromClass(data.user_id.username) }}>
           {data.user_id.username}
         </p>
-        <p className="text-base text-primary-text">{data.content}</p>
+        {/* <p className="text-base text-primary-text">{data.content}</p> */}
+        <div className="text-base text-primary-text" dangerouslySetInnerHTML={{ __html: htmlContent }}></div>
       </div>
     </div>
   );
