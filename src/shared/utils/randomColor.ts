@@ -1,14 +1,13 @@
 const hexColors = [
-  "#507DAF",
-  "#89CFF0",
-  "#6D83A3",
-  "#324A5E",
-  "#A3BAC3",
-  "#4A6583",
-  "#B0C4DE",
-  "#7B9EA8",
-  "#5F7D8E",
-  "#3E5A6F",
+  "#ffffff", // White text
+  "#000000", // Black text
+  "#FF5733", // A contrasting color
+  "#33FF57", // Another contrasting color
+  "#FFD700", // Gold/Yellow text
+  "#FF69B4", // Pink text
+  "#9400D3", // Purple text
+  "#00FF00", // Green text
+  // Add more colors as needed
 ];
 
 function stringToColorHash(inputString: string): number {

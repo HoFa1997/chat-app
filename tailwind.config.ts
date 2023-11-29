@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      borderRadius: {
+        tg: "20px",
+      },
       fontFamily: {
         sans: ["Roboto", "sans-serif"],
       },
@@ -15,7 +18,7 @@ const config: Config = {
         background: "#18222D",
         "primary-text": "#ECEFF1",
         "secondary-text": "#B0BEC5",
-        "accent-color": "#5294E2",
+        "accent-color": "#0088CC",
         "incoming-bubble": "#2C2F3A",
         "outgoing-bubble": "#4B5162",
         "menu-background": "#313740",

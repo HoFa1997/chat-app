@@ -38,3 +38,8 @@ export { default as H5Icon } from "./svg/h-5.svg";
 export { default as H6Icon } from "./svg/h-6.svg";
 export { default as ParagraphIcon } from "./svg/paragraph.svg";
 export { default as StrikeIcon } from "./svg/strikethrough.svg";
+export { default as DeleteIcon } from "./svg/delete-bin-6-line.svg";
+export { default as PinIcon } from "./svg/pushpin-line.svg";
+export { default as UnPinIcon } from "./svg/unpin-line.svg";
+export { default as ReplayIcon } from "./svg/reply-line.svg";
+export { default as ForwardIcon } from "./svg/share-forward-line.svg";
