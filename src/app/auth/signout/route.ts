@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
           cookieStore.set({ name, value: "", ...options });
         },
       },
-    }
+    },
   );
 
   // Check if we have a session

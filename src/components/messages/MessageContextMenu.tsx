@@ -1,4 +1,4 @@
-import { DeleteIcon, PinIcon, UnPinIcon, ReplayIcon, ForwardIcon } from "@/shared/assets";
+import { DeleteIcon, PinIcon, ReplayIcon, ForwardIcon } from "@/shared/assets";
 import { TUseContextMenu } from "@/shared/hooks";
 
 export const MessageContextMenu = ({ props: { menuRef, menuState, closeMenu } }: { props: TUseContextMenu }) => {

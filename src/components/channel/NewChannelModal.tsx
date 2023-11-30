@@ -1,7 +1,6 @@
 "use client";
 import { newChannel } from "@/api";
 import { User } from "@supabase/supabase-js";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 

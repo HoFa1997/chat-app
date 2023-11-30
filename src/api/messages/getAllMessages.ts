@@ -8,13 +8,13 @@ export const getAllMessages = async (channelId: string) =>
     .from("messages")
     .select("*, user_id(username,id,avatar_url)")
     .eq("channel_id", channelId)
-    .order("inserted_at", { ascending: true })
+    .order("created_at", { ascending: true })
     .returns<TMessageWithUser[]>()
     .throwOnError();
 
 export type TMessageWithUser = {
   id: string;
-  inserted_at: string;
+  created_at: string;
   updated_at: string;
   deleted_at?: any;
   edited_at?: any;

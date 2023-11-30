@@ -2,7 +2,7 @@
 import { supabaseClient } from "@/api/supabase";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useEditor, EditorContent } from "@tiptap/react";
 import Bold from "@tiptap/extension-bold";
@@ -82,7 +82,7 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
         user_id: user.id,
       })
       .select()
-      .then((res) => {
+      .then(() => {
         reset();
         setValue("content", "");
       });

@@ -3,7 +3,7 @@ import { TMessageWithUser } from "@/api";
 import { getColorFromClass } from "@/shared/utils";
 import { User } from "@supabase/supabase-js";
 import Image from "next/image";
-import { MouseEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import { useContextMenu } from "@/shared/hooks";
 import { MessageContextMenu } from "./MessageContextMenu";
@@ -13,7 +13,7 @@ type TMessageCardProps = {
   user: User;
 };
 
-export default function MessageCard({ data, user }: TMessageCardProps) {
+export default function MessageCard({ data }: TMessageCardProps) {
   const [htmlContent, setHtmlContent] = useState("");
 
   useEffect(() => {

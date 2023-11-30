@@ -19,5 +19,4 @@ export const useUserSession = () => useUserAuthState().session;
  * Sets the user session in the application state.
  * @param session The user session to be set.
  */
-export const setUserSession = (session: Session | null) =>
-  useUserAuthState.setState({ session });
+export const setUserSession = (session: Session | null) => useUserAuthState.setState({ session });
