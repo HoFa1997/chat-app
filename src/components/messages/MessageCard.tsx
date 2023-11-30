@@ -26,7 +26,7 @@ export default function MessageCard({ data }: TMessageCardProps) {
 
   return (
     <div
-      className={"inline-flex w-fit my-1 bg-accent-color rounded-tg px-2 py-2 "}
+      className={"my-1 inline-flex w-fit rounded-tg bg-accent-color px-2 py-2 "}
       onContextMenu={contextMenu.showMenu}
     >
       <Image
@@ -34,16 +34,30 @@ export default function MessageCard({ data }: TMessageCardProps) {
         width={40}
         height={40}
         alt="Avatar"
-        className="w-10 h-10 rounded-full mr-2"
+        className="mr-2 h-10 w-10 rounded-full"
       />
       <div className="flex flex-col items-start">
+        {data.reply_to_message_id && (
+          <div className="rounded-xl bg-gray-200 p-2">
+            <p className="text-sm" style={{ color: getColorFromClass(data.user_id.username) }}>
+              {data?.reply_to_message_id.user_id?.username}
+            </p>
+            <p className="text-base">{data?.replied_message_preview}</p>
+          </div>
+        )}
+        {/* {data.original_message_id && (
+          <div className="rounded-xl bg-gray-200 p-2">
+            <p className="text-sm">{data?.reply_to_message_id?.user_id}</p>
+            <p className="text-base">{JSON.stringify(data.metadata)}</p>
+          </div>
+        )} */}
         <p className={`text-xs`} style={{ color: getColorFromClass(data.user_id.username) }}>
           {data.user_id.username}
         </p>
         {/* <p className="text-base text-primary-text">{data.content}</p> */}
         <div className="text-base text-primary-text" dangerouslySetInnerHTML={{ __html: htmlContent }}></div>
       </div>
-      {contextMenu.menuState.visible && <MessageContextMenu props={contextMenu} />}
+      {contextMenu.menuState.visible && <MessageContextMenu props={contextMenu} messageData={data} />}
     </div>
   );
 }

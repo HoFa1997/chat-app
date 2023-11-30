@@ -1,17 +1,38 @@
+import { TMessageWithUser } from "@/api";
 import { DeleteIcon, PinIcon, ReplayIcon, ForwardIcon } from "@/shared/assets";
-import { TUseContextMenu } from "@/shared/hooks";
+import { TUseContextMenu, setForwardMessage, setReplayMessage } from "@/shared/hooks";
 
-export const MessageContextMenu = ({ props: { menuRef, menuState, closeMenu } }: { props: TUseContextMenu }) => {
+export const MessageContextMenu = ({
+  props: { menuRef, menuState, closeMenu },
+  messageData,
+}: {
+  props: TUseContextMenu;
+  messageData: TMessageWithUser;
+}) => {
+  const handelReplayMessage = () => {
+    if (messageData) {
+      setReplayMessage(messageData);
+      closeMenu();
+    }
+  };
+
+  const handelForwardMessage = () => {
+    if (messageData) {
+      setForwardMessage(messageData);
+      closeMenu();
+    }
+  };
+
   const messageButtonList = [
     {
       title: "Replay",
       icon: <ReplayIcon />,
-      onClickFn: () => closeMenu(),
+      onClickFn: handelReplayMessage,
     },
     {
       title: "Forward",
       icon: <ForwardIcon />,
-      onClickFn: () => closeMenu(),
+      onClickFn: handelForwardMessage,
     },
     {
       title: "Pin",
@@ -28,16 +49,16 @@ export const MessageContextMenu = ({ props: { menuRef, menuState, closeMenu } }:
   return (
     <div
       ref={menuRef}
-      className="absolute bg-white shadow-md rounded flex flex-col justify-start items-start overflow-hidden"
+      className="absolute flex flex-col items-start justify-start overflow-hidden rounded bg-white shadow-md"
       style={{ top: `${menuState.y}px`, left: `${menuState.x}px` }}
     >
       {messageButtonList.map((item) => (
         <div
-          className="px-2 py-1 flex w-full flex-row justify-start items-center cursor-pointer hover:bg-gray-200"
+          className="flex w-full cursor-pointer flex-row items-center justify-start px-2 py-1 hover:bg-gray-200"
           key={item.title}
           onClick={item.onClickFn}
         >
-          <div className="flex justify-center items-center pr-2">{item.icon}</div>
+          <div className="flex items-center justify-center pr-2">{item.icon}</div>
           {item.title}
         </div>
       ))}

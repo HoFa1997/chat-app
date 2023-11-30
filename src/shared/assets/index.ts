@@ -43,3 +43,4 @@ export { default as PinIcon } from "./svg/pushpin-line.svg";
 export { default as UnPinIcon } from "./svg/unpin-line.svg";
 export { default as ReplayIcon } from "./svg/reply-line.svg";
 export { default as ForwardIcon } from "./svg/share-forward-line.svg";
+export { default as CloseIcon } from "./svg/close-line.svg";

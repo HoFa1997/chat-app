@@ -13,7 +13,7 @@ export default async function ChannelList() {
 
   return (
     user && (
-      <div className="w-1/3 bg-menu-background text-gray-100 flex flex-col">
+      <div className="max-w-sm bg-menu-background text-gray-100 flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <div className="text-lg font-medium">Chats</div>
           <UserInfoCard userData={user} />

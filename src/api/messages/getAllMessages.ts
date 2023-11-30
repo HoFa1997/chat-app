@@ -6,7 +6,7 @@ export type TMessage = Database["public"]["Tables"]["messages"]["Row"];
 export const getAllMessages = async (channelId: string) =>
   await supabaseClient
     .from("messages")
-    .select("*, user_id(username,id,avatar_url)")
+    .select("*, user_id( username , id , avatar_url ), reply_to_message_id( user_id( username ))")
     .eq("channel_id", channelId)
     .order("created_at", { ascending: true })
     .returns<TMessageWithUser[]>()
@@ -29,7 +29,11 @@ export type TMessageWithUser = {
   reactions?: any;
   type?: any;
   metadata?: any;
-  reply_to_message_id?: any;
+  reply_to_message_id?: {
+    user_id: {
+      username: string;
+    };
+  };
   replied_message_preview?: any;
   original_message_id?: any;
 };
