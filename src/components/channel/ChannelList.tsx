@@ -3,26 +3,23 @@ import { ChannelItem } from "./ChannelItem";
 import NewChannelModal from "./NewChannelModal";
 import { cookies } from "next/headers";
 import { UserInfoCard } from "./UserInfoCard";
+import { Box, List } from "@mui/material";
 
 export default async function ChannelList() {
   const cookieStore = cookies();
   const {
     data: { user },
   } = await getUser(cookieStore);
+
   const { data: channels } = await getAllChannels();
 
+  if (!user) return null;
+
   return (
-    user && (
-      <div className="max-w-sm bg-menu-background text-gray-100 flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <div className="text-lg font-medium">Chats</div>
-          <UserInfoCard userData={user} />
-        </div>
-        <NewChannelModal userData={user} />
-        <div className="flex-1 overflow-y-auto no-scrollbar">
-          {channels?.map((item) => <ChannelItem key={item.id} data={item} />)}
-        </div>
-      </div>
-    )
+    <Box px={1} sx={{ display: "flex", flexDirection: "column", width: "25%" }}>
+      <UserInfoCard userData={user} />
+      <NewChannelModal userData={user} />
+      <List>{channels?.map((item) => <ChannelItem key={item.id} data={item} />)}</List>
+    </Box>
   );
 }

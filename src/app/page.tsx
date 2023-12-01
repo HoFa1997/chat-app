@@ -1,9 +1,10 @@
 import { ChatContainer } from "@/components/chat";
+import { Box } from "@mui/material";
 
 export default function ChatPage() {
   return (
-    <div className="flex w-screen">
+    <Box bgcolor={"red"} display={"flex"} width={"100%"}>
       <ChatContainer />
-    </div>
+    </Box>
   );
 }

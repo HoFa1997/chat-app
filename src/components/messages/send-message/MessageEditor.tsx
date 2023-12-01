@@ -1,21 +1,14 @@
-import {
-  BoldIcon,
-  ItalicIcon,
-  OrderedListIcon,
-  BulletListIcon,
-  ParagraphIcon,
-  CodeIcon,
-  StrikeIcon,
-  H1Icon,
-  H2Icon,
-  H3Icon,
-  H4Icon,
-  H5Icon,
-  H6Icon,
-  QuotesIcon,
-  UndoIcon,
-  RedoIcon,
-} from "@/shared/assets";
+import BoldIcon from "@mui/icons-material/FormatBoldRounded";
+import ItalicIcon from "@mui/icons-material/FormatItalicRounded";
+import OrderedListIcon from "@mui/icons-material/FormatListNumberedRounded";
+import BulletListIcon from "@mui/icons-material/FormatListBulletedRounded";
+import ParagraphIcon from "@mui/icons-material/FormatTextdirectionLToRRounded";
+import CodeIcon from "@mui/icons-material/CodeRounded";
+import StrikeIcon from "@mui/icons-material/StrikethroughSRounded";
+import QuotesIcon from "@mui/icons-material/FormatQuoteRounded";
+import UndoIcon from "@mui/icons-material/UndoRounded";
+import RedoIcon from "@mui/icons-material/RedoRounded";
+
 import { Editor } from "@tiptap/react";
 
 export const MessageEditor = ({ editor }: { editor: Editor }) => {
@@ -47,42 +40,6 @@ export const MessageEditor = ({ editor }: { editor: Editor }) => {
         className={editor.isActive("paragraph") ? "is-active" : ""}
       >
         <ParagraphIcon />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        className={editor.isActive("heading", { level: 1 }) ? "is-active" : ""}
-      >
-        <H1Icon />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={editor.isActive("heading", { level: 2 }) ? "is-active" : ""}
-      >
-        <H2Icon />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        className={editor.isActive("heading", { level: 3 }) ? "is-active" : ""}
-      >
-        <H3Icon />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
-        className={editor.isActive("heading", { level: 4 }) ? "is-active" : ""}
-      >
-        <H4Icon />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleHeading({ level: 5 }).run()}
-        className={editor.isActive("heading", { level: 5 }) ? "is-active" : ""}
-      >
-        <H5Icon />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().toggleHeading({ level: 6 }).run()}
-        className={editor.isActive("heading", { level: 6 }) ? "is-active" : ""}
-      >
-        <H6Icon />
       </button>
       <button
         onClick={() => editor.chain().focus().toggleBulletList().run()}

@@ -1,3 +1,9 @@
+import { Box } from "@mui/material";
+
 export const ChatContainer = () => {
-  return <div className="flex bg-gray-200 h-full grow">Select Chat Room</div>;
+  return (
+    <Box display={"flex"} bgcolor={"gray"} flexGrow={1}>
+      Select Chat Room
+    </Box>
+  );
 };

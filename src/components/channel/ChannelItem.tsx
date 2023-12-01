@@ -1,12 +1,12 @@
 "use client";
-import Link from "next/link";
 import { TChannel } from "@/api";
 import { useEffect } from "react";
 import { supabaseClient } from "@/api/supabase";
 import { useRouter } from "next/navigation";
-
+import { Avatar, Box, ListItem, ListItemAvatar, ListItemText, Typography } from "@mui/material";
+import ImageIcon from "@mui/icons-material/Image";
 export const ChannelItem = ({ data }: { data: TChannel }) => {
-  const { refresh } = useRouter();
+  const { refresh, push } = useRouter();
 
   useEffect(() => {
     const channel = supabaseClient
@@ -30,19 +30,41 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
   }, [refresh]);
 
   return (
-    <Link href={`/${data.id}`}>
-      <div className="p-4 hover:bg-gray-700 cursor-pointer flex flex-row">
-        <div className="flex flex-col justify-start w-1/2">
-          <div className="text-sm font-medium">{data.slug}</div>
-          <div className="text-sm text-gray-400 truncate">{data.last_message_preview ?? "No message"}</div>
-        </div>
-        <div className="flex flex-col justify-end items-end w-1/2">
-          <p className="text-xs text-gray-400">{new Date(data.last_activity_at).toLocaleDateString()}</p>
-          <p className="text-xs text-gray-400">
-            {new Date(data.last_activity_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </p>
-        </div>
-      </div>
-    </Link>
+    <ListItem
+      sx={{ ":hover": { cursor: "pointer", bgcolor: (t) => t.palette.grey[700] } }}
+      disablePadding
+      onClick={() => push(`/${data.id}`)}
+    >
+      <ListItemAvatar>
+        <Avatar>
+          <ImageIcon />
+        </Avatar>
+      </ListItemAvatar>
+      <ListItemText
+        primary={
+          <Box display={"flex"} flexDirection={"row"} justifyContent={"space-between"} alignItems={"center"}>
+            <Typography>{data.slug}</Typography>
+            <Typography>{new Date(data.last_activity_at).toLocaleDateString()}</Typography>
+          </Box>
+        }
+        secondary={
+          <Box display={"flex"} flexDirection={"row"} justifyContent={"space-between"} alignItems={"center"}>
+            <Typography
+              sx={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                maxWidth: "200px",
+              }}
+            >
+              {data.last_message_preview ?? "No message"}
+            </Typography>
+            <Typography>
+              {new Date(data.last_activity_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </Typography>
+          </Box>
+        }
+      />
+    </ListItem>
   );
 };

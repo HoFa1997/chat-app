@@ -17,14 +17,5 @@ export default function LoginForm() {
     });
   };
 
-  return (
-    <div className="w-full flex flex-col items-center justify-center min-h-screen bg-gray-50">
-      <button
-        className={`${"bg-blue-500 hover:bg-blue-700"} text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
-        onClick={() => handleOAuthLogin("google")}
-      >
-        Sign in with Google
-      </button>
-    </div>
-  );
+  return <button onClick={() => handleOAuthLogin("google")}>Sign in with Google</button>;
 }

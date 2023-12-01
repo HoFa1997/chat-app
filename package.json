@@ -11,8 +11,11 @@
     "type-check": "tsc --pretty --noEmit"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.17",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@hookform/resolvers": "^3.3.2",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.19",
     "@supabase/ssr": "^0.0.10",
     "@supabase/supabase-js": "^2.38.4",
     "@tiptap/extension-bold": "^2.1.12",
@@ -22,17 +25,14 @@
     "@tiptap/pm": "^2.1.12",
     "@tiptap/react": "^2.1.12",
     "@tiptap/starter-kit": "^2.1.12",
-    "classnames": "^2.3.2",
     "dompurify": "^3.0.6",
     "next": "^14.0.2-canary.26",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.48.2",
-    "sass": "^1.69.5",
     "zustand": "^4.4.6"
   },
   "devDependencies": {
-    "@svgr/webpack": "^8.1.0",
     "@types/dompurify": "^3.0.5",
     "@types/node": "^20",
     "@types/react": "^18",
@@ -45,11 +45,8 @@
     "eslint-plugin-prettier": "^5.0.1",
     "husky": "^8.0.3",
     "lint-staged": "^15.1.0",
-    "postcss": "^8",
     "prettier": "^3.1.0",
-    "prettier-plugin-tailwindcss": "^0.5.7",
     "supabase": "^1.106.1",
-    "tailwindcss": "^3",
     "typescript": "^5"
   }
 }

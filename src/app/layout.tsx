@@ -1,9 +1,9 @@
-import "@/styles/globals.scss";
-
 import { Metadata } from "next";
-import { GlobalProvider } from "@/shared/providers";
 import { cookies } from "next/headers";
 import { supabaseServer } from "@/api/supabase";
+import ThemeRegistry from "@/components/theme-registry/ThemeRegistry";
+import ChannelList from "@/components/channel/ChannelList";
+import { Box } from "@mui/material";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -20,8 +20,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en">
-      <body className="flex h-screen">
-        <GlobalProvider session={session}>{children}</GlobalProvider>
+      <body>
+        <ThemeRegistry session={session}>
+          <Box sx={{ display: "flex", flexDirection: "row", height: "100vh" }}>
+            {session && <ChannelList />}
+            {children}
+          </Box>
+        </ThemeRegistry>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
-import { CloseIcon, ReplayIcon } from "@/shared/assets";
 import { setReplayMessage, useReplayMessageInfo } from "@/shared/hooks";
-
+import CloseIcon from "@mui/icons-material/CloseRounded";
+import ReplayIcon from "@mui/icons-material/ReplyRounded";
 export const ReplayMessage = () => {
   const replayedMessage = useReplayMessageInfo();
 

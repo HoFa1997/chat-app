@@ -1,6 +1,11 @@
+import React from "react";
 import { TMessageWithUser } from "@/api";
-import { DeleteIcon, PinIcon, ReplayIcon, ForwardIcon } from "@/shared/assets";
 import { TUseContextMenu, setForwardMessage, setReplayMessage } from "@/shared/hooks";
+import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/DeleteRounded";
+import PinIcon from "@mui/icons-material/PushPinRounded";
+import ReplayIcon from "@mui/icons-material/ReplyRounded";
+import ForwardIcon from "@mui/icons-material/ForwardRounded";
 
 export const MessageContextMenu = ({
   props: { menuRef, menuState, closeMenu },
@@ -9,14 +14,14 @@ export const MessageContextMenu = ({
   props: TUseContextMenu;
   messageData: TMessageWithUser;
 }) => {
-  const handelReplayMessage = () => {
+  const handleReplayMessage = () => {
     if (messageData) {
       setReplayMessage(messageData);
       closeMenu();
     }
   };
 
-  const handelForwardMessage = () => {
+  const handleForwardMessage = () => {
     if (messageData) {
       setForwardMessage(messageData);
       closeMenu();
@@ -24,44 +29,26 @@ export const MessageContextMenu = ({
   };
 
   const messageButtonList = [
-    {
-      title: "Replay",
-      icon: <ReplayIcon />,
-      onClickFn: handelReplayMessage,
-    },
-    {
-      title: "Forward",
-      icon: <ForwardIcon />,
-      onClickFn: handelForwardMessage,
-    },
-    {
-      title: "Pin",
-      icon: <PinIcon />,
-      onClickFn: () => closeMenu(),
-    },
-    {
-      title: "Delete",
-      icon: <DeleteIcon />,
-      onClickFn: () => closeMenu(),
-    },
+    { title: "Replay", icon: <ReplayIcon />, onClickFn: handleReplayMessage },
+    { title: "Forward", icon: <ForwardIcon />, onClickFn: handleForwardMessage },
+    { title: "Pin", icon: <PinIcon />, onClickFn: () => closeMenu() },
+    { title: "Delete", icon: <DeleteIcon />, onClickFn: () => closeMenu() },
   ];
 
   return (
-    <div
+    <Menu
       ref={menuRef}
-      className="absolute flex flex-col items-start justify-start overflow-hidden rounded bg-white shadow-md"
-      style={{ top: `${menuState.y}px`, left: `${menuState.x}px` }}
+      open={menuState.visible}
+      onClose={closeMenu}
+      anchorReference="anchorPosition"
+      anchorPosition={{ top: menuState.y, left: menuState.x }}
     >
       {messageButtonList.map((item) => (
-        <div
-          className="flex w-full cursor-pointer flex-row items-center justify-start px-2 py-1 hover:bg-gray-200"
-          key={item.title}
-          onClick={item.onClickFn}
-        >
-          <div className="flex items-center justify-center pr-2">{item.icon}</div>
-          {item.title}
-        </div>
+        <MenuItem key={item.title} onClick={item.onClickFn}>
+          <ListItemIcon>{item.icon}</ListItemIcon>
+          <ListItemText primary={item.title} />
+        </MenuItem>
       ))}
-    </div>
+    </Menu>
   );
 };
