@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { supabaseServer } from "@/api/supabase";
 import ThemeRegistry from "@/components/theme-registry/ThemeRegistry";
 import ChannelList from "@/components/channel/ChannelList";
-import { Box } from "@mui/material";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -22,10 +21,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en">
       <body>
         <ThemeRegistry session={session}>
-          <Box sx={{ display: "flex", flexDirection: "row", height: "100vh" }}>
+          <div style={{ display: "flex", flexDirection: "row", height: "100vh" }}>
             {session && <ChannelList />}
             {children}
-          </Box>
+          </div>
         </ThemeRegistry>
       </body>
     </html>

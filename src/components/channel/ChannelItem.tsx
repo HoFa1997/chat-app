@@ -3,8 +3,9 @@ import { TChannel } from "@/api";
 import { useEffect } from "react";
 import { supabaseClient } from "@/api/supabase";
 import { useRouter } from "next/navigation";
-import { Avatar, Box, ListItem, ListItemAvatar, ListItemText, Typography } from "@mui/material";
+import { Avatar, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
+import React from "react";
 export const ChannelItem = ({ data }: { data: TChannel }) => {
   const { refresh, push } = useRouter();
 
@@ -31,9 +32,9 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
 
   return (
     <ListItem
-      sx={{ ":hover": { cursor: "pointer", bgcolor: (t) => t.palette.grey[700] } }}
-      disablePadding
       onClick={() => push(`/${data.id}`)}
+      alignItems="flex-start"
+      sx={{ ":hover": { cursor: "pointer", bgcolor: (t) => t.palette.grey[700] } }}
     >
       <ListItemAvatar>
         <Avatar>
@@ -41,28 +42,14 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
         </Avatar>
       </ListItemAvatar>
       <ListItemText
-        primary={
-          <Box display={"flex"} flexDirection={"row"} justifyContent={"space-between"} alignItems={"center"}>
-            <Typography>{data.slug}</Typography>
-            <Typography>{new Date(data.last_activity_at).toLocaleDateString()}</Typography>
-          </Box>
-        }
+        primary={data.slug}
         secondary={
-          <Box display={"flex"} flexDirection={"row"} justifyContent={"space-between"} alignItems={"center"}>
-            <Typography
-              sx={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                maxWidth: "100px",
-              }}
-            >
-              {data.last_message_preview ?? "No message"}
-            </Typography>
-            <Typography>
-              {new Date(data.last_activity_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-            </Typography>
-          </Box>
+          <React.Fragment>
+            {/* <Typography sx={{ display: "inline" }} component="span" variant="body2" color="text.primary">
+              Ali Connors
+            </Typography> */}
+            {data.last_message_preview ?? "No message"}
+          </React.Fragment>
         }
       />
     </ListItem>
