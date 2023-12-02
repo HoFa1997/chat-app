@@ -1,4 +1,4 @@
-import { getAllMessages, getUser } from "@/api";
+import { getAllChannels, getAllMessages, getUser } from "@/api";
 import MessageCard from "./MessageCard";
 import { cookies } from "next/headers";
 import SendMessage from "./send-message/SendMessage";
@@ -6,6 +6,7 @@ import { Box, CircularProgress } from "@mui/material";
 
 export default async function MessageContainer({ channelId }: { channelId: string }) {
   const { data: messages } = await getAllMessages(channelId);
+  const { data: channels } = await getAllChannels();
   const cookieStore = cookies();
 
   const {
@@ -13,7 +14,7 @@ export default async function MessageContainer({ channelId }: { channelId: strin
     error,
   } = await getUser(cookieStore);
 
-  if (!user) {
+  if (!user || !channels) {
     return <CircularProgress />;
   }
 
@@ -25,7 +26,7 @@ export default async function MessageContainer({ channelId }: { channelId: strin
       <Box sx={{ display: "flex", flexDirection: "column", overflowY: "auto" }}>
         {messages?.map((item) => <MessageCard key={item.id} data={item} user={user} />)}
       </Box>
-      <SendMessage channelId={channelId} user={user} />
+      <SendMessage channelId={channelId} user={user} channels={channels} />
     </Box>
   );
 }

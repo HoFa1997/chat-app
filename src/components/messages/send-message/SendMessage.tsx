@@ -18,15 +18,17 @@ import { ReplayMessage } from "./ReplayMessage";
 import { useForwardMessageInfo, useReplayMessageInfo } from "@/shared/hooks";
 import { ForwardMessage } from "./ForwardMessage";
 import { Box, IconButton } from "@mui/material";
+import { TChannel } from "@/api";
 
 type SendMessageProps = {
   channelId: string;
   user: User;
+  channels: TChannel[];
 };
 
 type FromData = { content: string };
 
-export default function SendMessage({ channelId, user }: SendMessageProps) {
+export default function SendMessage({ channelId, user, channels }: SendMessageProps) {
   const { refresh } = useRouter();
   const replayedMessage = useReplayMessageInfo();
   const forwardedMessage = useForwardMessageInfo();
@@ -119,7 +121,7 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
       }}
     >
       <ReplayMessage />
-      <ForwardMessage />
+      <ForwardMessage channels={channels} user={user} />
       <MessageEditor editor={editor} />
       <Box
         component={"form"}

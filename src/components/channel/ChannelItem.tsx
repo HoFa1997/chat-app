@@ -54,7 +54,7 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
-                maxWidth: "200px",
+                maxWidth: "100px",
               }}
             >
               {data.last_message_preview ?? "No message"}
