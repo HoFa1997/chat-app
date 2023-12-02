@@ -16,7 +16,15 @@ export default async function ChannelList() {
   if (!user) return null;
 
   return (
-    <Box px={1} sx={{ display: "flex", flexDirection: "column", width: "25%" }}>
+    <Box
+      px={1}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        width: "25%",
+        overflow: "auto",
+      }}
+    >
       <UserInfoCard userData={user} />
       <NewChannelModal userData={user} />
       <List>{channels?.map((item) => <ChannelItem key={item.id} data={item} />)}</List>

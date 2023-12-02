@@ -21,7 +21,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en">
       <body>
         <ThemeRegistry session={session}>
-          <div style={{ display: "flex", flexDirection: "row", height: "100vh" }}>
+          <div style={{ display: "flex", flexDirection: "row", maxHeight: "100vh" }}>
             {session && <ChannelList />}
             {children}
           </div>

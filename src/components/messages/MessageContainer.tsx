@@ -22,8 +22,8 @@ export default async function MessageContainer({ channelId }: { channelId: strin
     return <Box>Error loading messages...</Box>;
   }
   return (
-    <Box sx={{ width: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", pt: 2 }}>
-      <Box sx={{ display: "flex", flexDirection: "column", overflowY: "auto" }}>
+    <Box sx={{ width: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <Box sx={{ display: "flex", flexDirection: "column", overflowY: "auto", scrollbarWidth: "none" }}>
         {messages?.map((item) => <MessageCard key={item.id} data={item} user={user} />)}
       </Box>
       <SendMessage channelId={channelId} user={user} channels={channels} />

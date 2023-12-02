@@ -32,6 +32,7 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
 
   return (
     <ListItem
+      disablePadding
       onClick={() => push(`/${data.id}`)}
       alignItems="flex-start"
       sx={{ ":hover": { cursor: "pointer", bgcolor: (t) => t.palette.grey[700] } }}
