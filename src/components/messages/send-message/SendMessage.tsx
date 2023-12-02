@@ -17,6 +17,7 @@ import { MessageEditor } from "./MessageEditor";
 import { ReplayMessage } from "./ReplayMessage";
 import { useForwardMessageInfo, useReplayMessageInfo } from "@/shared/hooks";
 import { ForwardMessage } from "./ForwardMessage";
+import { Box, IconButton } from "@mui/material";
 
 type SendMessageProps = {
   channelId: string;
@@ -107,27 +108,41 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
   if (!editor) return null;
 
   return (
-    <div className="flex flex-col items-center justify-between  border-l-[1px] border-background">
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "space-between",
+        borderLeft: "1px solid",
+        borderColor: "background.default",
+      }}
+    >
       <ReplayMessage />
       <ForwardMessage />
       <MessageEditor editor={editor} />
-      <form
+      <Box
+        component={"form"}
         onSubmit={handleSubmit(submit)}
-        className="flex w-full flex-row items-end bg-menu-background px-2 pb-1 text-primary-text"
+        sx={{
+          display: "flex",
+          width: "100%",
+          flexDirection: "row",
+          alignItems: "flex-end",
+          backgroundColor: "menu-background",
+          color: "primary-text",
+        }}
       >
-        <button>
-          <AttachmentIcon className="h-7 w-7 transition-all hover:fill-background" />
-        </button>
+        <IconButton>
+          <AttachmentIcon />
+        </IconButton>
 
-        <EditorContent
-          className="flex max-h-[150px] min-h-[35px] grow flex-col items-start justify-end overflow-auto px-2"
-          editor={editor}
-        />
+        <EditorContent style={{ flex: "1", maxHeight: "150px", minHeight: "35px", overflow: "auto" }} editor={editor} />
 
-        <button type="submit">
-          <SendIcon className="h-7 w-7 transition-all hover:fill-background" />
-        </button>
-      </form>
-    </div>
+        <IconButton type="submit">
+          <SendIcon />
+        </IconButton>
+      </Box>
+    </Box>
   );
 }

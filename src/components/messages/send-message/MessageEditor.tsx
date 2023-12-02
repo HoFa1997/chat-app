@@ -2,7 +2,6 @@ import BoldIcon from "@mui/icons-material/FormatBoldRounded";
 import ItalicIcon from "@mui/icons-material/FormatItalicRounded";
 import OrderedListIcon from "@mui/icons-material/FormatListNumberedRounded";
 import BulletListIcon from "@mui/icons-material/FormatListBulletedRounded";
-import ParagraphIcon from "@mui/icons-material/FormatTextdirectionLToRRounded";
 import CodeIcon from "@mui/icons-material/CodeRounded";
 import StrikeIcon from "@mui/icons-material/StrikethroughSRounded";
 import QuotesIcon from "@mui/icons-material/FormatQuoteRounded";
@@ -10,67 +9,82 @@ import UndoIcon from "@mui/icons-material/UndoRounded";
 import RedoIcon from "@mui/icons-material/RedoRounded";
 
 import { Editor } from "@tiptap/react";
+import { Box, IconButton } from "@mui/material";
 
 export const MessageEditor = ({ editor }: { editor: Editor }) => {
   return (
-    <div className="bg-menu-background text-primary-text flex flex-row w-full justify-start items-center grow gap-2 py-1 pl-2">
-      <button
+    <Box
+      sx={{
+        bgcolor: "menuBackground",
+        color: "primaryText",
+        display: "flex",
+        flexDirection: "row",
+        width: "100%",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        flexGrow: 1,
+        gap: 2,
+        py: 1,
+        pl: 2,
+      }}
+    >
+      <IconButton
         onClick={() => editor.chain().focus().toggleBold().run()}
         disabled={!editor.can().chain().focus().toggleBold().run()}
-        className={editor.isActive("bold") ? "is-active" : ""}
+        sx={{ bgcolor: (t) => (editor.isActive("bold") ? t.palette.grey[500] : "") }}
       >
         <BoldIcon />
-      </button>
-      <button
+      </IconButton>
+      <IconButton
         onClick={() => editor.chain().focus().toggleItalic().run()}
         disabled={!editor.can().chain().focus().toggleItalic().run()}
-        className={editor.isActive("italic") ? "is-active" : ""}
+        sx={{ bgcolor: (t) => (editor.isActive("italic") ? t.palette.grey[500] : "") }}
       >
         <ItalicIcon />
-      </button>
-      <button
+      </IconButton>
+      <IconButton
         onClick={() => editor.chain().focus().toggleStrike().run()}
         disabled={!editor.can().chain().focus().toggleStrike().run()}
-        className={editor.isActive("strike") ? "is-active" : ""}
+        sx={{ bgcolor: (t) => (editor.isActive("strike") ? t.palette.grey[500] : "") }}
       >
         <StrikeIcon />
-      </button>
-      <button
-        onClick={() => editor.chain().focus().setParagraph().run()}
-        className={editor.isActive("paragraph") ? "is-active" : ""}
-      >
-        <ParagraphIcon />
-      </button>
-      <button
+      </IconButton>
+      <IconButton
         onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={editor.isActive("bulletList") ? "is-active" : ""}
+        sx={{ bgcolor: (t) => (editor.isActive("bulletList") ? t.palette.grey[500] : "") }}
       >
         <BulletListIcon />
-      </button>
-      <button
+      </IconButton>
+      <IconButton
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        className={editor.isActive("orderedList") ? "is-active" : ""}
+        sx={{ bgcolor: (t) => (editor.isActive("orderedList") ? t.palette.grey[500] : "") }}
       >
         <OrderedListIcon />
-      </button>
-      <button
+      </IconButton>
+      <IconButton
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        className={editor.isActive("codeBlock") ? "is-active" : ""}
+        sx={{ bgcolor: (t) => (editor.isActive("codeBlock") ? t.palette.grey[500] : "") }}
       >
         <CodeIcon />
-      </button>
-      <button
+      </IconButton>
+      <IconButton
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        className={editor.isActive("blockquote") ? "is-active" : ""}
+        sx={{ bgcolor: (t) => (editor.isActive("blockquote") ? t.palette.grey[500] : "") }}
       >
         <QuotesIcon />
-      </button>
-      <button onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().chain().focus().undo().run()}>
+      </IconButton>
+      <IconButton
+        onClick={() => editor.chain().focus().undo().run()}
+        disabled={!editor.can().chain().focus().undo().run()}
+      >
         <UndoIcon />
-      </button>
-      <button onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().chain().focus().redo().run()}>
+      </IconButton>
+      <IconButton
+        onClick={() => editor.chain().focus().redo().run()}
+        disabled={!editor.can().chain().focus().redo().run()}
+      >
         <RedoIcon />
-      </button>
-    </div>
+      </IconButton>
+    </Box>
   );
 };

@@ -9,16 +9,16 @@ type NewChannelModalProps = {
   userData: User;
 };
 
-type FormData = { channelSlug: string };
+type FormData = { channelSlug: string; name: string };
 
 export default function NewChannelModal({ userData: user }: NewChannelModalProps) {
   const { handleSubmit, register, watch, reset } = useForm<FormData>({ mode: "onBlur" });
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const submit: SubmitHandler<FormData> = async ({ channelSlug }) => {
+  const submit: SubmitHandler<FormData> = async ({ channelSlug, name }) => {
     setLoading(true);
-    await newChannel(user.id, channelSlug).then((res) => {
+    await newChannel(user.id, channelSlug, name).then((res) => {
       if (res) {
         reset();
         setLoading(false);
@@ -46,6 +46,16 @@ export default function NewChannelModal({ userData: user }: NewChannelModalProps
               margin="dense"
               id="channelSlug"
               label="Chat Room Name"
+              type="text"
+              fullWidth
+              variant="outlined"
+              {...register("name")}
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              id="channelSlug"
+              label="Chat Room Slug"
               type="text"
               fullWidth
               variant="outlined"
