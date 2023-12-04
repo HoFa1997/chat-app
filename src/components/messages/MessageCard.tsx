@@ -15,14 +15,14 @@ type TMessageCardProps = {
   user: User;
 };
 
-export default function MessageCard({ data, user }: TMessageCardProps) {
+function MessageCard({ data, user }: TMessageCardProps, ref) {
   const [htmlContent, setHtmlContent] = useState("");
   const contextMenu = useContextMenu();
 
   useEffect(() => {
-    const sanitizedHtml = DOMPurify.sanitize(data.content);
+    const sanitizedHtml = DOMPurify.sanitize(data.html);
     setHtmlContent(sanitizedHtml);
-  }, [data.content]);
+  }, [data.html]);
 
   const userMessageStyle =
     data.user_id.id == user.id
@@ -51,7 +51,7 @@ export default function MessageCard({ data, user }: TMessageCardProps) {
   };
 
   return (
-    <Box onContextMenu={contextMenu.showMenu} sx={{ ...userMessageStyle }}>
+    <Box onContextMenu={contextMenu.showMenu} sx={{ ...userMessageStyle }} ref={ref}>
       <Avatar
         src={data?.user_id?.avatar_url ?? "https://avatars.dicebear.com/api/avataaars/1.svg"}
         sx={{ width: 40, height: 40, mr: 2 }}
@@ -64,7 +64,7 @@ export default function MessageCard({ data, user }: TMessageCardProps) {
               <Typography
                 variant="body2"
                 color="text.secondary"
-                sx={{ color: getColorFromClass(data.user_id.username) }}
+                // sx={{ color: getColorFromClass(data.user_id.username) }}
               >
                 {data?.reply_to_message_id.user_id?.username}
               </Typography>
@@ -72,7 +72,10 @@ export default function MessageCard({ data, user }: TMessageCardProps) {
             </CardContent>
           </Card>
         )}
-        <Typography variant="caption" sx={{ color: getColorFromClass(data.user_id.username) }}>
+        <Typography
+          variant="caption"
+          // sx={{ color: getColorFromClass(data.user_id.username) }}
+        >
           {data.user_id.username}
         </Typography>
         <Box sx={{ typography: "body1", color: "text.primary" }} dangerouslySetInnerHTML={{ __html: htmlContent }} />
@@ -115,3 +118,5 @@ export default function MessageCard({ data, user }: TMessageCardProps) {
     </Box>
   );
 }
+
+export default React.forwardRef(MessageCard);

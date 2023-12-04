@@ -2,7 +2,7 @@
 import { supabaseClient } from "@/api/supabase";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import Bold from "@tiptap/extension-bold";
 import Document from "@tiptap/extension-document";
@@ -29,7 +29,8 @@ export default function SendMessage({ channelId, user, channels }: SendMessagePr
   const { refresh } = useRouter();
   const replayedMessage = useReplayMessageInfo();
   const forwardedMessage = useForwardMessageInfo();
-  const [content, setContent] = useState<string>("");
+  const [html, setHtml] = useState("");
+  const [text, setText] = useState("");
 
   const editor = useEditor({
     extensions: [
@@ -48,52 +49,35 @@ export default function SendMessage({ channelId, user, channels }: SendMessagePr
         showOnlyWhenEditable: false,
       }),
     ],
-    content,
     onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      setContent(html);
+      setHtml(editor?.getHTML());
+      setText(editor?.getText());
     },
     editable: true,
   });
 
-  const submit = async () => {
-    const div = document.createElement("div");
-    div.innerHTML = content;
+  const submit = useCallback(async () => {
+    if (!html || !text) return;
 
     await supabaseClient
       .from("messages")
       .insert({
-        content: div.innerText,
+        content: text,
         channel_id: channelId,
         user_id: user.id,
-        html: content,
+        html,
         reply_to_message_id: replayedMessage?.id,
         original_message_id: forwardedMessage?.id,
       })
       .select()
       .then(() => {
-        editor?.destroy();
+        console.log("destroying editor");
+        // remove editor content
+        editor.commands.clearContent(true);
+
+        // editor?.destroy();
       });
-  };
-
-  useEffect(() => {
-    const channel = supabaseClient
-      .channel("realtime_messages")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "messages",
-        },
-        () => refresh(),
-      )
-      .subscribe();
-
-    return () => {
-      supabaseClient.removeChannel(channel);
-    };
-  }, [refresh]);
+  }, [user, text, html]);
 
   if (!editor) return null;
 
@@ -109,10 +93,10 @@ export default function SendMessage({ channelId, user, channels }: SendMessagePr
       }}
     >
       <ReplayMessage />
-      <ForwardMessage channels={channels} user={user} />
+      {/* <ForwardMessage channels={channels} user={user} /> */}
       <MessageEditor editor={editor} />
       <Box
-        onKeyDown={(e) => e.key === "Enter" && e.metaKey && submit()}
+        onKeyDown={(e) => e.key === "Enter" && submit()}
         sx={{
           display: "flex",
           width: "100%",
@@ -128,7 +112,7 @@ export default function SendMessage({ channelId, user, channels }: SendMessagePr
 
         <EditorContent style={{ flex: "1", maxHeight: "150px", minHeight: "35px", overflow: "auto" }} editor={editor} />
 
-        <IconButton type="submit" disabled={editor.isEmpty}>
+        <IconButton type="submit" onClick={submit}>
           <SendIcon />
         </IconButton>
       </Box>

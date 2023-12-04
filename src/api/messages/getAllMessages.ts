@@ -20,6 +20,7 @@ export type TMessageWithUser = {
   deleted_at?: any;
   edited_at?: any;
   content: string;
+  html: string;
   media_urls?: any;
   user_id: {
     username: string;
