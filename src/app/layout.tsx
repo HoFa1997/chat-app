@@ -1,3 +1,4 @@
+import "@/components/theme-registry/global.css";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
 import { supabaseServer } from "@/api/supabase";
