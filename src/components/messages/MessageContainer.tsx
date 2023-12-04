@@ -1,13 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Box, CircularProgress, Chip } from "@mui/material";
 import { supabaseClient } from "@/api/supabase";
+// import { getAllChannels, getAllMessages, getUser } from "@/api";
 import MessageCard from "./MessageCard";
-import SendMessage from "./send-message/SendMessage";
-import { getAllChannels, getAllMessages, getUser } from "@/api";
-import MessageCard from "./MessageCard";
-import { cookies } from "next/headers";
 import SendMessage from "./send-message/SendMessage";
 import { Box, CircularProgress, Chip, Typography } from "@mui/material";
 import { MessageHeader } from "./MessageHeader";
@@ -103,7 +99,6 @@ export default function MessageContainer({ channelId }: any) {
               userdata,
               channelMember,
               userId: payload.new.user_id,
-              reply_to_message_id: reply_to_message_id.user_id,
             });
             if (payload.new.deleted_at) return;
 
@@ -194,7 +189,7 @@ export default function MessageContainer({ channelId }: any) {
       }}
     >
       <MessageHeader channelId={channelId} />
-      {messages?.length === 0 && (
+      {messages.size === 0 ? (
         <Box display="flex" alignItems="center" height="100vh" justifyContent="center" flexGrow={1}>
           <Chip label={<Typography variant="body2">No messages yet!</Typography>} />
         </Box>
@@ -210,9 +205,6 @@ export default function MessageContainer({ channelId }: any) {
           ))}
         </Box>
       )}
-      <Box sx={{ display: "flex", flexGrow: 1, flexDirection: "column", overflowY: "auto", px: 10 }}>
-        {messages?.map((item) => <MessageCard key={item.id} data={item} user={user} />)}
-      </Box>
       <SendMessage channelId={channelId} user={user} channels={channels} />
     </Box>
   );

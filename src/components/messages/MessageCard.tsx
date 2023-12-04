@@ -50,7 +50,7 @@ const getUserMessageStyle = (isCurrentUser: boolean, theme: any) => {
       ...commonStyle,
       p: 1,
       bgcolor: theme.palette.whatsAppGreen[100],
-      marginLeft: "auto",
+      marginLeft: "calc(40% - 10px)",
       ":before": {
         ...commonStyle[":before"],
         right: -10,
@@ -63,6 +63,7 @@ const getUserMessageStyle = (isCurrentUser: boolean, theme: any) => {
     ...commonStyle,
     px: 2,
     pt: 2,
+    marginLeft: "10px",
     bgcolor: theme.palette.whatsAppGreen[200],
     ":before": {
       ...commonStyle[":before"],
