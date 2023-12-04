@@ -1,9 +1,9 @@
-import { Box } from "@mui/material";
+import { Box, Chip } from "@mui/material";
 
 export const ChatContainer = () => {
   return (
-    <Box display={"flex"} bgcolor={"gray"} flexGrow={1}>
-      Select Chat Room
+    <Box display="flex" alignItems="center" height="100vh" justifyContent="center" bgcolor="gray" flexGrow={1}>
+      <Chip label="Select a chat to start messaging" />
     </Box>
   );
 };
