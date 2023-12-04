@@ -40,14 +40,6 @@ export default function SendMessage({ channelId, user, channels }: SendMessagePr
 
   const editor = useEditor({
     extensions: [
-      Document,
-      Paragraph,
-      Text,
-      Bold,
-      Placeholder.configure({
-        placeholder: "Write a message...",
-        showOnlyWhenEditable: false,
-      }),
       StarterKit.configure({
         bulletList: {
           keepMarks: true,
@@ -57,6 +49,10 @@ export default function SendMessage({ channelId, user, channels }: SendMessagePr
           keepMarks: true,
           keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
         },
+      }),
+      Placeholder.configure({
+        placeholder: "Write a message...",
+        showOnlyWhenEditable: false,
       }),
     ],
     content: watch("content"),
