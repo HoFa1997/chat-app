@@ -1,13 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { TMessageWithUser } from "@/api";
+import { TMessageWithUser, emojiReaction } from "@/api";
 import { getColorFromClass } from "@/shared/utils";
 import { User } from "@supabase/supabase-js";
 import DOMPurify from "dompurify";
 import { useContextMenu } from "@/shared/hooks";
 import { MessageContextMenu } from "./MessageContextMenu";
-import { Box, Avatar, Typography, Card, CardContent } from "@mui/material";
+import { Box, Avatar, Typography, Card, CardContent, Stack, Chip } from "@mui/material";
 import ReplyIcon from "@mui/icons-material/Reply";
+import MessageReaction from "./MessageReaction";
 
 type TMessageCardProps = {
   data: TMessageWithUser;
@@ -44,6 +45,11 @@ export default function MessageCard({ data, user }: TMessageCardProps) {
 
   const countRepliedMessages = data.metadata?.replied.length;
 
+  const currentUserReactionSyle = {
+    backgroundColor: "#1264a3",
+    cursor: "pointer",
+  };
+
   return (
     <Box onContextMenu={contextMenu.showMenu} sx={{ ...userMessageStyle }}>
       <Avatar
@@ -70,7 +76,29 @@ export default function MessageCard({ data, user }: TMessageCardProps) {
           {data.user_id.username}
         </Typography>
         <Box sx={{ typography: "body1", color: "text.primary" }} dangerouslySetInnerHTML={{ __html: htmlContent }} />
+
         <Box marginLeft="auto" marginTop="2px" display="flex" alignContent="center">
+          <MessageReaction message={data} />
+
+          <Stack direction="row" spacing={1}>
+            {data?.reactions &&
+              Object.keys(data?.reactions).map((reaction: string, index: number) => (
+                <Chip
+                  style={
+                    data?.reactions[reaction]?.find((x: any) => x.user_id === user.id)
+                      ? currentUserReactionSyle
+                      : {
+                          backgroundColor: "#aaa",
+                          cursor: "pointer",
+                        }
+                  }
+                  key={index}
+                  onClick={() => emojiReaction(data, reaction)}
+                  label={reaction + " " + data?.reactions[reaction].length}
+                />
+              ))}
+          </Stack>
+
           <Box margin={"0 20px"}>
             {countRepliedMessages && (
               <Typography variant="subtitle2" display="flex" align="center" alignItems="center">
@@ -82,6 +110,7 @@ export default function MessageCard({ data, user }: TMessageCardProps) {
           <Typography variant="subtitle2"> {createdAt}</Typography>
         </Box>
       </Box>
+
       {contextMenu.menuState.visible && <MessageContextMenu props={contextMenu} messageData={data} />}
     </Box>
   );

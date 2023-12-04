@@ -9,7 +9,7 @@ export const getAllMessages = async (channelId: string) =>
     .select("*, user_id( username , id , avatar_url ), reply_to_message_id( user_id( username ))")
     .eq("channel_id", channelId)
     .is("deleted_at", null)
-    .order("created_at", { ascending: true })
+    .order("id", { ascending: true })
     .returns<TMessageWithUser[]>()
     .throwOnError();
 
