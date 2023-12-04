@@ -2,7 +2,7 @@ import { getAllChannels, getAllMessages, getUser } from "@/api";
 import MessageCard from "./MessageCard";
 import { cookies } from "next/headers";
 import SendMessage from "./send-message/SendMessage";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Chip } from "@mui/material";
 
 export default async function MessageContainer({ channelId }: { channelId: string }) {
   const { data: messages } = await getAllMessages(channelId);
@@ -25,6 +25,11 @@ export default async function MessageContainer({ channelId }: { channelId: strin
     <Box
       sx={{ width: "100%", height: "100vh", display: "flex", flexDirection: "column", justifyContent: "space-between" }}
     >
+      {messages?.length === 0 && (
+        <Box display="flex" alignItems="center" height="100vh" justifyContent="center" bgcolor="gray" flexGrow={1}>
+          <Chip label="No messages yet!" />
+        </Box>
+      )}
       <Box sx={{ display: "flex", flexDirection: "column", overflowY: "auto", scrollbarWidth: "none" }}>
         {messages?.map((item) => <MessageCard key={item.id} data={item} user={user} />)}
       </Box>
