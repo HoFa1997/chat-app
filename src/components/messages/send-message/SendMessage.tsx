@@ -2,8 +2,7 @@
 import { supabaseClient } from "@/api/supabase";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import Bold from "@tiptap/extension-bold";
 import Document from "@tiptap/extension-document";
@@ -26,17 +25,11 @@ type SendMessageProps = {
   channels: TChannel[];
 };
 
-type FromData = { content: string };
-
 export default function SendMessage({ channelId, user, channels }: SendMessageProps) {
   const { refresh } = useRouter();
   const replayedMessage = useReplayMessageInfo();
   const forwardedMessage = useForwardMessageInfo();
-
-  const { handleSubmit, setValue, watch, reset } = useForm<FromData>({
-    mode: "onBlur",
-    defaultValues: { content: "" },
-  });
+  const [content, setContent] = useState<string>("");
 
   const editor = useEditor({
     extensions: [
@@ -59,15 +52,15 @@ export default function SendMessage({ channelId, user, channels }: SendMessagePr
         },
       }),
     ],
-    content: watch("content"),
+    content,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      setValue("content", html);
+      setContent(html);
     },
     editable: true,
   });
 
-  const submit: SubmitHandler<FromData> = async ({ content }) => {
+  const submit = async () => {
     const div = document.createElement("div");
     div.innerHTML = content;
 
@@ -83,8 +76,7 @@ export default function SendMessage({ channelId, user, channels }: SendMessagePr
       })
       .select()
       .then(() => {
-        reset();
-        setValue("content", "");
+        editor?.destroy();
       });
   };
 
@@ -124,8 +116,7 @@ export default function SendMessage({ channelId, user, channels }: SendMessagePr
       <ForwardMessage channels={channels} user={user} />
       <MessageEditor editor={editor} />
       <Box
-        component={"form"}
-        onSubmit={handleSubmit(submit)}
+        onKeyDown={(e) => e.key === "Enter" && e.metaKey && submit()}
         sx={{
           display: "flex",
           width: "100%",
@@ -141,7 +132,7 @@ export default function SendMessage({ channelId, user, channels }: SendMessagePr
 
         <EditorContent style={{ flex: "1", maxHeight: "150px", minHeight: "35px", overflow: "auto" }} editor={editor} />
 
-        <IconButton type="submit">
+        <IconButton type="submit" disabled={editor.isEmpty}>
           <SendIcon />
         </IconButton>
       </Box>
