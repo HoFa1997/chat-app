@@ -3,7 +3,7 @@ import { TChannel } from "@/api";
 import { useEffect } from "react";
 import { supabaseClient } from "@/api/supabase";
 import { useRouter } from "next/navigation";
-import { Avatar, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
+import { Box, Avatar, ListItem, ListItemAvatar, ListItemText, Typography, Grid } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
 import React from "react";
 export const ChannelItem = ({ data }: { data: TChannel }) => {
@@ -30,11 +30,17 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
     };
   }, [refresh]);
 
+  const lastTimUpdated = new Date(data?.last_activity_at).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
+
   return (
     <ListItem
       disablePadding
       onClick={() => push(`/${data.id}`)}
-      alignItems="flex-start"
+      style={{ width: "100%", padding: "1rem" }}
       sx={{ ":hover": { cursor: "pointer", bgcolor: (t) => t.palette.grey[700] } }}
     >
       <ListItemAvatar>
@@ -42,17 +48,23 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
           <ImageIcon />
         </Avatar>
       </ListItemAvatar>
-      <ListItemText
-        primary={data.slug}
-        secondary={
-          <React.Fragment>
-            {/* <Typography sx={{ display: "inline" }} component="span" variant="body2" color="text.primary">
-              Ali Connors
-            </Typography> */}
-            {data.last_message_preview ?? "No message"}
-          </React.Fragment>
-        }
-      />
+
+      <Grid container rowSpacing={1}>
+        <Grid item xs={12} md={12} lg={12} xl={12}>
+          <Box display="flex" alignContent="center">
+            <Typography variant="subtitle1">{data.name}</Typography>
+            <Typography variant="subtitle1" marginLeft="auto">
+              {lastTimUpdated}
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={12} lg={12} xl={12}>
+          <ListItemText
+            primary={data.last_message_preview ?? "No message"}
+            sx={{ ":hover": { cursor: "pointer", bgcolor: (t) => t.palette.grey[700] } }}
+          />
+        </Grid>
+      </Grid>
     </ListItem>
   );
 };
