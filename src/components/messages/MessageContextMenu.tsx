@@ -1,5 +1,5 @@
 import React from "react";
-import { TMessageWithUser } from "@/api";
+import { TMessageWithUser, deleteMessage } from "@/api";
 import { TUseContextMenu, setForwardMessage, setReplayMessage } from "@/shared/hooks";
 import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/DeleteRounded";
@@ -28,11 +28,18 @@ export const MessageContextMenu = ({
     }
   };
 
+  const handelDeleteMessage = async () => {
+    const data = await deleteMessage(messageData.channel_id, messageData.id);
+    // TODO: we need toast here
+    console.info("Message deleted", { data });
+    closeMenu();
+  };
+
   const messageButtonList = [
     { title: "Replay", icon: <ReplayIcon />, onClickFn: handleReplayMessage },
     { title: "Forward", icon: <ForwardIcon />, onClickFn: handleForwardMessage },
     { title: "Pin", icon: <PinIcon />, onClickFn: () => closeMenu() },
-    { title: "Delete", icon: <DeleteIcon />, onClickFn: () => closeMenu() },
+    { title: "Delete", icon: <DeleteIcon />, onClickFn: () => handelDeleteMessage() },
   ];
 
   return (
