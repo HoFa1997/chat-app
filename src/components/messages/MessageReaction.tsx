@@ -23,6 +23,8 @@ export default function MessageReaction({ message }: any) {
     handleClose();
   };
 
+  // FIXME: right mouse click must not work on this modal! (it should work on the message card)
+
   return (
     <div>
       <Button
@@ -49,14 +51,13 @@ export default function MessageReaction({ message }: any) {
           horizontal: "left",
         }}
       >
-        <Stack direction="row" spacing={1} style={{ padding: "4px 6px 8px" }}>
+        <Stack direction="row" spacing={1} style={{ padding: "0 10px" }}>
           {emojis.map((emoji) => (
             <IconButton
               key={emoji}
               style={{
                 fontSize: "1.5rem",
                 borderRadius: "50%",
-                paddingTop: "4px",
                 width: "36px",
                 height: "36px",
                 display: "flex",
@@ -65,7 +66,7 @@ export default function MessageReaction({ message }: any) {
               }}
               onClick={() => handelEmojiClick(emoji)}
             >
-              <div style={{ marginTop: "6px" }}>{emoji}</div>
+              <div style={{}}>{emoji}</div>
             </IconButton>
           ))}
         </Stack>
