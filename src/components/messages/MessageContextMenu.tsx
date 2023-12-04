@@ -6,6 +6,7 @@ import DeleteIcon from "@mui/icons-material/DeleteRounded";
 import PinIcon from "@mui/icons-material/PushPinRounded";
 import ReplayIcon from "@mui/icons-material/ReplyRounded";
 import ForwardIcon from "@mui/icons-material/ForwardRounded";
+import { enqueueSnackbar } from "notistack";
 
 export const MessageContextMenu = ({
   props: { menuRef, menuState, closeMenu },
@@ -29,16 +30,22 @@ export const MessageContextMenu = ({
   };
 
   const handelDeleteMessage = async () => {
-    const data = await deleteMessage(messageData.channel_id, messageData.id);
-    // TODO: we need toast here
-    console.info("Message deleted", { data });
+    const { error } = await deleteMessage(messageData.channel_id, messageData.id);
+    if (!error) {
+      enqueueSnackbar("Message deleted", { variant: "success" });
+    } else {
+      enqueueSnackbar("Message not deleted", { variant: "error" });
+    }
     closeMenu();
   };
 
   const handlePinMessage = async () => {
-    const data = await pinMessage(messageData.channel_id, messageData.id);
-    // TODO: we need toast here
-    console.info("Message pinned", { data });
+    const { error } = await pinMessage(messageData.channel_id, messageData.id);
+    if (!error) {
+      enqueueSnackbar("Message pinned", { variant: "success" });
+    } else {
+      enqueueSnackbar("Message not pinned", { variant: "error" });
+    }
     closeMenu();
   };
 

@@ -10,3 +10,6 @@ export const getAllChannels = async () =>
     .order("last_activity_at", { ascending: false })
     .returns<TChannel[]>()
     .throwOnError();
+
+export const getChannelById = async (channelId: string) =>
+  await supabaseClient.from("channels").select("*").eq("id", channelId).returns<TChannel>().single().throwOnError();

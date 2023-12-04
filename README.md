@@ -1,8 +1,10 @@
-Background: A dark navy or deep blue-grey, possibly around #18222D.
-Primary Text: A light gray, often close to #ECEFF1.
-Secondary Text: A slightly darker gray, something like #B0BEC5.
-Accent Color: This is usually a bright blue, around #5294E2.
-Incoming Bubble (Chat Background): A dark gray or charcoal color, possibly #2C2F3A.
-Outgoing Bubble (Your Chat Bubble): A slightly lighter gray than the incoming bubble, around #4B5162.
-Menu Background: A dark slate color, maybe #313740.
-Notification Color: Often a bright red or pink, like #FF4B55.
+Primary Background Color: #121212 (Dark Grey)
+Secondary Background Colors: #1E1E1E (Slightly lighter Grey)
+Accent Colors: #25D366 (WhatsApp Signature Green), #34B7F1 (Blue for links), #FFAB00 (Yellow for Highlights)
+Text Colors: #FFFFFF (White for Primary Text), #CCCCCC (Light Grey for Secondary Text)
+Icons and Imagery: #FFFFFF (White for Icons)
+Borders and Separators: #2C2C2C (Dark Grey for Borders)
+Notification Colors: #FF3B30 (Red for Notifications)
+Opacity Settings: Use varying opacities of the primary or secondary background colors.
+Input Fields and Forms: #333333 (Dark Grey for Input Fields), #FFFFFF (White for Input Text)
+Hover and Active State Colors: #292929 (Slightly lighter Grey for Hover State), #0A8D48 (Darker Green for Active State)

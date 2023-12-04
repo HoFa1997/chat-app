@@ -21,13 +21,15 @@ export default async function ChannelList() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        width: "25%",
+        width: "30%",
         overflow: "auto",
       }}
     >
       <UserInfoCard userData={user} />
       <NewChannelModal userData={user} />
-      <List>{channels?.map((item) => <ChannelItem key={item.id} data={item} />)}</List>
+      <List disablePadding sx={{ mt: 1 }}>
+        {channels?.map((item) => <ChannelItem key={item.id} data={item} />)}
+      </List>
     </Box>
   );
 }

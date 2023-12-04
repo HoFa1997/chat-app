@@ -4,10 +4,6 @@ import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
-import Bold from "@tiptap/extension-bold";
-import Document from "@tiptap/extension-document";
-import Paragraph from "@tiptap/extension-paragraph";
-import Text from "@tiptap/extension-text";
 import SendIcon from "@mui/icons-material/SendRounded";
 import AttachmentIcon from "@mui/icons-material/AttachFileRounded";
 import StarterKit from "@tiptap/starter-kit";
@@ -72,7 +68,7 @@ export default function SendMessage({ channelId, user, channels }: SendMessagePr
       })
       .select()
       .then(() => {
-        editor?.destroy();
+        editor?.commands.setContent("");
       });
   };
 
@@ -104,33 +100,35 @@ export default function SendMessage({ channelId, user, channels }: SendMessagePr
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "space-between",
-        borderLeft: "1px solid",
-        borderColor: "background.default",
+        background: "#121212",
+        borderTop: "2px solid #464646",
       }}
     >
       <ReplayMessage />
       <ForwardMessage channels={channels} user={user} />
       <MessageEditor editor={editor} />
-      <Box
-        onKeyDown={(e) => e.key === "Enter" && e.metaKey && submit()}
-        sx={{
-          display: "flex",
-          width: "100%",
-          flexDirection: "row",
-          alignItems: "flex-end",
-          backgroundColor: "menu-background",
-          color: "primary-text",
-        }}
-      >
-        <IconButton>
-          <AttachmentIcon />
-        </IconButton>
+      <Box onKeyDown={(e) => e.key === "Enter" && e.metaKey && submit()} sx={{ width: "100%", px: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexGrow: 1,
+            bgcolor: "#464646",
+            borderRadius: 5,
+            mb: 2,
+          }}
+        >
+          <IconButton sx={{ mx: 1 }}>
+            <AttachmentIcon />
+          </IconButton>
 
-        <EditorContent style={{ flex: "1", maxHeight: "150px", minHeight: "35px", overflow: "auto" }} editor={editor} />
+          <EditorContent style={{ width: "100%" }} editor={editor} />
 
-        <IconButton type="submit" disabled={editor.isEmpty}>
-          <SendIcon />
-        </IconButton>
+          <IconButton onClick={submit} type="submit" disabled={editor.isEmpty}>
+            <SendIcon />
+          </IconButton>
+        </Box>
       </Box>
     </Box>
   );

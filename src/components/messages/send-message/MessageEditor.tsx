@@ -9,7 +9,13 @@ import UndoIcon from "@mui/icons-material/UndoRounded";
 import RedoIcon from "@mui/icons-material/RedoRounded";
 
 import { Editor } from "@tiptap/react";
-import { Box, IconButton } from "@mui/material";
+import { Box, IconButton as MuiIcon, styled } from "@mui/material";
+
+const IconButton = styled(MuiIcon)(({}) => ({
+  background: "#464646",
+  width: 32,
+  height: 32,
+}));
 
 export const MessageEditor = ({ editor }: { editor: Editor }) => {
   return (
@@ -23,8 +29,9 @@ export const MessageEditor = ({ editor }: { editor: Editor }) => {
         justifyContent: "flex-start",
         alignItems: "center",
         flexGrow: 1,
-        gap: 2,
-        py: 1,
+        gap: 1,
+        pt: 1,
+        pb: 2,
         pl: 2,
       }}
     >

@@ -1,5 +1,4 @@
 import * as React from "react";
-import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import { Stack, IconButton } from "@mui/material";
 import { emojiReaction } from "@/api";
@@ -27,15 +26,14 @@ export default function MessageReaction({ message }: any) {
 
   return (
     <div>
-      <Button
+      <IconButton
         aria-controls={open ? "demo-positioned-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
-        style={{ backgroundColor: "transparent", marginRight: "10px" }}
       >
         <AddReactionIcon />
-      </Button>
+      </IconButton>
       <Menu
         id="demo-positioned-menu"
         aria-labelledby="demo-positioned-button"
