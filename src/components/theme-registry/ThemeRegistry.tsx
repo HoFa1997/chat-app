@@ -6,6 +6,7 @@ import NextAppDirEmotionCacheProvider from "./EmotionCache";
 import theme from "./theme";
 import { useRouter } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
+import { SnackbarProvider } from "notistack";
 
 export default function ThemeRegistry({ children, session }: { children: React.ReactNode; session: Session | null }) {
   const { replace } = useRouter();
@@ -21,7 +22,7 @@ export default function ThemeRegistry({ children, session }: { children: React.R
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        {children}
+        <SnackbarProvider>{children}</SnackbarProvider>
       </ThemeProvider>
     </NextAppDirEmotionCacheProvider>
   );

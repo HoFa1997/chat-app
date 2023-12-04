@@ -40,8 +40,13 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
     <ListItem
       disablePadding
       onClick={() => push(`/${data.id}`)}
-      style={{ width: "100%", padding: "1rem" }}
-      sx={{ ":hover": { cursor: "pointer", bgcolor: (t) => t.palette.grey[700] } }}
+      sx={{
+        ":hover": { cursor: "pointer", bgcolor: (t) => t.palette.grey[700] },
+        p: 1,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "start",
+      }}
     >
       <ListItemAvatar>
         <Avatar>
@@ -59,10 +64,7 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
           </Box>
         </Grid>
         <Grid item xs={12} md={12} lg={12} xl={12}>
-          <ListItemText
-            primary={data.last_message_preview ?? "No message"}
-            sx={{ ":hover": { cursor: "pointer", bgcolor: (t) => t.palette.grey[700] } }}
-          />
+          <ListItemText primary={data.last_message_preview ?? "No message"} />
         </Grid>
       </Grid>
     </ListItem>

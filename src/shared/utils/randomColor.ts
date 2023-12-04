@@ -1,6 +1,4 @@
 const hexColors = [
-  "#ffffff", // White text
-  "#000000", // Black text
   "#FF5733", // A contrasting color
   "#33FF57", // Another contrasting color
   "#FFD700", // Gold/Yellow text

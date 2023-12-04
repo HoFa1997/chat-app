@@ -1,12 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { TMessageWithUser, emojiReaction } from "@/api";
 import { getColorFromClass } from "@/shared/utils";
 import { User } from "@supabase/supabase-js";
 import DOMPurify from "dompurify";
 import { useContextMenu } from "@/shared/hooks";
 import { MessageContextMenu } from "./MessageContextMenu";
-import { Box, Avatar, Typography, Card, CardContent, Stack, Chip } from "@mui/material";
+import { Box, Avatar, Typography, Stack, Chip, useTheme } from "@mui/material";
 import ReplyIcon from "@mui/icons-material/Reply";
 import MessageReaction from "./MessageReaction";
 
@@ -15,7 +15,65 @@ type TMessageCardProps = {
   user: User;
 };
 
+const DEFAULT_AVATAR_URL = "https://avatars.dicebear.com/api/avataaars/1.svg";
+
+const formatDateTime = (date: Date) => {
+  return date.toLocaleString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
+};
+
+const getUserMessageStyle = (isCurrentUser: boolean, theme: any) => {
+  const commonStyle = {
+    my: 1,
+    width: "60%",
+    display: "flex",
+    borderRadius: 3,
+    position: "relative",
+    ":before": {
+      content: "''",
+      position: "absolute",
+      width: 0,
+      height: 0,
+      top: 0,
+      borderRadius: 1,
+      borderStyle: "solid",
+      borderWidth: "0 10px 20px 10px",
+      rotate: "180deg",
+    },
+  };
+
+  if (isCurrentUser) {
+    return {
+      ...commonStyle,
+      p: 1,
+      bgcolor: theme.palette.whatsAppGreen[100],
+      marginLeft: "auto",
+      ":before": {
+        ...commonStyle[":before"],
+        right: -10,
+        borderColor: `transparent transparent ${theme.palette.whatsAppGreen[100]} transparent`,
+      },
+    };
+  }
+
+  return {
+    ...commonStyle,
+    px: 2,
+    pt: 2,
+    bgcolor: theme.palette.whatsAppGreen[200],
+    ":before": {
+      ...commonStyle[":before"],
+      left: -10,
+      borderColor: `transparent transparent ${theme.palette.whatsAppGreen[200]} transparent`,
+    },
+  };
+};
+
 function MessageCard({ data, user }: TMessageCardProps, ref) {
+  const theme = useTheme();
   const [htmlContent, setHtmlContent] = useState("");
   const contextMenu = useContextMenu();
 
@@ -24,26 +82,14 @@ function MessageCard({ data, user }: TMessageCardProps, ref) {
     setHtmlContent(sanitizedHtml);
   }, [data.html]);
 
-  const userMessageStyle =
-    data.user_id.id == user.id
-      ? {
-          my: 1,
-          width: "49%",
-          display: "flex",
-          borderRadius: "10px 0 0 10px",
-          p: 2,
-          bgcolor: "gray",
-          marginLeft: "auto",
-        }
-      : { my: 1, width: "49%", display: "flex", borderRadius: "0 10px 10px 0", p: 2, bgcolor: "gray" };
+  const userMessageStyle = getUserMessageStyle(data.user_id.id === user.id, theme);
 
-  const createdAt = new Date(data.edited_at ? data.edited_at : data.created_at).toLocaleString("en-US", {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-  });
+  const createdAt = useMemo(
+    () => formatDateTime(new Date(data.edited_at ? data.edited_at : data.created_at)),
+    [data.edited_at, data.created_at],
+  );
 
-  const countRepliedMessages = data.metadata?.replied.length;
+  const countRepliedMessages = data.metadata?.replied?.length;
 
   const currentUserReactionSyle = {
     backgroundColor: "#1264a3",
@@ -53,34 +99,30 @@ function MessageCard({ data, user }: TMessageCardProps, ref) {
   return (
     <Box onContextMenu={contextMenu.showMenu} sx={{ ...userMessageStyle }} ref={ref}>
       <Avatar
-        src={data?.user_id?.avatar_url ?? "https://avatars.dicebear.com/api/avataaars/1.svg"}
+        src={data?.user_id?.avatar_url ?? DEFAULT_AVATAR_URL}
         sx={{ width: 40, height: 40, mr: 2 }}
-        alt="Avatar"
+        alt="User Avatar"
       />
       <Box sx={{ display: "flex", flexDirection: "column", width: "100%", alignItems: "start" }}>
         {data.reply_to_message_id && (
-          <Card>
-            <CardContent>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                // sx={{ color: getColorFromClass(data.user_id.username) }}
-              >
-                {data?.reply_to_message_id.user_id?.username}
-              </Typography>
-              <Typography variant="body1">{data?.replied_message_preview}</Typography>
-            </CardContent>
-          </Card>
+          <Box sx={{ bgcolor: (t) => t.palette.background.paper, p: 2, borderRadius: 5 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ color: getColorFromClass(data?.reply_to_message_id.user_id?.username) }}
+            >
+              {data?.reply_to_message_id.user_id?.username}
+            </Typography>
+            <Typography variant="body1">{data?.replied_message_preview}</Typography>
+          </Box>
         )}
-        <Typography
-          variant="caption"
-          // sx={{ color: getColorFromClass(data.user_id.username) }}
-        >
+        <Typography mt={1} variant="caption" sx={{ color: getColorFromClass(data.user_id.username) }}>
           {data.user_id.username}
         </Typography>
+
         <Box sx={{ typography: "body1", color: "text.primary" }} dangerouslySetInnerHTML={{ __html: htmlContent }} />
 
-        <Box marginLeft="auto" marginTop="2px" display="flex" alignContent="center">
+        <Box marginLeft="auto" marginTop="2px" display="flex" alignItems="center">
           <MessageReaction message={data} />
 
           <Stack direction="row" spacing={1}>
@@ -104,7 +146,7 @@ function MessageCard({ data, user }: TMessageCardProps, ref) {
 
           <Box margin={"0 20px"}>
             {countRepliedMessages && (
-              <Typography variant="subtitle2" display="flex" align="center" alignItems="center">
+              <Typography variant="subtitle2" display="flex" alignItems="center">
                 {countRepliedMessages}
                 <ReplyIcon />
               </Typography>
