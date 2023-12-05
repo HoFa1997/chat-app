@@ -47,8 +47,12 @@ export default function MessageContainer({ channelId }: any) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  if (loading || !user) {
-    return <CircularProgress />;
+  if (loading !user) {
+    return (
+      <Box sx={{ width: "100%", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (error) {
@@ -100,7 +104,16 @@ export default function MessageContainer({ channelId }: any) {
           <Chip label={<Typography variant="body2">No messages yet!</Typography>} />
         </Box>
       ) : (
-        <Box sx={{ display: "flex", flexDirection: "column", overflowY: "auto", scrollbarWidth: "none" }}>
+        <Box
+          sx={{
+            px: 10,
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            overflowY: "auto",
+            scrollbarWidth: "none",
+          }}
+        >
           {[...messages.values()].map((item, index, array) => (
             <MessageCard
               key={item.id}
