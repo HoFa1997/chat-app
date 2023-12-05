@@ -7,6 +7,7 @@ import MessageCard from "./MessageCard";
 import SendMessage from "./send-message/SendMessage";
 import { Box, CircularProgress, Chip, Typography } from "@mui/material";
 import { MessageHeader } from "./MessageHeader";
+import JoinBroadcastChannel from "./JoinBroadcastChannel";
 
 export default function MessageContainer({ channelId }: any) {
   const [user, setUser] = useState(null);
@@ -16,12 +17,28 @@ export default function MessageContainer({ channelId }: any) {
   const [error, setError] = useState(null);
   const [channelMember, setChannelMember] = useState(new Map());
   const messagesEndRef = useRef(null);
+  const [channelInfo, setChannelInfo] = useState(null);
+  const [userJoinedToChannle, setUserJoinedToChannle] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       try {
         const { data: user } = await supabaseClient.auth.getSession();
         setUser(user.session.user);
+
+        const { data: cahnnelInfo, error: channelError } = await supabaseClient
+          .from("channels")
+          .select("*")
+          .eq("id", channelId)
+          .limit(1)
+          .single();
+
+        console.log({
+          cahnnelInfo,
+          channelError,
+        });
+
+        cahnnelInfo && setChannelInfo(cahnnelInfo);
 
         const { data, error } = await supabaseClient
           .from("channel_members")
@@ -30,10 +47,13 @@ export default function MessageContainer({ channelId }: any) {
 
         if (data) {
           const newChannelMember = new Map();
-          data.forEach((x) => newChannelMember.set(x.member_id.id, x.member_id));
+          data.forEach((x) => newChannelMember.set(x.member_id.id, { ...x, ...x.member_id }));
           setChannelMember(newChannelMember);
+
+          if (newChannelMember.has(user?.session?.user.id)) setUserJoinedToChannle(true);
         }
       } catch (error) {
+        console.error(error);
         setError(error);
       } finally {
         // setLoading(false);
@@ -54,7 +74,6 @@ export default function MessageContainer({ channelId }: any) {
           .is("deleted_at", null)
           .order("created_at", { ascending: true }); // Replace 'created_at' with your timestamp field
         // .limit(10);
-        console.log({ initialMessages });
 
         if (initialMessages) {
           const newMessages = new Map();
@@ -66,6 +85,7 @@ export default function MessageContainer({ channelId }: any) {
 
         // setMessages(initialMessages); // Reverse to display in correct order
       } catch (error) {
+        console.error(error);
         setError(error);
       } finally {
         setLoading(false);
@@ -77,9 +97,6 @@ export default function MessageContainer({ channelId }: any) {
 
   useEffect(() => {
     // Subscribe to new messages
-    const channels = supabaseClient.getChannels();
-
-    console.log("subscrible", { channelId, channels });
 
     const subscription = supabaseClient
       .channel(`postgres_changes`) // Listen for new messages in the specified channel
@@ -87,10 +104,6 @@ export default function MessageContainer({ channelId }: any) {
         "postgres_changes",
         { event: "*", schema: "public", table: "messages", filter: `channel_id=eq.${channelId}` },
         (payload: any) => {
-          console.log("subscrible", {
-            payload,
-          });
-
           if (payload.eventType === "INSERT") {
             const userdata = channelMember.get(payload.new.user_id);
             const reply_to_message_id = messages.get(payload.new.reply_to_message_id);
@@ -162,7 +175,6 @@ export default function MessageContainer({ channelId }: any) {
   }, [messages]);
 
   const scrollToBottom = () => {
-    console.log("scroll to the bottom", messagesEndRef);
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -205,7 +217,15 @@ export default function MessageContainer({ channelId }: any) {
           ))}
         </Box>
       )}
-      <SendMessage channelId={channelId} user={user} channels={channels} />
+      {channelInfo?.type === "GROUP" && <SendMessage channelId={channelId} user={user} channels={channels} />}
+      {channelInfo?.type === "BROADCAST" && (
+        <JoinBroadcastChannel
+          channelMember={channelMember.get(user?.id)}
+          userJoinedToChannle={userJoinedToChannle}
+          channelId={channelId}
+          user={user}
+        />
+      )}
     </Box>
   );
 }
