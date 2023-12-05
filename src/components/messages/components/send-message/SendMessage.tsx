@@ -18,10 +18,9 @@ import { TChannel } from "@/api";
 type SendMessageProps = {
   channelId: string;
   user: User;
-  channels: TChannel[];
 };
 
-export default function SendMessage({ channelId, user, channels }: SendMessageProps) {
+export default function SendMessage({ channelId, user }: SendMessageProps) {
   const { refresh } = useRouter();
   const replayedMessage = useReplayMessageInfo();
   const forwardedMessage = useForwardMessageInfo();

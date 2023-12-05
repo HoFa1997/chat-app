@@ -7,18 +7,18 @@ import { Box, Button } from "@mui/material";
 type JoinChannelProp = {
   channelId: string;
   user: User;
-  userJoinedToChannle: boolean;
-  channelMember: any;
+  isChannelMember: boolean;
+  channelMembers: any;
 };
 
-export default function JoinBroadcastChannel({ channelId, user, userJoinedToChannle, channelMember }: JoinChannelProp) {
+export default function JoinBroadcastChannel({ channelId, user, isChannelMember, channelMembers }: JoinChannelProp) {
   const [mute, setMute] = useState(false);
 
   useEffect(() => {
-    if (!channelMember) return;
+    if (!channelMembers) return;
 
-    setMute(channelMember.mute_in_app_notifications);
-  }, [channelMember]);
+    setMute(channelMembers.mute_in_app_notifications);
+  }, [channelMembers]);
 
   const joinUserToChannel = useCallback(async () => {
     try {
@@ -36,17 +36,19 @@ export default function JoinBroadcastChannel({ channelId, user, userJoinedToChan
 
   const muteHandler = useCallback(
     async (muteOrUnmute: boolean) => {
-      if (!channelMember) return;
+      if (!channelMembers) return;
 
       setMute(muteOrUnmute);
 
       try {
-        const { data, error } = await supabaseClient.from("channel_members").upsert({
-          id: channelMember.id,
-          channel_id: channelId,
-          member_id: user.id,
-          mute_in_app_notifications: muteOrUnmute,
-        });
+        const { data, error } = await supabaseClient
+          .from("channel_members")
+          .update({
+            mute_in_app_notifications: muteOrUnmute,
+          })
+          .eq("channel_id", channelId)
+          .eq("member_id", user.id)
+          .select();
 
         if (error) {
           console.error(error);
@@ -55,7 +57,7 @@ export default function JoinBroadcastChannel({ channelId, user, userJoinedToChan
         console.error(error);
       }
     },
-    [user, channelId, channelMember],
+    [user, channelId, channelMembers],
   );
 
   return (
@@ -69,7 +71,7 @@ export default function JoinBroadcastChannel({ channelId, user, userJoinedToChan
         borderTop: "2px solid #464646",
       }}
     >
-      {userJoinedToChannle ? (
+      {isChannelMember ? (
         <Button variant="text" onClick={() => muteHandler(!mute)} style={{ padding: "16px 0" }} fullWidth>
           {mute ? "Unmute" : "Mute"}
         </Button>
