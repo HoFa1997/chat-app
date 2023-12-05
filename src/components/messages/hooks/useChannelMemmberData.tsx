@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabaseClient } from "@/api/supabase";
 
-export const useChannelMemmberData = (channelId, user, setError, setLoading, setChannelMembers) => {
+export const useChannelMemmberData = (
+  channelId: any,
+  user: any,
+  setError: any,
+  setLoading: any,
+  setChannelMembers: any,
+) => {
   const [isChannelMember, setIsChannelMember] = useState(false);
 
   useEffect(() => {
@@ -16,7 +22,7 @@ export const useChannelMemmberData = (channelId, user, setError, setLoading, set
 
         if (channelMembers) {
           const newChannelMembers = new Map();
-          channelMembers.forEach((x) => newChannelMembers.set(x.member_id.id, { ...x, ...x.member_id }));
+          channelMembers.forEach((x: any) => newChannelMembers.set(x.member_id.id, { ...x, ...x.member_id }));
           setChannelMembers(newChannelMembers);
 
           if (newChannelMembers.has(user?.id)) {

@@ -12,7 +12,7 @@ import MessageReaction from "./MessageReaction";
 
 type TMessageCardProps = {
   data: TMessageWithUser;
-  user: User;
+  user: User | null;
 };
 
 const DEFAULT_AVATAR_URL = "https://avatars.dicebear.com/api/avataaars/1.svg";
@@ -73,7 +73,7 @@ const getUserMessageStyle = (isCurrentUser: boolean, theme: any) => {
   };
 };
 
-function MessageCard({ data, user }: TMessageCardProps, ref) {
+function MessageCard({ data, user }: TMessageCardProps, ref: any) {
   const theme = useTheme();
   const [htmlContent, setHtmlContent] = useState("");
   const contextMenu = useContextMenu();
@@ -83,7 +83,7 @@ function MessageCard({ data, user }: TMessageCardProps, ref) {
     setHtmlContent(sanitizedHtml);
   }, [data.html]);
 
-  const userMessageStyle = getUserMessageStyle(data.user_id.id === user.id, theme);
+  const userMessageStyle = getUserMessageStyle(data.user_id.id === user?.id, theme);
 
   const createdAt = useMemo(
     () => formatDateTime(new Date(data.edited_at ? data.edited_at : data.created_at)),
@@ -131,7 +131,7 @@ function MessageCard({ data, user }: TMessageCardProps, ref) {
               Object.keys(data?.reactions).map((reaction: string, index: number) => (
                 <Chip
                   style={
-                    data?.reactions[reaction]?.find((x: any) => x.user_id === user.id)
+                    data?.reactions[reaction]?.find((x: any) => x.user_id === user?.id)
                       ? currentUserReactionSyle
                       : {
                           backgroundColor: "#aaa",

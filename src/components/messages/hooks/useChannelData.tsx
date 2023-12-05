@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabaseClient } from "@/api/supabase";
 
-export const useChannelData = (channelId, user, setError, setLoading) => {
-  const [channelInfo, setChannelInfo] = useState(null);
+import { Database } from "@/types/supabase";
+export type TChannels = Database["public"]["Tables"]["channels"]["Row"];
+
+export const useChannelData = (channelId: any, user: any, setError: any, setLoading: any) => {
+  const [channelInfo, setChannelInfo] = useState<TChannels | null>();
 
   useEffect(() => {
     const fetchChannelData = async () => {

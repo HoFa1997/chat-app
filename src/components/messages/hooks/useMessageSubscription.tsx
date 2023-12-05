@@ -47,13 +47,13 @@ export const useMessageSubscription = (channelId: string, setMessages: any, mess
             const updatedMessage = { ...message, ...payload.new };
             // update the messages map
             if (payload.new.deleted_at) {
-              setMessages((prevMessages) => {
+              setMessages((prevMessages: any) => {
                 const newMessages = new Map(prevMessages);
                 newMessages.delete(payload.new.id);
                 return newMessages;
               });
             } else {
-              setMessages((prevMessages) => {
+              setMessages((prevMessages: any) => {
                 const newMessages = new Map(prevMessages);
                 newMessages.set(payload.new.id, {
                   ...updatedMessage,
@@ -66,11 +66,7 @@ export const useMessageSubscription = (channelId: string, setMessages: any, mess
           }
         },
       )
-      .subscribe((status) => {
-        // console.log("subscrible", {
-        //   status,
-        // });
-      });
+      .subscribe();
 
     return () => {
       messageSubscription.unsubscribe();

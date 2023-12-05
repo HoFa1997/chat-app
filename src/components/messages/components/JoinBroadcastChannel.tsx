@@ -22,7 +22,7 @@ export default function JoinBroadcastChannel({ channelId, user, isChannelMember,
 
   const joinUserToChannel = useCallback(async () => {
     try {
-      const { data, error } = await supabaseClient
+      const { error } = await supabaseClient
         .from("channel_members")
         .upsert({ channel_id: channelId, member_id: user.id });
 
@@ -41,7 +41,7 @@ export default function JoinBroadcastChannel({ channelId, user, isChannelMember,
       setMute(muteOrUnmute);
 
       try {
-        const { data, error } = await supabaseClient
+        const { error } = await supabaseClient
           .from("channel_members")
           .update({
             mute_in_app_notifications: muteOrUnmute,

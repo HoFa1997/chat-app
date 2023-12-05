@@ -7,13 +7,12 @@ import { Box, Button } from "@mui/material";
 type JoinGroupChannelProp = {
   channelId: string;
   user: User;
-  channelMembers: any;
 };
 
 export default function JoinGroupChannel({ channelId, user }: JoinGroupChannelProp) {
   const joinToChannel = useCallback(async () => {
     try {
-      const { data, error } = await supabaseClient
+      const { error } = await supabaseClient
         .from("channel_members")
         .upsert({ channel_id: channelId, member_id: user.id });
 

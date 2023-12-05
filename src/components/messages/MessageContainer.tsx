@@ -20,7 +20,7 @@ export default function MessageContainer({ channelId }: any) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [channelMembers, setChannelMembers] = useState(new Map());
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef<HTMLElement>(null);
 
   const { channelInfo } = useChannelData(channelId, user, setError, setLoading);
   useUserData(setUser, setError);
@@ -47,7 +47,7 @@ export default function MessageContainer({ channelId }: any) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  if (loading !user) {
+  if (loading && !user) {
     return (
       <Box sx={{ width: "100%", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
         <CircularProgress />
@@ -114,7 +114,7 @@ export default function MessageContainer({ channelId }: any) {
             scrollbarWidth: "none",
           }}
         >
-          {[...messages.values()].map((item, index, array) => (
+          {Array.from(messages.values()).map((item, index, array) => (
             <MessageCard
               key={item.id}
               data={item}
