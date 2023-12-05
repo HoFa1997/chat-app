@@ -16,6 +16,8 @@
     "@hookform/resolvers": "^3.3.2",
     "@mui/icons-material": "^5.14.19",
     "@mui/material": "^5.14.19",
+    "@supabase/auth-ui-react": "^0.4.6",
+    "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/ssr": "^0.0.10",
     "@supabase/supabase-js": "^2.38.4",
     "@tiptap/extension-bold": "^2.1.12",

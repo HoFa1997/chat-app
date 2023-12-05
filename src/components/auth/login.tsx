@@ -1,21 +1,34 @@
 "use client";
-import { createBrowserClient } from "@supabase/ssr";
-import { Provider } from "@supabase/supabase-js";
+
+import { Auth } from "@supabase/auth-ui-react";
+import {
+  // Import predefined theme
+  ThemeSupa,
+} from "@supabase/auth-ui-shared";
+import { supabaseClient } from "@/api/supabase";
+import { Box } from "@mui/material";
 
 export default function LoginForm() {
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  return (
+    <Box
+      sx={{
+        height: "100vh",
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+      }}
+    >
+      <Auth
+        supabaseClient={supabaseClient}
+        view="sign_in"
+        appearance={{ theme: ThemeSupa }}
+        theme="dark"
+        showLinks={false}
+        providers={["google"]}
+        redirectTo="http://localhost:3000/auth/callback"
+      />
+    </Box>
   );
-
-  const handleOAuthLogin = async (provider: Provider) => {
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `http://localhost:3000/auth/callback`,
-      },
-    });
-  };
-
-  return <button onClick={() => handleOAuthLogin("google")}>Sign in with Google</button>;
 }
