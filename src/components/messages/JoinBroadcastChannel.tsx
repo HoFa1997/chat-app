@@ -29,8 +29,6 @@ export default function JoinBroadcastChannel({ channelId, user, userJoinedToChan
       if (error) {
         console.error(error);
       }
-
-      console.log("joined to channel", data);
     } catch (error) {
       console.error(error);
     }
@@ -53,8 +51,6 @@ export default function JoinBroadcastChannel({ channelId, user, userJoinedToChan
         if (error) {
           console.error(error);
         }
-
-        console.log("joined to channel", data);
       } catch (error) {
         console.error(error);
       }
