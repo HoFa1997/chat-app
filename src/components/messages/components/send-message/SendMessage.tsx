@@ -9,7 +9,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { MessageEditor } from "./MessageEditor";
 import { ReplayMessage } from "./ReplayMessage";
 import { useForwardMessageInfo, useReplayMessageInfo } from "@/shared/hooks";
-// import { ForwardMessage } from "./ForwardMessage";
+import { ForwardMessage } from "./ForwardMessage";
 import { Box, IconButton } from "@mui/material";
 import { useState, useCallback } from "react";
 
@@ -81,7 +81,7 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
       }}
     >
       <ReplayMessage />
-      {/* <ForwardMessage channels={channels} user={user} /> */}
+      <ForwardMessage user={user} />
       <MessageEditor editor={editor} />
       <Box onKeyDown={(e) => e.key === "Enter" && e.metaKey && submit()} sx={{ width: "100%", px: 2 }}>
         <Box

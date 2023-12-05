@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
@@ -10,6 +10,8 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { setForwardMessage, useForwardMessageInfo } from "@/shared/hooks";
 import { supabaseClient } from "@/api/supabase";
 import { User } from "@supabase/supabase-js";
+import { Database } from "@/types/supabase";
+export type TChannels = Database["public"]["Tables"]["channels"]["Row"];
 
 const style = {
   position: "absolute",
@@ -23,15 +25,28 @@ const style = {
 };
 
 type TForwardMessageProps = {
-  channels: TChannel[];
   user: User;
 };
 
 type FormData = { channel_id: string };
 
-export const ForwardMessage = ({ channels, user }: TForwardMessageProps) => {
+export const ForwardMessage = ({ user }: TForwardMessageProps) => {
   const [open, setOpen] = React.useState(false);
   const forwardedMessage = useForwardMessageInfo();
+  const [channels, setChannels] = React.useState<TChannels[]>([]);
+
+  useEffect(() => {
+    const getChannels = async () => {
+      const { data } = await supabaseClient
+        .from("channels")
+        .select("*, channel_members (member_id)")
+        .eq("channel_members.member_id", user.id);
+
+      console.log({ data });
+      data && setChannels(data);
+    };
+    getChannels();
+  }, []);
 
   React.useEffect(() => {
     if (forwardedMessage) {
