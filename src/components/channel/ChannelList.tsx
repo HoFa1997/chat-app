@@ -26,7 +26,7 @@ export default async function ChannelList() {
       }}
     >
       <UserInfoCard userData={user} />
-      <NewChannelModal userData={user} />
+      <NewChannelModal />
       <List disablePadding sx={{ mt: 1 }}>
         {channels?.map((item) => <ChannelItem key={item.id} data={item} />)}
       </List>

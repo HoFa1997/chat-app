@@ -1,4 +1,7 @@
+import { Database } from "@/types/supabase";
 import { supabaseClient } from "../supabase";
 
-export const newChannel = async (created_by: string, slug: string, name: string) =>
-  await supabaseClient.from("channels").insert({ created_by, slug, name }).throwOnError();
+export type TNewChannel = Database["public"]["Tables"]["channels"]["Insert"];
+
+export const newChannel = async (newChannelPayload: TNewChannel) =>
+  await supabaseClient.from("channels").insert(newChannelPayload).throwOnError();
