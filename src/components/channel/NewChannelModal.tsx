@@ -14,12 +14,17 @@ import {
   FormControlLabel,
   Switch,
   MenuItem,
+  Box,
+  Typography,
 } from "@mui/material";
 import { ChannelsSchemaType, NewChannelsSchema } from "@/shared/schema";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { supabaseClient } from "@/api/supabase";
-import { ChannelTypeEnum, createSlug } from "@/shared";
+import { ChannelTypeEnum } from "@/shared";
 import { enqueueSnackbar } from "notistack";
+import AddReactionIcon from "@mui/icons-material/AddReaction";
+import VolumeOffIcon from "@mui/icons-material/VolumeOff";
+import slugify from "slugify";
 
 export default function NewChannelModal() {
   const { handleSubmit, control, watch, reset, setValue } = useForm<ChannelsSchemaType>({
@@ -37,6 +42,7 @@ export default function NewChannelModal() {
   });
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [slugPreview, setSlugPreview] = useState("");
 
   const name = watch("name");
 
@@ -51,16 +57,20 @@ export default function NewChannelModal() {
     }
   }, [isOpen]);
 
+  // This useEffect will update the slugPreview state whenever the name changes
   useEffect(() => {
     if (name) {
-      setValue("slug", createSlug(name));
-    } else {
-      setValue("slug", "");
+      const slug = slugify(name, { lower: true });
+      setValue("slug", slug); // This sets the slug field value
+      setSlugPreview(slug); // This updates the slug preview below the name input
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name]);
+  }, [name, setValue]);
 
-  const submit: SubmitHandler<ChannelsSchemaType> = async (data) => {
+  const submit: SubmitHandler<ChannelsSchemaType> = async (data, event) => {
+    event?.preventDefault();
+    console.log({
+      user,
+    });
     if (user) {
       setLoading(true);
       try {
@@ -68,6 +78,7 @@ export default function NewChannelModal() {
         enqueueSnackbar("Channel created successfully", { variant: "success" });
         handleCloseModal();
       } catch (error: any) {
+        console.log(error);
         enqueueSnackbar(error.message, { variant: "error" });
       } finally {
         setLoading(false);
@@ -93,34 +104,19 @@ export default function NewChannelModal() {
               control={control}
               name={"name"}
               render={({ field, fieldState: { error } }) => (
-                <TextField
-                  autoFocus
-                  {...field}
-                  margin="dense"
-                  label="Name"
-                  type="text"
-                  fullWidth
-                  variant="outlined"
-                  error={!!error}
-                  helperText={error ? error.message : " "}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name={"slug"}
-              render={({ field, fieldState: { error } }) => (
-                <TextField
-                  autoFocus
-                  {...field}
-                  margin="dense"
-                  label="Slug"
-                  type="text"
-                  fullWidth
-                  variant="outlined"
-                  error={!!error}
-                  helperText={error ? error.message : " "}
-                />
+                <Box>
+                  <TextField
+                    autoFocus
+                    {...field}
+                    margin="dense"
+                    label="Name"
+                    type="text"
+                    fullWidth
+                    variant="outlined"
+                    error={!!error}
+                    helperText={error ? error.message : " "}
+                  />
+                </Box>
               )}
             />
             <Controller
@@ -128,29 +124,14 @@ export default function NewChannelModal() {
               name={"description"}
               render={({ field, fieldState: { error } }) => (
                 <TextField
-                  autoFocus
                   {...field}
+                  autoFocus
                   margin="dense"
                   label="Description"
-                  type="text"
                   fullWidth
                   variant="outlined"
-                  error={!!error}
-                  helperText={error ? error.message : " "}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name={"member_limit"}
-              render={({ field, fieldState: { error } }) => (
-                <TextField
-                  {...field}
-                  margin="dense"
-                  label="Member Limit"
-                  type="number"
-                  fullWidth
-                  variant="outlined"
+                  multiline
+                  rows={4} // Adjust the number of rows as needed
                   error={!!error}
                   helperText={error ? error.message : " "}
                 />
@@ -180,42 +161,72 @@ export default function NewChannelModal() {
               )}
             />
 
-            <Controller
-              control={control}
-              name="is_avatar_set"
-              render={({ field }) => (
-                <FormControlLabel
-                  control={<Switch checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />}
-                  label="Avatar Set"
+            <Box display="flex" justifyContent="space-between" alignItems="center" paddingY="10px">
+              <Typography variant="caption" color="textSecondary">
+                {slugPreview && `Slug will be: ${slugPreview}`}
+              </Typography>
+            </Box>
+
+            <Box borderTop="1px solid #ddd" padding="8px 0">
+              <Box display="flex" justifyContent="space-between" alignItems="center" paddingY="10px" width="100%">
+                <Controller
+                  control={control}
+                  name="allow_emoji_reactions"
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                          inputProps={{ "aria-label": "allow emoji reactions" }}
+                        />
+                      }
+                      label={
+                        <Box display="flex" alignItems="center">
+                          <AddReactionIcon style={{ marginRight: "8px" }} />
+                          Allow Emoji Reactions
+                        </Box>
+                      }
+                      labelPlacement="start"
+                      style={{ margin: 0, width: "100%", justifyContent: "space-between" }}
+                    />
+                  )}
                 />
-              )}
-            />
-            <Controller
-              control={control}
-              name="allow_emoji_reactions"
-              render={({ field }) => (
-                <FormControlLabel
-                  control={<Switch checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />}
-                  label="Emoji Reactions"
+              </Box>
+
+              <Box display="flex" justifyContent="space-between" alignItems="center" paddingY="10px" width="100%">
+                <Controller
+                  control={control}
+                  name="mute_in_app_notifications"
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                          inputProps={{ "aria-label": "mute in-app notifications" }}
+                        />
+                      }
+                      label={
+                        <Box display="flex" alignItems="center">
+                          <VolumeOffIcon style={{ marginRight: "8px" }} />
+                          Mute Notifications for everyone!
+                        </Box>
+                      }
+                      labelPlacement="start"
+                      style={{ margin: 0, width: "100%", justifyContent: "space-between" }}
+                    />
+                  )}
                 />
-              )}
-            />
-            <Controller
-              control={control}
-              name="mute_in_app_notifications"
-              render={({ field }) => (
-                <FormControlLabel
-                  control={<Switch checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />}
-                  label="Mute Notifications"
-                />
-              )}
-            />
+              </Box>
+            </Box>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseModal} color="primary">
+
+          <DialogActions style={{ justifyContent: "space-between", padding: "8px 10px" }}>
+            <Button onClick={handleCloseModal} color="primary" style={{ width: "50%" }}>
               Cancel
             </Button>
-            <Button type="submit" color="primary">
+            <Button type="submit" color="primary" style={{ width: "50%" }}>
               {loading ? <CircularProgress size={24} /> : "Create"}
             </Button>
           </DialogActions>
