@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { supabaseClient } from "@/api/supabase";
 
-export const useMessagesData = (channelId: any, setMessages: any, setError: any, setLoading: any) => {
+export const useMessagesData = (channelId: any, setMessages: any, setError: any) => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -19,7 +19,6 @@ export const useMessagesData = (channelId: any, setMessages: any, setError: any,
         console.error(error);
         setError(error);
       } finally {
-        setLoading(false);
       }
     };
 

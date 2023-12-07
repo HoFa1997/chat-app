@@ -4,7 +4,7 @@ import { supabaseClient } from "@/api/supabase";
 import { Database } from "@/types/supabase";
 export type TChannels = Database["public"]["Tables"]["channels"]["Row"];
 
-export const useChannelData = (channelId: any, user: any, setError: any, setLoading: any) => {
+export const useChannelData = (channelId: any, user: any, setError: any) => {
   const [channelInfo, setChannelInfo] = useState<TChannels | null>();
 
   useEffect(() => {
@@ -23,7 +23,6 @@ export const useChannelData = (channelId: any, user: any, setError: any, setLoad
         console.error(error);
         setError(error);
       } finally {
-        setLoading(false);
       }
     };
 

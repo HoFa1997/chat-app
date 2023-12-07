@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import MessageCard from "./MessageCard";
 import { Box, CircularProgress, Chip, Typography } from "@mui/material";
 import { MessageHeader } from "./MessageHeader";
@@ -12,48 +12,22 @@ import {
   useChannelMemmberData,
   useMessageSubscription,
   useChannelMemberSubscription,
+  useScrollAndLoad,
 } from "./hooks";
 
 export default function MessageContainer({ channelId }: any) {
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState(new Map());
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [channelMembers, setChannelMembers] = useState(new Map());
-  const messagesEndRef = useRef<HTMLElement>(null);
 
-  const { channelInfo } = useChannelData(channelId, user, setError, setLoading);
+  const { loading, messageContainerRef, messagesEndRef } = useScrollAndLoad(messages);
+  const { channelInfo } = useChannelData(channelId, user, setError);
   useUserData(setUser, setError);
-  useMessagesData(channelId, setMessages, setError, setLoading);
-  const { isChannelMember, setIsChannelMember } = useChannelMemmberData(
-    channelId,
-    user,
-    setError,
-    setLoading,
-    setChannelMembers,
-  );
+  useMessagesData(channelId, setMessages, setError);
   useMessageSubscription(channelId, setMessages, messages, channelMembers);
+  const { isChannelMember, setIsChannelMember } = useChannelMemmberData(channelId, user, setError, setChannelMembers);
   useChannelMemberSubscription(channelId, channelMembers, setChannelMembers, user, setIsChannelMember);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      scrollToBottom();
-    }, 100); // Adjust the time as needed
-
-    return () => clearTimeout(timer);
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  if (loading && !user) {
-    return (
-      <Box sx={{ width: "100%", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   if (error) {
     return <Box>Error loading messages...</Box>;
@@ -86,6 +60,7 @@ export default function MessageContainer({ channelId }: any) {
 
   return (
     <Box
+      className="message_list"
       sx={{
         width: "100%",
         height: "100vh",
@@ -96,15 +71,37 @@ export default function MessageContainer({ channelId }: any) {
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
+        position: "relative",
       }}
     >
       <MessageHeader channelId={channelId} />
+      <Box
+        display={loading ? "block" : "none"}
+        style={{
+          backgroundImage: "url(/bg-chat.webp)",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+        }}
+        position="absolute"
+        width="100%"
+        height="100%"
+        top="0"
+        left="0"
+        zIndex="9"
+      >
+        <Box sx={{ width: "100%", height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <CircularProgress />
+        </Box>
+      </Box>
+
       {messages.size === 0 ? (
         <Box display="flex" alignItems="center" height="100vh" justifyContent="center" flexGrow={1}>
           <Chip label={<Typography variant="body2">No messages yet!</Typography>} />
         </Box>
       ) : (
         <Box
+          className="message_list"
           sx={{
             px: 10,
             flexGrow: 1,
@@ -113,6 +110,7 @@ export default function MessageContainer({ channelId }: any) {
             overflowY: "auto",
             scrollbarWidth: "none",
           }}
+          ref={messageContainerRef}
         >
           {Array.from(messages.values()).map((item, index, array) => (
             <MessageCard

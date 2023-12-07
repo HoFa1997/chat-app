@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabaseClient } from "@/api/supabase";
 
-export const useChannelMemmberData = (
-  channelId: any,
-  user: any,
-  setError: any,
-  setLoading: any,
-  setChannelMembers: any,
-) => {
+export const useChannelMemmberData = (channelId: any, user: any, setError: any, setChannelMembers: any) => {
   const [isChannelMember, setIsChannelMember] = useState(false);
 
   useEffect(() => {
@@ -33,7 +27,6 @@ export const useChannelMemmberData = (
         console.error(error);
         setError(error);
       } finally {
-        setLoading(false);
       }
     };
 
