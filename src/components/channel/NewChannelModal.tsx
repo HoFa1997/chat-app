@@ -34,8 +34,6 @@ export default function NewChannelModal() {
       name: "",
       description: "",
       slug: "",
-      member_limit: "" as any,
-      is_avatar_set: false,
       allow_emoji_reactions: true,
       mute_in_app_notifications: false,
     },
