@@ -121,12 +121,17 @@ function MessageCard({ data, user }: TMessageCardProps, ref: any) {
           {data.user_id.username}
         </Typography>
 
-        <Box sx={{ typography: "body1", color: "text.primary" }} dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        <Box
+          className="message--card__content"
+          dir="auto"
+          sx={{ typography: "body1", color: "text.primary", lineHeight: "1rem" }}
+          dangerouslySetInnerHTML={{ __html: htmlContent }}
+        />
 
         <Box marginLeft="auto" marginTop="2px" display="flex" alignItems="center">
           <MessageReaction message={data} />
 
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} margin="0 4px">
             {data?.reactions &&
               Object.keys(data?.reactions).map((reaction: string, index: number) => (
                 <Chip

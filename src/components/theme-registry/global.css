@@ -1,3 +1,7 @@
+* {
+  font-family: system-ui;
+}
+
 .tiptap {
   outline: none;
 }
@@ -7,4 +11,94 @@
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+.tiptap ul,
+ol {
+  padding: 0 1rem;
+}
+
+.tiptap p {
+  margin: 0;
+  line-height: 1.5rem;
+}
+
+pre {
+  background: #0d0d0d;
+  border-radius: 0.5rem;
+  color: #fff;
+  font-family: "JetBrainsMono", monospace;
+  padding: 0.75rem 1rem;
+}
+pre code {
+  background: none;
+  color: inherit;
+  font-size: 0.8rem;
+  padding: 0;
+}
+
+pre code .hljs-comment,
+pre code .hljs-quote {
+  color: #616161;
+}
+
+pre code .hljs-variable,
+pre code .hljs-template-variable,
+pre code .hljs-attribute,
+pre code .hljs-tag,
+pre code .hljs-name,
+pre code .hljs-regexp,
+pre code .hljs-link,
+pre code .hljs-name,
+pre code .hljs-selector-id,
+pre code .hljs-selector-class {
+  color: #f98181;
+}
+
+pre code .hljs-number,
+pre code .hljs-meta,
+pre code .hljs-built_in,
+pre code .hljs-builtin-name,
+pre code .hljs-literal,
+pre code .hljs-type,
+pre code .hljs-params {
+  color: #fbbc88;
+}
+
+pre code .hljs-string,
+pre code .hljs-symbol,
+pre code .hljs-bullet {
+  color: #b9f18d;
+}
+
+pre code .hljs-title,
+pre code .hljs-section {
+  color: #faf594;
+}
+
+pre code .hljs-keyword,
+pre code .hljs-selector-tag {
+  color: #70cff8;
+}
+
+pre code .hljs-emphasis {
+  font-style: italic;
+}
+
+pre code .hljs-strong {
+  font-weight: 700;
+}
+
+.message--card__content {
+  margin-top: 10px;
+}
+
+.message--card__content ul,
+ol {
+  padding: 0 1rem;
+}
+
+.message--card__content p {
+  margin: 0;
+  line-height: 1.5rem;
 }
