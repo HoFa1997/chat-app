@@ -38,7 +38,10 @@ export const useScrollAndLoad = (messages: Map<string, Message>) => {
   useEffect(() => {
     const container = messageContainerRef.current;
     if (container) {
+      const { scrollTop, scrollHeight, clientHeight } = container;
       container.addEventListener("scroll", checkIfScrolledToBottom);
+      // it mean there is not message tha need to scroll to bottom
+      if (scrollTop === 0 && scrollHeight === clientHeight) setLoading(false);
     }
 
     return () => {

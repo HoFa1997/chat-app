@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MessageCard from "./MessageCard";
 import { Box, CircularProgress, Chip, Typography } from "@mui/material";
 import { MessageHeader } from "./MessageHeader";
