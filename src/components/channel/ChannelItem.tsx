@@ -2,7 +2,7 @@
 import { TChannel } from "@/api";
 import { useEffect } from "react";
 import { supabaseClient } from "@/api/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Box, Avatar, ListItem, ListItemAvatar, ListItemText, Typography, Grid } from "@mui/material";
 import ImageIcon from "@mui/icons-material/Image";
 import React from "react";
@@ -11,6 +11,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import GroupsIcon from "@mui/icons-material/Groups";
 import ArchiveIcon from "@mui/icons-material/Archive";
+import { grey } from "@mui/material/colors";
 
 const ChannelTypeIcon = ({ channelType }: any) => {
   switch (channelType) {
@@ -53,6 +54,7 @@ const ChannelTypeIcon = ({ channelType }: any) => {
 
 export const ChannelItem = ({ data }: { data: TChannel }) => {
   const { refresh, push } = useRouter();
+  const { chatRoomId } = useParams();
 
   useEffect(() => {
     const channel = supabaseClient
@@ -88,13 +90,17 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
       sx={{
         ":hover": { cursor: "pointer", bgcolor: (t) => t.palette.grey[700] },
         p: 1,
+        pb: 0,
         display: "flex",
         flexDirection: "row",
         alignItems: "start",
+        borderRadius: "6px",
+        backgroundColor: chatRoomId === data.id ? "#6e6e6e" : "",
+        marginBottom: "8px",
       }}
     >
       <ListItemAvatar>
-        <Avatar>
+        <Avatar sx={{ bgcolor: grey[400] }}>
           <ImageIcon />
         </Avatar>
       </ListItemAvatar>
@@ -102,11 +108,11 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
       <Grid container rowSpacing={1}>
         <Grid item xs={12} md={12} lg={12} xl={12}>
           <Box display="flex" alignContent="center">
-            <Typography variant="subtitle1" display="flex" alignContent="center">
+            <Typography variant="body1" noWrap={true} display="flex" alignContent="center">
               <ChannelTypeIcon channelType={data.type} />
               <div style={{ marginLeft: "6px" }}>{data.name}</div>
             </Typography>
-            <Typography variant="subtitle1" marginLeft="auto">
+            <Typography variant="body1" fontSize="0.89rem" marginLeft="auto">
               {lastTimUpdated}
             </Typography>
           </Box>

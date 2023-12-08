@@ -101,6 +101,7 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
             bgcolor: "#464646",
             borderRadius: 5,
             mb: 2,
+            paddingRight: "6px",
           }}
         >
           <IconButton sx={{ mx: 1 }}>
