@@ -27,7 +27,7 @@ export default function LoginForm() {
         theme="dark"
         showLinks={false}
         providers={["google"]}
-        redirectTo="http://localhost:3000/auth/callback"
+        redirectTo={process.env.NEXT_PUBLIC_AUTH_REDIRECT_TO}
       />
     </Box>
   );
