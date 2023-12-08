@@ -4,13 +4,12 @@ import { Avatar, Box, IconButton, Menu, MenuItem, Typography } from "@mui/materi
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
 type UserInfoCardProps = {
   userData: User;
 };
 
 export const UserInfoCard = ({ userData: user }: UserInfoCardProps) => {
-  const { refresh } = useRouter();
+  const { refresh, push } = useRouter();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -23,6 +22,7 @@ export const UserInfoCard = ({ userData: user }: UserInfoCardProps) => {
 
   const handleLogout = async () => {
     await logout();
+    push("/login");
     refresh();
   };
   return (

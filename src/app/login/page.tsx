@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default async function Unauthenticated() {
+export default async function login() {
   const cookieStore = cookies();
 
   const supabase = createServerClient(

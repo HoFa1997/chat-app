@@ -12,7 +12,7 @@ export default function ThemeRegistry({ children, session }: { children: React.R
   const { replace } = useRouter();
   React.useEffect(() => {
     if (!session) {
-      replace("/unauthenticated");
+      replace("/login");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
