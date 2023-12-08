@@ -12,6 +12,8 @@ import { useForwardMessageInfo, useReplayMessageInfo } from "@/shared/hooks";
 import { ForwardMessage } from "./ForwardMessage";
 import { Box, IconButton } from "@mui/material";
 import { useState, useCallback } from "react";
+import Mention from "@tiptap/extension-mention";
+import suggestion from "./suggestion";
 
 type SendMessageProps = {
   channelId: string;
@@ -35,6 +37,12 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
           keepMarks: true,
           keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
         },
+      }),
+      Mention.configure({
+        HTMLAttributes: {
+          class: "mention",
+        },
+        suggestion,
       }),
       Placeholder.configure({
         placeholder: "Write a message...",
