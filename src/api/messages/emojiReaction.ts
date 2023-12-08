@@ -29,10 +29,6 @@ export const emojiReaction = async (message: any, newReaction: string) => {
     message.reactions[newReaction] = [{ user_id: user?.user.id, created_at: new Date().toISOString() }];
   }
 
-  console.log({
-    message,
-  });
-
   return await supabaseClient
     .from("messages")
     .update({ reactions: message.reactions })

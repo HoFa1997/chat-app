@@ -13,7 +13,13 @@ import MessageReaction from "./MessageReaction";
 type TMessageCardProps = {
   data: TMessageWithUser;
   user: User | null;
+  lastMsgUserId: string | null;
+  setLastMsgUserId: any;
+  toggleEmojiPicker: any;
+  selectedEmoji: any;
 };
+
+let lastMessageUserId: any = null;
 
 const DEFAULT_AVATAR_URL = "https://avatars.dicebear.com/api/avataaars/1.svg";
 
@@ -75,17 +81,34 @@ const getUserMessageStyle = (isCurrentUser: boolean, theme: any) => {
   };
 };
 
-function MessageCard({ data, user }: TMessageCardProps, ref: any) {
+function MessageCard({ data, user, toggleEmojiPicker, selectedEmoji }: TMessageCardProps, ref: any) {
   const theme = useTheme();
   const [htmlContent, setHtmlContent] = useState("");
   const contextMenu = useContextMenu();
+  const [userMessageStyle, setUserMessageStyle] = useState({});
+  const [currentUserMsg, setCurrentUserMsg] = useState(false);
 
   useEffect(() => {
     const sanitizedHtml = DOMPurify.sanitize(data.html);
     setHtmlContent(sanitizedHtml);
   }, [data.html]);
 
-  const userMessageStyle = getUserMessageStyle(data.user_id.id === user?.id, theme);
+  useEffect(() => {
+    const userMsgStyle = getUserMessageStyle(data.user_id.id === user?.id, theme);
+
+    if (data.user_id.id === user?.id) setCurrentUserMsg(true);
+
+    if (lastMessageUserId === null) lastMessageUserId = data.user_id.id;
+
+    if (lastMessageUserId === data.user_id.id) {
+      userMsgStyle["marginTop"] = "0px";
+      userMsgStyle["marginBottom"] = "8px";
+      delete (userMsgStyle as any)[":before"];
+    }
+
+    setUserMessageStyle(userMsgStyle);
+    lastMessageUserId = data.user_id.id;
+  }, [data, theme]);
 
   const createdAt = useMemo(
     () => formatDateTime(new Date(data.edited_at ? data.edited_at : data.created_at)),
@@ -97,13 +120,22 @@ function MessageCard({ data, user }: TMessageCardProps, ref: any) {
   const currentUserReactionSyle = {
     backgroundColor: "#1264a3",
     cursor: "pointer",
+    fontSize: "1.08rem",
   };
 
   return (
     <Box onContextMenu={contextMenu.showMenu} sx={{ ...userMessageStyle }} ref={ref}>
       <Avatar
         src={data?.user_id?.avatar_url ?? DEFAULT_AVATAR_URL}
-        sx={{ width: 40, height: 40, mr: 2, position: "absolute", left: "-50px", bottom: "0" }}
+        sx={{
+          width: 40,
+          height: 40,
+          mr: 2,
+          position: "absolute",
+          bottom: "0",
+          right: "0",
+          left: currentUserMsg ? "calc(100% + 10px)" : "-50px",
+        }}
         alt="User Avatar"
       />
       <Box sx={{ display: "flex", flexDirection: "column", width: "100%", alignItems: "start" }}>
@@ -142,12 +174,13 @@ function MessageCard({ data, user }: TMessageCardProps, ref: any) {
         />
 
         <Box marginLeft="auto" style={{ float: "right" }} display="flex" alignItems="center">
-          <MessageReaction message={data} />
+          <MessageReaction message={data} selectedEmoji={selectedEmoji} toggleEmojiPicker={toggleEmojiPicker} />
 
           <Stack direction="row" spacing={1} margin="0 4px">
             {data?.reactions &&
               Object.keys(data?.reactions).map((reaction: string, index: number) => (
                 <Chip
+                  size="small"
                   style={
                     data?.reactions[reaction]?.find((x: any) => x.user_id === user?.id)
                       ? currentUserReactionSyle

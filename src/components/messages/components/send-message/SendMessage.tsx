@@ -6,7 +6,7 @@ import SendIcon from "@mui/icons-material/SendRounded";
 import AttachmentIcon from "@mui/icons-material/AttachFileRounded";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import { MessageEditor } from "./MessageEditor";
+import { EditorToolbar } from "./EditorToolbar";
 import { ReplayMessage } from "./ReplayMessage";
 import { useForwardMessageInfo, useReplayMessageInfo } from "@/shared/hooks";
 import { ForwardMessage } from "./ForwardMessage";
@@ -14,6 +14,8 @@ import { Box, IconButton } from "@mui/material";
 import { useState, useCallback } from "react";
 import Mention from "@tiptap/extension-mention";
 import suggestion from "./suggestion";
+import TextFormatIcon from "@mui/icons-material/TextFormat";
+import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
 
 type SendMessageProps = {
   channelId: string;
@@ -25,6 +27,7 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
   const forwardedMessage = useForwardMessageInfo();
   const [html, setHtml] = useState("");
   const [text, setText] = useState("");
+  const [showEditorToolbar, setShowEditorToolbar] = useState(true);
 
   const editor = useEditor({
     extensions: [
@@ -75,6 +78,15 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
       });
   }, [user, text, html]);
 
+  const openEmojiPicker = (clickEvent: any) => {
+    // setShowEditorToolbar(false);
+    // editor?.chain().focus().insertContentAtCursor("🙂").run();
+    const event = new CustomEvent("toggelEmojiPicker", {
+      detail: { clickEvent: clickEvent, editor, type: "inserEmojiToEditor" },
+    });
+    document.dispatchEvent(event);
+  };
+
   if (!editor) return null;
 
   return (
@@ -90,29 +102,49 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
     >
       <ReplayMessage />
       <ForwardMessage user={user} />
-      <MessageEditor editor={editor} />
-      <Box onKeyDown={(e) => e.key === "Enter" && e.metaKey && submit()} sx={{ width: "100%", px: 2 }}>
+      <EditorToolbar
+        editor={editor}
+        sx={{
+          display: showEditorToolbar ? "flex" : " none",
+          p: 1,
+          px: 2,
+        }}
+      />
+
+      <Box
+        onKeyDown={(e) => e.key === "Enter" && e.metaKey && submit()}
+        sx={{ width: "100%", px: 2, mb: 2, mt: showEditorToolbar ? 0 : 2 }}
+      >
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexGrow: 1,
             bgcolor: "#464646",
-            borderRadius: 5,
-            mb: 2,
-            paddingRight: "6px",
+            borderRadius: "6px",
+            px: "10px",
+            pb: 0,
+            pt: 0,
           }}
         >
-          <IconButton sx={{ mx: 1 }}>
-            <AttachmentIcon />
-          </IconButton>
+          <Box sx={{ py: 1 }}>
+            <EditorContent style={{ width: "100%" }} editor={editor} dir="auto" />
+          </Box>
 
-          <EditorContent style={{ width: "100%" }} editor={editor} />
+          <Box width="100%" display="flex">
+            <IconButton sx={{ mx: 1, margin: 0 }}>
+              <AttachmentIcon color="action" />
+            </IconButton>
 
-          <IconButton onClick={submit} type="submit" disabled={editor.isEmpty}>
-            <SendIcon />
-          </IconButton>
+            <IconButton sx={{ mx: 1, margin: 0 }} onClick={() => setShowEditorToolbar(!showEditorToolbar)}>
+              <TextFormatIcon color="action" />
+            </IconButton>
+
+            <IconButton sx={{ mx: 1, margin: 0 }}>
+              <SentimentSatisfiedAltIcon color="action" onClick={openEmojiPicker} />
+            </IconButton>
+
+            <IconButton onClick={submit} sx={{ marginLeft: "auto" }} type="submit" disabled={editor.isEmpty}>
+              <SendIcon />
+            </IconButton>
+          </Box>
         </Box>
       </Box>
     </Box>

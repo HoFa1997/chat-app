@@ -11,6 +11,8 @@
     "type-check": "tsc --pretty --noEmit"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.1.2",
+    "@emoji-mart/react": "^1.1.1",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@hookform/resolvers": "^3.3.2",
@@ -30,6 +32,7 @@
     "@tiptap/starter-kit": "^2.1.12",
     "@tiptap/suggestion": "^2.1.13",
     "dompurify": "^3.0.6",
+    "emoji-mart": "^5.5.2",
     "next": "^14.0.2-canary.26",
     "notistack": "^3.0.1",
     "react": "^18",

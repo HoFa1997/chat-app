@@ -42,7 +42,6 @@ export const ForwardMessage = ({ user }: TForwardMessageProps) => {
         .select("*, channel_members (member_id)")
         .eq("channel_members.member_id", user.id);
 
-      console.log({ data });
       data && setChannels(data);
     };
     getChannels();
@@ -59,6 +58,11 @@ export const ForwardMessage = ({ user }: TForwardMessageProps) => {
   });
 
   const submit: SubmitHandler<FormData> = async ({ channel_id }) => {
+    console.log({
+      channel_id,
+      user_id: user.id,
+      original_message_id: forwardedMessage?.id,
+    });
     await supabaseClient
       .from("messages")
       .insert({
@@ -87,9 +91,9 @@ export const ForwardMessage = ({ user }: TForwardMessageProps) => {
         <Typography id="forward-message-modal-title" variant="h6" component="h2">
           Forward Message
         </Typography>
-        <Typography id="forward-message-modal-description" sx={{ mt: 2 }}>
+        {/* <Typography id="forward-message-modal-description" sx={{ mt: 2 }}>
           {forwardedMessage.content}
-        </Typography>
+        </Typography> */}
         <List>
           {channels.map((channel) => (
             <ListItemButton

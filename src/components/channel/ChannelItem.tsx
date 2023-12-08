@@ -110,7 +110,7 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
           <Box display="flex" alignContent="center">
             <Typography variant="body1" noWrap={true} display="flex" alignContent="center">
               <ChannelTypeIcon channelType={data.type} />
-              <div style={{ marginLeft: "6px" }}>{data.name}</div>
+              <span style={{ marginLeft: "6px" }}>{data.name}</span>
             </Typography>
             <Typography variant="body1" fontSize="0.89rem" marginLeft="auto">
               {lastTimUpdated}

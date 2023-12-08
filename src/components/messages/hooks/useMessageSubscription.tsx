@@ -13,11 +13,7 @@ export const useMessageSubscription = (channelId: string, setMessages: any, mess
             const userdata = channelMembers.get(payload.new.user_id);
             const reply_to_message_id = messages.get(payload.new.reply_to_message_id);
             // TODO: reply message user id
-            console.log({
-              userdata,
-              channelMembers,
-              userId: payload.new.user_id,
-            });
+
             if (payload.new.deleted_at) return;
 
             const newMessage = {

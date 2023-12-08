@@ -66,9 +66,7 @@ export default function NewChannelModal() {
 
   const submit: SubmitHandler<ChannelsSchemaType> = async (data, event) => {
     event?.preventDefault();
-    console.log({
-      user,
-    });
+
     if (user) {
       setLoading(true);
       try {
@@ -76,7 +74,7 @@ export default function NewChannelModal() {
         enqueueSnackbar("Channel created successfully", { variant: "success" });
         handleCloseModal();
       } catch (error: any) {
-        console.log(error);
+        console.error(error);
         enqueueSnackbar(error.message, { variant: "error" });
       } finally {
         setLoading(false);

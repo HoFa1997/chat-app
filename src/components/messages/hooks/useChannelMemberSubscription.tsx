@@ -15,7 +15,6 @@ export const useChannelMemberSubscription = (
         "postgres_changes",
         { event: "*", schema: "public", table: "channel_members", filter: `channel_id=eq.${channelId}` },
         (payload: any) => {
-          console.log({ payload });
           if (payload.eventType === "INSERT") {
             console.log("INSERT channel_member_subscription", { payload });
 
