@@ -71,5 +71,6 @@ export const useMessageSubscription = (channelId: string, setMessages: any, mess
     return () => {
       messageSubscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channelId, channelMembers]);
 };

@@ -25,5 +25,6 @@ export const useMessagesData = (channelId: any, setMessages: any, setError: any)
     if (channelId) {
       fetchMessages();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channelId]);
 };

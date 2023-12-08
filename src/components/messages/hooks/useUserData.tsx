@@ -14,5 +14,6 @@ export const useUserData = (setUser: any, setError: any) => {
     };
 
     fetchUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 };

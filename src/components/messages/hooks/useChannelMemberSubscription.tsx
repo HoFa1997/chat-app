@@ -56,5 +56,6 @@ export const useChannelMemberSubscription = (
     return () => {
       channelMemberSubscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channelId, channelMembers, user]);
 };

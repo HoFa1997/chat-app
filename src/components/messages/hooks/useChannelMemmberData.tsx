@@ -31,6 +31,7 @@ export const useChannelMemmberData = (channelId: any, user: any, setError: any, 
     };
 
     if (channelId && user) fetchChannelData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channelId, user]);
 
   return { isChannelMember, setIsChannelMember };

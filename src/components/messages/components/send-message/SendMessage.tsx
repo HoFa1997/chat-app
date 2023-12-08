@@ -65,6 +65,7 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
       .then(() => {
         editor?.commands.clearContent(true);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, text, html]);
 
   if (!editor) return null;

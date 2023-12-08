@@ -1,22 +1,22 @@
 "use client";
 import { logout } from "@/api";
-import { Avatar, Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
-import { User } from "@supabase/supabase-js";
+import { Avatar, Box, IconButton, Menu, MenuItem, Skeleton, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useGetUserSession, useGetUserId, useProfileModal } from "@/shared/hooks";
 
-type UserInfoCardProps = {
-  userData: User;
-};
-
-export const UserInfoCard = ({ userData: user }: UserInfoCardProps) => {
+export const UserInfoCard = () => {
   const { refresh } = useRouter();
-
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const userId = useGetUserId();
+  const { user } = useGetUserSession({ userId });
+
+  const { ModalComponent, profileModal, setProfileModal } = useProfileModal({ user });
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -25,31 +25,44 @@ export const UserInfoCard = ({ userData: user }: UserInfoCardProps) => {
     await logout();
     refresh();
   };
+
+  const handelOpenProfileModal = () => {
+    handleClose();
+    setProfileModal(true);
+  };
+
   return (
     <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
       <Typography variant="h6">Chats</Typography>
+
       <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center" }}>
         <Typography variant="body2" mr={1}>
-          {user?.email}
+          {user?.email ? user.email : <Skeleton variant="text" width={100} />}
         </Typography>
+
         <IconButton onClick={handleClick}>
-          {user ? <Avatar alt="Avatar" src={user.user_metadata.avatar_url} /> : null}
+          {user?.avatar_url ? (
+            <Avatar alt="Avatar" src={user.avatar_url} />
+          ) : (
+            <Skeleton variant="circular" width={40} height={40} />
+          )}
         </IconButton>
       </Box>
 
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}
-        open={open}
+        open={Boolean(anchorEl)}
         onClose={handleClose}
         MenuListProps={{
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={() => {}}>Profile</MenuItem>
+        <MenuItem onClick={handelOpenProfileModal}>Profile</MenuItem>
         <MenuItem onClick={() => {}}>My account</MenuItem>
         <MenuItem onClick={handleLogout}>Logout</MenuItem>
       </Menu>
+      {profileModal && <ModalComponent />}
     </Box>
   );
 };

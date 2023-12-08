@@ -4,7 +4,6 @@ import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import { TChannel } from "@/api";
 import { List, ListItemButton, ListItemText } from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { setForwardMessage, useForwardMessageInfo } from "@/shared/hooks";
@@ -46,6 +45,7 @@ export const ForwardMessage = ({ user }: TForwardMessageProps) => {
       data && setChannels(data);
     };
     getChannels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {

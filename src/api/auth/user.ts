@@ -1,4 +1,7 @@
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import { supabaseServer } from "../supabase";
+import { Database } from "@/types/supabase";
+import { supabaseClient } from "../supabase";
 
-export const getUser = async (cookieStore: ReadonlyRequestCookies) => await supabaseServer(cookieStore).auth.getUser();
+export type TUser = Database["public"]["Tables"]["users"]["Row"];
+
+export const getUser = async (userId: string) =>
+  await supabaseClient.from("users").select("*").eq("id", userId).returns<TUser>().single();
