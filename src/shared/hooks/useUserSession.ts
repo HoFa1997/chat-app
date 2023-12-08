@@ -2,15 +2,16 @@ import { useState, useEffect } from "react";
 import { useSnackbar } from "notistack";
 import { TUser, getUser } from "@/api/auth";
 type useUserSessionProps = {
-  userId: string | null;
+  userId: string | null | undefined;
+  enabled: boolean;
 };
-export const useGetUserSession = ({ userId }: useUserSessionProps) => {
+export const useGetUserSession = ({ userId, enabled }: useUserSessionProps) => {
   const [user, setUser] = useState<TUser | null>(null);
   const [isLoading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
-    if (userId) {
+    if (userId && enabled) {
       const fetchUser = async () => {
         try {
           const { data: userData } = await getUser(userId);
@@ -28,7 +29,7 @@ export const useGetUserSession = ({ userId }: useUserSessionProps) => {
       fetchUser();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [userId, enabled]);
 
   return { user, isLoading };
 };

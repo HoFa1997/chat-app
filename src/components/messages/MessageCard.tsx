@@ -4,7 +4,7 @@ import { TMessageWithUser, emojiReaction } from "@/api";
 import { getColorFromClass } from "@/shared/utils";
 import { User } from "@supabase/supabase-js";
 import DOMPurify from "dompurify";
-import { useContextMenu } from "@/shared/hooks";
+import { useContextMenu, useProfileModal } from "@/shared/hooks";
 import { MessageContextMenu } from "./MessageContextMenu";
 import { Box, Avatar, Typography, Stack, Chip, useTheme } from "@mui/material";
 import ReplyIcon from "@mui/icons-material/Reply";
@@ -14,8 +14,6 @@ type TMessageCardProps = {
   data: TMessageWithUser;
   user: User | null;
 };
-
-const DEFAULT_AVATAR_URL = "https://avatars.dicebear.com/api/avataaars/1.svg";
 
 const formatDateTime = (date: Date) => {
   return date.toLocaleString("en-US", {
@@ -77,6 +75,9 @@ function MessageCard({ data, user }: TMessageCardProps, ref: any) {
   const theme = useTheme();
   const [htmlContent, setHtmlContent] = useState("");
   const contextMenu = useContextMenu();
+  const { ModalComponent, profileModal, setProfileModal } = useProfileModal({
+    userId: data.user_id.id,
+  });
 
   useEffect(() => {
     const sanitizedHtml = DOMPurify.sanitize(data.html);
@@ -99,11 +100,12 @@ function MessageCard({ data, user }: TMessageCardProps, ref: any) {
 
   return (
     <Box onContextMenu={contextMenu.showMenu} sx={{ ...userMessageStyle }} ref={ref}>
-      <Avatar
-        src={data?.user_id?.avatar_url ?? DEFAULT_AVATAR_URL}
-        sx={{ width: 40, height: 40, mr: 2 }}
-        alt="User Avatar"
-      />
+      {profileModal && <ModalComponent />}
+      <Box onClick={() => setProfileModal(true)} sx={{ ":hover": { cursor: "pointer" } }}>
+        <Avatar src={data?.user_id?.avatar_url} sx={{ width: 40, height: 40, mr: 2 }} alt="User Avatar">
+          {data.user_id.username[0]?.toUpperCase()}
+        </Avatar>
+      </Box>
       <Box sx={{ display: "flex", flexDirection: "column", width: "100%", alignItems: "start" }}>
         {data.reply_to_message_id && (
           <Box sx={{ bgcolor: (t) => t.palette.background.paper, p: 2, borderRadius: 5 }}>

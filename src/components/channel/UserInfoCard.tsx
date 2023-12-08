@@ -3,15 +3,14 @@ import { logout } from "@/api";
 import { Avatar, Box, IconButton, Menu, MenuItem, Skeleton, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useGetUserSession, useGetUserId, useProfileModal } from "@/shared/hooks";
+import { useGetUserId, useGetUserSession, useProfileModal } from "@/shared/hooks";
 
 export const UserInfoCard = () => {
   const { refresh } = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const userId = useGetUserId();
-  const { user } = useGetUserSession({ userId });
-
-  const { ModalComponent, profileModal, setProfileModal } = useProfileModal({ user });
+  const { user } = useGetUserSession({ userId, enabled: true });
+  const { ModalComponent, profileModal, setProfileModal } = useProfileModal({ userId });
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
