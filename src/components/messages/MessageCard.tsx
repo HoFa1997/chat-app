@@ -28,10 +28,15 @@ const formatDateTime = (date: Date) => {
 const getUserMessageStyle = (isCurrentUser: boolean, theme: any) => {
   const commonStyle = {
     my: 1,
-    width: "60%",
+    width: "fit-content",
+    maxWidth: "60%",
+    minWidth: "20%",
     display: "flex",
     borderRadius: 3,
     position: "relative",
+    p: 1,
+    px: 2,
+    pb: 0,
     ":before": {
       content: "''",
       position: "absolute",
@@ -48,9 +53,8 @@ const getUserMessageStyle = (isCurrentUser: boolean, theme: any) => {
   if (isCurrentUser) {
     return {
       ...commonStyle,
-      p: 1,
       bgcolor: theme.palette.whatsAppGreen[100],
-      marginLeft: "calc(40% - 10px)",
+      marginLeft: "auto",
       ":before": {
         ...commonStyle[":before"],
         right: -10,
@@ -61,8 +65,6 @@ const getUserMessageStyle = (isCurrentUser: boolean, theme: any) => {
 
   return {
     ...commonStyle,
-    px: 2,
-    pt: 2,
     marginLeft: "10px",
     bgcolor: theme.palette.whatsAppGreen[200],
     ":before": {
@@ -101,20 +103,31 @@ function MessageCard({ data, user }: TMessageCardProps, ref: any) {
     <Box onContextMenu={contextMenu.showMenu} sx={{ ...userMessageStyle }} ref={ref}>
       <Avatar
         src={data?.user_id?.avatar_url ?? DEFAULT_AVATAR_URL}
-        sx={{ width: 40, height: 40, mr: 2 }}
+        sx={{ width: 40, height: 40, mr: 2, position: "absolute", left: "-50px", bottom: "0" }}
         alt="User Avatar"
       />
       <Box sx={{ display: "flex", flexDirection: "column", width: "100%", alignItems: "start" }}>
         {data.reply_to_message_id && (
-          <Box sx={{ bgcolor: (t) => t.palette.background.paper, p: 2, borderRadius: 5 }}>
+          <Box
+            sx={{
+              bgcolor: (t) => t.palette.background.paper,
+              p: 1,
+              px: 1,
+              paddingBottom: "2px",
+              borderRadius: "4px 6px 6px 4px",
+              borderLeft: "4px solid #ff5722",
+            }}
+          >
             <Typography
               variant="body2"
               color="text.secondary"
-              sx={{ color: getColorFromClass(data?.reply_to_message_id.user_id?.username) }}
+              sx={{ fontSize: ".8rem", color: getColorFromClass(data?.reply_to_message_id.user_id?.username) }}
             >
               {data?.reply_to_message_id.user_id?.username}
             </Typography>
-            <Typography variant="body1">{data?.replied_message_preview}</Typography>
+            <Typography variant="body1" mt={1} dir="auto">
+              {data?.replied_message_preview}
+            </Typography>
           </Box>
         )}
         <Typography mt={1} variant="caption" sx={{ color: getColorFromClass(data.user_id.username) }}>
@@ -128,7 +141,7 @@ function MessageCard({ data, user }: TMessageCardProps, ref: any) {
           dangerouslySetInnerHTML={{ __html: htmlContent }}
         />
 
-        <Box marginLeft="auto" marginTop="2px" display="flex" alignItems="center">
+        <Box marginLeft="auto" style={{ float: "right" }} display="flex" alignItems="center">
           <MessageReaction message={data} />
 
           <Stack direction="row" spacing={1} margin="0 4px">
