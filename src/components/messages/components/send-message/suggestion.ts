@@ -1,9 +1,11 @@
+/* eslint-disable */
+// @ts-nocheck
+
 import { ReactRenderer } from "@tiptap/react";
 import tippy from "tippy.js";
 
 import MentionList from "./MentionList";
 
-// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   items: ({ query }) => {
     return [

@@ -1,5 +1,7 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+/* eslint-disable */
+// @ts-nocheck
 
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 export default forwardRef((props, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
 

@@ -35,7 +35,7 @@ export const EditorToolbar = ({ editor, sx }: { editor: Editor; sx: any }) => {
   }, [editor]);
 
   // Function to determine the background color based on the state and editor's isActive method
-  const getBackgroundColor = (condition) => {
+  const getBackgroundColor = (condition: any) => {
     if (!isFocused) {
       return "grey.700"; // Replace with your desired color when not focused
     }
