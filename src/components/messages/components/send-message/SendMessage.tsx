@@ -1,17 +1,17 @@
 "use client";
 import { supabaseClient } from "@/api/supabase";
 import { User } from "@supabase/supabase-js";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import SendIcon from "@mui/icons-material/SendRounded";
 import AttachmentIcon from "@mui/icons-material/AttachFileRounded";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorToolbar } from "./EditorToolbar";
 import { ReplayMessage } from "./ReplayMessage";
-import { useForwardMessageInfo, useReplayMessageInfo } from "@/shared/hooks";
+import { useForwardMessageInfo, useReplayMessageInfo, setReplayMessage } from "@/shared/hooks";
 import { ForwardMessage } from "./ForwardMessage";
 import { Box, IconButton } from "@mui/material";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Mention from "@tiptap/extension-mention";
 import suggestion from "./suggestion";
 import TextFormatIcon from "@mui/icons-material/TextFormat";
@@ -29,7 +29,7 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
   const [text, setText] = useState("");
   const [showEditorToolbar, setShowEditorToolbar] = useState(true);
 
-  const editor = useEditor({
+  const editor: Editor | null = useEditor({
     extensions: [
       StarterKit.configure({
         bulletList: {
@@ -59,6 +59,17 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
     editable: true,
   });
 
+  useEffect(() => {
+    if (!editor) return;
+    // custom event listener, to handle focus on editor
+    const handleFocus = () => {
+      editor.commands.focus();
+    };
+    document.addEventListener("editor:focus", handleFocus);
+
+    console.log("editor", editor);
+  }, [editor]);
+
   const submit = useCallback(async () => {
     if (!html || !text) return;
 
@@ -76,6 +87,9 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
       .then(() => {
         editor?.commands.clearContent(true);
       });
+    // if it has reply or forward message, clear it
+    if (replayedMessage) setReplayMessage(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, text, html]);
 
   const openEmojiPicker = (clickEvent: any) => {

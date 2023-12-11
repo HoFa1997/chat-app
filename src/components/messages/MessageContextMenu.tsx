@@ -18,6 +18,11 @@ export const MessageContextMenu = ({
   const handleReplayMessage = () => {
     if (messageData) {
       setReplayMessage(messageData);
+
+      // call editor focus
+      const event = new CustomEvent("editor:focus");
+      document.dispatchEvent(event);
+
       closeMenu();
     }
   };
