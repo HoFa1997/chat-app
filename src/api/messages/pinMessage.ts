@@ -1,6 +1,6 @@
 import { supabaseClient } from "../supabase";
 
-export const pinMessage = async (channelId: string, messageId: string) => {
+export const pinMessage = async (channelId: string, messageId: string, actionType: string) => {
   const {
     data: { session: user },
     error,
@@ -11,6 +11,14 @@ export const pinMessage = async (channelId: string, messageId: string) => {
   }
 
   if (!user) throw new Error("User not found");
+
+  if (actionType === "unpin")
+    return await supabaseClient
+      .from("pinned_messages")
+      .delete()
+      .eq("message_id", messageId)
+      .eq("channel_id", channelId)
+      .throwOnError();
 
   return await supabaseClient
     .from("pinned_messages")

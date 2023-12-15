@@ -8,7 +8,7 @@ type Message = {
 };
 
 // If the type of messages is different, adjust the Map type accordingly.
-export const useScrollAndLoad = (messages: Map<string, Message>) => {
+export const useScrollAndLoad = (messages: Map<string, Message>, initialMessagesLoaded: boolean) => {
   const [loading, setLoading] = useState<boolean>(true);
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -36,12 +36,16 @@ export const useScrollAndLoad = (messages: Map<string, Message>) => {
   }, [messages, loading]);
 
   useEffect(() => {
+    if (!initialMessagesLoaded) return;
     const container = messageContainerRef.current;
     if (container) {
       const { scrollTop, scrollHeight, clientHeight } = container;
       container.addEventListener("scroll", checkIfScrolledToBottom);
+
       // it mean there is not message tha need to scroll to bottom
       if (scrollTop === 0 && scrollHeight === clientHeight) setLoading(false);
+    } else {
+      setLoading(false);
     }
 
     return () => {
@@ -49,7 +53,7 @@ export const useScrollAndLoad = (messages: Map<string, Message>) => {
         container.removeEventListener("scroll", checkIfScrolledToBottom);
       }
     };
-  }, [messageContainerRef, messages]);
+  }, [messageContainerRef, messages, initialMessagesLoaded]);
 
   return { loading, messageContainerRef, messagesEndRef };
 };

@@ -4,7 +4,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { emojiReaction } from "@/api";
 
-export const useEmojiBoxHandler = (emojiPikerRef: any) => {
+export const useEmojiBoxHandler = (emojiPikerRef: any, messageContainerRef: any) => {
   const [isEmojiBoxOpen, setIsEmojiBoxOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState(null);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
@@ -48,6 +48,28 @@ export const useEmojiBoxHandler = (emojiPikerRef: any) => {
       setSelectedMessage(message);
     });
   }, []);
+
+  useEffect(() => {
+    // Only attach listeners if the emoji box is open and the container exists
+    if (!isEmojiBoxOpen || !messageContainerRef.current) {
+      return;
+    }
+
+    const handleEvent = () => {
+      closeEmojiPicker();
+    };
+
+    // Attach event listeners
+    const msgContainer = messageContainerRef.current;
+    msgContainer.addEventListener("scroll", handleEvent);
+    window.addEventListener("resize", handleEvent);
+
+    // Clean up event listeners
+    return () => {
+      msgContainer.removeEventListener("scroll", handleEvent);
+      window.removeEventListener("resize", handleEvent);
+    };
+  }, [isEmojiBoxOpen]); // Depend only on isEmojiBoxOpen
 
   const openEmojiPicker = useCallback(() => {
     setIsEmojiBoxOpen(true);

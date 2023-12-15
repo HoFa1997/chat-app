@@ -9,10 +9,11 @@ import { getColorFromClass } from "@/shared/utils";
 import { User } from "@supabase/supabase-js";
 import DOMPurify from "dompurify";
 import { useContextMenu } from "@/shared/hooks";
-import { MessageContextMenu } from "./MessageContextMenu";
+import { MessageContextMenu } from "../../MessageContextMenu";
 import { Box, Avatar, Typography, Stack, Chip, useTheme } from "@mui/material";
 import ReplyIcon from "@mui/icons-material/Reply";
-import MessageReaction from "./MessageReaction";
+import MessageReaction from "../../MessageReaction";
+import PushPinIcon from "@mui/icons-material/PushPin";
 
 type TMessageCardProps = {
   data: TMessageWithUser;
@@ -98,20 +99,20 @@ function MessageCard({ data, user, toggleEmojiPicker, selectedEmoji }: TMessageC
   }, [data.html]);
 
   useEffect(() => {
-    const userMsgStyle = getUserMessageStyle(data.user_id.id === user?.id, theme);
+    const userMsgStyle = getUserMessageStyle(data.user_details.id === user?.id, theme);
 
-    if (data.user_id.id === user?.id) setCurrentUserMsg(true);
+    if (data.user_details.id === user?.id) setCurrentUserMsg(true);
 
-    if (lastMessageUserId === null) lastMessageUserId = data.user_id.id;
+    if (lastMessageUserId === null) lastMessageUserId = data.user_details.id;
 
-    if (lastMessageUserId === data.user_id.id) {
+    if (lastMessageUserId === data.user_details.id) {
       userMsgStyle["marginTop"] = "0px";
       userMsgStyle["marginBottom"] = "8px";
       delete (userMsgStyle as any)[":before"];
     }
 
     setUserMessageStyle(userMsgStyle);
-    lastMessageUserId = data.user_id.id;
+    lastMessageUserId = data.user_details.id;
   }, [data, theme]);
 
   const createdAt = useMemo(
@@ -130,7 +131,7 @@ function MessageCard({ data, user, toggleEmojiPicker, selectedEmoji }: TMessageC
   return (
     <Box onContextMenu={contextMenu.showMenu} sx={{ ...userMessageStyle }} ref={ref}>
       <Avatar
-        src={data?.user_id?.avatar_url ?? DEFAULT_AVATAR_URL}
+        src={data?.user_details?.avatar_url ?? DEFAULT_AVATAR_URL}
         sx={{
           width: 40,
           height: 40,
@@ -157,7 +158,10 @@ function MessageCard({ data, user, toggleEmojiPicker, selectedEmoji }: TMessageC
             <Typography
               variant="body2"
               color="text.secondary"
-              sx={{ fontSize: ".8rem", color: getColorFromClass(data?.reply_to_message_id.user_id?.username) }}
+              sx={{
+                fontSize: ".8rem",
+                color: getColorFromClass(data?.reply_to_message_id.user_id?.username),
+              }}
             >
               {data?.reply_to_message_id.user_id?.username}
             </Typography>
@@ -166,8 +170,8 @@ function MessageCard({ data, user, toggleEmojiPicker, selectedEmoji }: TMessageC
             </Typography>
           </Box>
         )}
-        <Typography mt={1} variant="caption" sx={{ color: getColorFromClass(data.user_id.username) }}>
-          {data.user_id.username}
+        <Typography mt={1} variant="caption" sx={{}}>
+          {data.user_details.username}
         </Typography>
 
         <Box
@@ -209,6 +213,7 @@ function MessageCard({ data, user, toggleEmojiPicker, selectedEmoji }: TMessageC
             )}
           </Box>
           <Typography variant="subtitle2"> {createdAt}</Typography>
+          {data.metadata?.pinned && <PushPinIcon sx={{ color: "#fff", ml: 1, fontSize: "1rem" }} />}
         </Box>
       </Box>
 

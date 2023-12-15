@@ -56,26 +56,26 @@ export const ChannelItem = ({ data }: { data: TChannel }) => {
   const { refresh, push } = useRouter();
   const { chatRoomId } = useParams();
 
-  useEffect(() => {
-    const channel = supabaseClient
-      .channel("realtime_channels")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "channels",
-        },
-        () => {
-          refresh();
-        },
-      )
-      .subscribe();
+  // useEffect(() => {
+  //   // const channel = supabaseClient
+  //   //   .channel("realtime_channels")
+  //   //   .on(
+  //   //     "postgres_changes",
+  //   //     {
+  //   //       event: "*",
+  //   //       schema: "public",
+  //   //       table: "channels",
+  //   //     },
+  //   //     () => {
+  //   //       // refresh();
+  //   //     },
+  //   //   )
+  //   //   .subscribe();
 
-    return () => {
-      supabaseClient.removeChannel(channel);
-    };
-  }, [refresh]);
+  //   return () => {
+  //     supabaseClient.removeChannel(channel);
+  //   };
+  // }, [refresh]);
 
   const lastTimUpdated = new Date(data?.last_activity_at).toLocaleTimeString("en-US", {
     hour: "numeric",

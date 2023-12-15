@@ -28,6 +28,7 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
   const [html, setHtml] = useState("");
   const [text, setText] = useState("");
   const [showEditorToolbar, setShowEditorToolbar] = useState(true);
+  // return <>editor</>;
 
   const editor: Editor | null = useEditor({
     extensions: [
@@ -66,8 +67,6 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
       editor.commands.focus();
     };
     document.addEventListener("editor:focus", handleFocus);
-
-    console.log("editor", editor);
   }, [editor]);
 
   const submit = useCallback(async () => {
@@ -81,7 +80,7 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
         user_id: user.id,
         html,
         reply_to_message_id: replayedMessage?.id,
-        original_message_id: forwardedMessage?.id,
+        origin_message_id: forwardedMessage?.id,
       })
       .select()
       .then(() => {
@@ -151,8 +150,8 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
               <TextFormatIcon color="action" />
             </IconButton>
 
-            <IconButton sx={{ mx: 1, margin: 0 }}>
-              <SentimentSatisfiedAltIcon color="action" onClick={openEmojiPicker} />
+            <IconButton sx={{ mx: 1, margin: 0 }} onClick={openEmojiPicker}>
+              <SentimentSatisfiedAltIcon color="action" />
             </IconButton>
 
             <IconButton onClick={submit} sx={{ marginLeft: "auto" }} type="submit" disabled={editor.isEmpty}>

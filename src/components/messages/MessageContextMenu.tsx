@@ -45,11 +45,12 @@ export const MessageContextMenu = ({
   };
 
   const handlePinMessage = async () => {
-    const { error } = await pinMessage(messageData.channel_id, messageData.id);
+    const actionType = messageData.metadata?.pinned ? "unpin" : "pin";
+    const { error } = await pinMessage(messageData.channel_id, messageData.id, actionType);
     if (!error) {
-      enqueueSnackbar("Message pinned", { variant: "success" });
+      enqueueSnackbar(`Message ${actionType}`, { variant: "success" });
     } else {
-      enqueueSnackbar("Message not pinned", { variant: "error" });
+      enqueueSnackbar(`Message not ${actionType}`, { variant: "error" });
     }
     closeMenu();
   };
@@ -57,7 +58,7 @@ export const MessageContextMenu = ({
   const messageButtonList = [
     { title: "Replay", icon: <ReplayIcon />, onClickFn: handleReplayMessage },
     { title: "Forward", icon: <ForwardIcon />, onClickFn: handleForwardMessage },
-    { title: "Pin", icon: <PinIcon />, onClickFn: () => handlePinMessage() },
+    { title: messageData.metadata?.pinned ? "Unpin" : "Pin", icon: <PinIcon />, onClickFn: () => handlePinMessage() },
     { title: "Delete", icon: <DeleteIcon />, onClickFn: () => handelDeleteMessage() },
   ];
 

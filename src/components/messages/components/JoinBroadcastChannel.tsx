@@ -7,18 +7,23 @@ import { Box, Button } from "@mui/material";
 type JoinChannelProp = {
   channelId: string;
   user: User;
-  isChannelMember: boolean;
-  channelMembers: any;
+  isUserChannelMember: boolean;
+  channelMemberInfo: any;
 };
 
-export default function JoinBroadcastChannel({ channelId, user, isChannelMember, channelMembers }: JoinChannelProp) {
+export default function JoinBroadcastChannel({
+  channelId,
+  user,
+  isUserChannelMember,
+  channelMemberInfo,
+}: JoinChannelProp) {
   const [mute, setMute] = useState(false);
 
   useEffect(() => {
-    if (!channelMembers) return;
+    if (!channelMemberInfo) return;
 
-    setMute(channelMembers.mute_in_app_notifications);
-  }, [channelMembers]);
+    setMute(channelMemberInfo.mute_in_app_notifications);
+  }, [channelMemberInfo]);
 
   const joinUserToChannel = useCallback(async () => {
     try {
@@ -34,10 +39,9 @@ export default function JoinBroadcastChannel({ channelId, user, isChannelMember,
     }
   }, [user, channelId]);
 
+  // we do not need to reload the page, the mute/unmute notification will be handled from the server
   const muteHandler = useCallback(
     async (muteOrUnmute: boolean) => {
-      if (!channelMembers) return;
-
       setMute(muteOrUnmute);
 
       try {
@@ -57,7 +61,7 @@ export default function JoinBroadcastChannel({ channelId, user, isChannelMember,
         console.error(error);
       }
     },
-    [user, channelId, channelMembers],
+    [user, channelId],
   );
 
   return (
@@ -71,7 +75,7 @@ export default function JoinBroadcastChannel({ channelId, user, isChannelMember,
         borderTop: "2px solid #464646",
       }}
     >
-      {isChannelMember ? (
+      {isUserChannelMember ? (
         <Button variant="text" onClick={() => muteHandler(!mute)} style={{ padding: "16px 0" }} fullWidth>
           {mute ? "Unmute" : "Mute"}
         </Button>
