@@ -99,6 +99,7 @@ function MessageCard({ data, user, toggleEmojiPicker, selectedEmoji }: TMessageC
   }, [data.html]);
 
   useEffect(() => {
+    if (!theme) return;
     const userMsgStyle = getUserMessageStyle(data.user_details.id === user?.id, theme);
 
     if (data.user_details.id === user?.id) setCurrentUserMsg(true);
@@ -153,6 +154,7 @@ function MessageCard({ data, user, toggleEmojiPicker, selectedEmoji }: TMessageC
               paddingBottom: "2px",
               borderRadius: "4px 6px 6px 4px",
               borderLeft: "4px solid #ff5722",
+              width: "100%",
             }}
           >
             <Typography
@@ -160,10 +162,10 @@ function MessageCard({ data, user, toggleEmojiPicker, selectedEmoji }: TMessageC
               color="text.secondary"
               sx={{
                 fontSize: ".8rem",
-                color: getColorFromClass(data?.reply_to_message_id.user_id?.username),
+                color: getColorFromClass(data?.replied_message_details?.user?.username),
               }}
             >
-              {data?.reply_to_message_id.user_id?.username}
+              {data?.replied_message_details.user?.username}
             </Typography>
             <Typography variant="body1" mt={1} dir="auto">
               {data?.replied_message_preview}

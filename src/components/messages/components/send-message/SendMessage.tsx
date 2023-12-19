@@ -71,7 +71,9 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
 
   const submit = useCallback(async () => {
     if (!html || !text) return;
-
+    console.log({
+      channelId,
+    });
     await supabaseClient
       .from("messages")
       .insert({
@@ -85,6 +87,9 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
       .select()
       .then(() => {
         editor?.commands.clearContent(true);
+      })
+      .catch((err) => {
+        console.log({ err, channelId });
       });
     // if it has reply or forward message, clear it
     if (replayedMessage) setReplayMessage(null);
@@ -92,8 +97,6 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
   }, [user, text, html]);
 
   const openEmojiPicker = (clickEvent: any) => {
-    // setShowEditorToolbar(false);
-    // editor?.chain().focus().insertContentAtCursor("🙂").run();
     const event = new CustomEvent("toggelEmojiPicker", {
       detail: { clickEvent: clickEvent, editor, type: "inserEmojiToEditor" },
     });

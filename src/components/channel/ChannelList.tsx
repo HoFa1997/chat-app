@@ -1,18 +1,9 @@
-import { getAllChannels, getUser } from "@/api";
 import { ChannelItem } from "./ChannelItem";
 import NewChannelModal from "./NewChannelModal";
-import { cookies } from "next/headers";
 import { UserInfoCard } from "./UserInfoCard";
 import { Box, List } from "@mui/material";
 
-export default async function ChannelList() {
-  const cookieStore = cookies();
-  const {
-    data: { user },
-  } = await getUser(cookieStore);
-
-  const { data: channels } = await getAllChannels();
-
+export default function ChannelList({ user, channels }) {
   if (!user) return null;
 
   return (

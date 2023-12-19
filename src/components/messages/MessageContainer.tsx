@@ -1,6 +1,6 @@
-"use client";
+"use stric";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useMemo, use } from "react";
 import { Box } from "@mui/material";
 import { MessageHeader } from "./MessageHeader";
 import { useChannleInitialData, useMessageSubscription, useScrollAndLoad, useEmojiBoxHandler } from "./hooks";
@@ -12,7 +12,13 @@ import {
   PinnedMessagesDisplay,
 } from "./components/chatContainer";
 
-export default function MessageContainer({ channelId }: any) {
+import { useRouter } from "next/router";
+
+export default function MessageContainer({}: any) {
+  const {
+    query: { channelId },
+  } = useRouter();
+
   const [initialMessagesLoaded, setInitialMessagesLoaded] = useState(false);
   const [channelUsersPresence, setChannelUsersPresence] = useState(new Map());
   const [pinnedMessages, setPinnedMessages] = useState(new Map());
@@ -21,6 +27,10 @@ export default function MessageContainer({ channelId }: any) {
   const [error, setError] = useState(null);
   const [lastMsgUserId, setLastMsgUserId] = useState(null);
   const emojiPickerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setInitialMessagesLoaded(false);
+  }, [channelId]);
 
   // get user session and profile
   // useUserData(setUserSession, setError);
@@ -44,9 +54,13 @@ export default function MessageContainer({ channelId }: any) {
     setChannelUsersPresence,
   );
 
-  const { loading, messageContainerRef, messagesEndRef } = useScrollAndLoad(messages, initialMessagesLoaded);
+  const { loading, messageContainerRef, messagesEndRef } = useScrollAndLoad(messages, initialMessagesLoaded, channelId);
   const { isEmojiBoxOpen, closeEmojiPicker, emojiPickerPosition, selectedEmoji, handleEmojiSelect, toggleEmojiPicker } =
     useEmojiBoxHandler(emojiPickerRef, messageContainerRef);
+
+  useEffect(() => {
+    console.log({ loading });
+  }, [loading]);
 
   if (error) {
     return <Box>Error loading messages...</Box>;

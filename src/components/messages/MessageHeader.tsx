@@ -29,7 +29,6 @@ export const MessageHeader = ({ channelId }: SendMessageProps) => {
         alignItems: "center",
         justifyContent: "center",
         bgcolor: (t) => t.palette.background.paper,
-        borderTop: "2px solid #464646",
         px: 2,
         py: 1,
       }}

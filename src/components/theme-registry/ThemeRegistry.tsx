@@ -7,13 +7,26 @@ import theme from "./theme";
 import { useRouter } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
 import { SnackbarProvider } from "notistack";
+import { supabaseClient } from "@/api/supabase";
+import { type GetServerSidePropsContext } from "next";
+import { createServerClient, type CookieOptions, serialize } from "@supabase/ssr";
 
 export default function ThemeRegistry({ children, session }: { children: React.ReactNode; session: Session | null }) {
-  const { replace } = useRouter();
+  const router = useRouter();
   React.useEffect(() => {
-    if (!session) {
-      replace("/login");
-    }
+    const getSession = async () => {
+      const { data } = await supabaseClient.auth.getSession();
+      console.log({ data }, "====>###");
+      if (!data.session) {
+        router.replace("/login");
+      }
+    };
+
+    getSession();
+
+    // if (!session) {
+    // replace("/login");
+    // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

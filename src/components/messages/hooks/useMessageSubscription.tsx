@@ -19,7 +19,7 @@ import { supabaseClient } from "@/api/supabase";
 // pinned message, I just put the contnet to the pinned message
 
 export const useMessageSubscription = (
-  channelId: string,
+  channelId: string | string[] | undefined,
   setMessages: any,
   messages: any,
   channelUsersPresence: any,
@@ -28,6 +28,7 @@ export const useMessageSubscription = (
   setChannelUsersPresence: any,
 ) => {
   useEffect(() => {
+    if (!channelId) return;
     if (!user) return;
     const messageSubscription = supabaseClient
       .channel(`channel:${channelId}`)
@@ -43,6 +44,7 @@ export const useMessageSubscription = (
             if (payload.new.deleted_at) return;
 
             console.log({
+              payload,
               userdata,
               reply_to_message_id,
               channelUsersPresence,
@@ -52,7 +54,11 @@ export const useMessageSubscription = (
               ...payload.new,
               user_details: userdata,
               user_id: userdata,
-              reply_to_message_id: reply_to_message_id && { user_id: reply_to_message_id?.user_id },
+              // reply_to_message_id: reply_to_message_id && { user_id: reply_to_message_id?.user_id },
+              replied_message_details: reply_to_message_id && {
+                message: reply_to_message_id,
+                user: reply_to_message_id?.user_details,
+              },
             };
 
             setMessages((prevMessages: any) => new Map(prevMessages).set(newMessage.id, newMessage));
@@ -143,8 +149,15 @@ export const useMessageSubscription = (
         await messageSubscription.track(userProfile);
       });
 
+    // TODO: channle Events Gateway
+    document.addEventListener("channel:events", (e) => {
+      const eventType = e.detail.eventType;
+      const eventPayload = e.detail.eventPayload;
+    });
+
     return () => {
       messageSubscription.unsubscribe();
     };
+    channelId;
   }, [channelId, userProfile]);
 };

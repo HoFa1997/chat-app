@@ -21,7 +21,7 @@
     "@supabase/auth-ui-react": "^0.4.6",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/ssr": "^0.0.10",
-    "@supabase/supabase-js": "^2.38.4",
+    "@supabase/supabase-js": "^2.39.0",
     "@tiptap/extension-bold": "^2.1.12",
     "@tiptap/extension-color": "^2.1.12",
     "@tiptap/extension-mention": "^2.1.13",
