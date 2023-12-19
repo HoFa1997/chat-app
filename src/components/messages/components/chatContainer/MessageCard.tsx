@@ -130,7 +130,7 @@ function MessageCard({ data, user, toggleEmojiPicker, selectedEmoji }: TMessageC
   };
 
   return (
-    <Box onContextMenu={contextMenu.showMenu} sx={{ ...userMessageStyle }} ref={ref}>
+    <Box className="msg_card" onContextMenu={contextMenu.showMenu} sx={{ ...userMessageStyle }} ref={ref}>
       <Avatar
         src={data?.user_details?.avatar_url ?? DEFAULT_AVATAR_URL}
         sx={{

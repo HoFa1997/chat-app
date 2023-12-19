@@ -103,28 +103,12 @@ export default function MessageContainer({}: any) {
     }
   };
 
-  const getFirstVisibleMessage = () => {
-    const current = messageContainerRef.current;
-    if (!current) return null;
-
-    const messagesElements = current.children;
-    for (let i = 0; i < messagesElements.length; i++) {
-      const messageEl = messagesElements[i];
-      const messageTop = messageEl.offsetTop;
-      const messageBottom = messageTop + messageEl.offsetHeight;
-
-      if (messageTop >= current.scrollTop && messageBottom <= current.scrollTop + current.offsetHeight) {
-        return messageEl;
-      }
-    }
-    return null;
-  };
-
   /* eslint-disable */
   const loadMoreMessages = async () => {
     if (!hasMoreMessages || !messageContainerRef.current) return;
 
-    const firstVisibleMessage = getFirstVisibleMessage() as HTMLElement;
+    // select first ".MessageCard" from messageContainerRef.current
+    const firstVisibleMessage = messageContainerRef.current.querySelector(".msg_card") as HTMLElement;
     const prevTop = firstVisibleMessage ? firstVisibleMessage?.offsetTop : 0;
 
     const pageMessages = (await fetchMessages(channelId, currentPage, pageSize)) as any;
@@ -142,7 +126,8 @@ export default function MessageContainer({}: any) {
       // Adjust the scroll position
       requestAnimationFrame(() => {
         if (messageContainerRef.current && firstVisibleMessage) {
-          const currentTop = firstVisibleMessage.offsetTop;
+          const date_chip = messageContainerRef.current.querySelector(".date_chip") as HTMLElement;
+          const currentTop = firstVisibleMessage.offsetTop + date_chip.offsetHeight; //;
           messageContainerRef.current.scrollTop += currentTop - prevTop;
         }
       });

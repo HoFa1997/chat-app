@@ -58,6 +58,7 @@ export const MessagesDisplay = ({
       elements.push(
         <Box
           key={message.created_at}
+          className="date_chip"
           sx={{
             display: "flex",
             justifyContent: "center",
