@@ -87,6 +87,7 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
       .select()
       .then(() => {
         editor?.commands.clearContent(true);
+        document.dispatchEvent(new CustomEvent("messages:container:scroll:down"));
       })
       .catch((err) => {
         console.log({ err, channelId });

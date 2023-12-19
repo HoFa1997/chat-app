@@ -26,6 +26,7 @@ export const useMessageSubscription = (
   user: any,
   userProfile: any,
   setChannelUsersPresence: any,
+  setIsSubscribe: any,
 ) => {
   useEffect(() => {
     if (!channelId) return;
@@ -147,6 +148,7 @@ export const useMessageSubscription = (
         if (status !== "SUBSCRIBED") return;
         // broadcast user presence
         await messageSubscription.track(userProfile);
+        setIsSubscribe(true);
       });
 
     // TODO: channle Events Gateway

@@ -12,6 +12,7 @@ export const useScrollAndLoad = (
   messages: Map<string, Message>,
   initialMessagesLoaded: boolean,
   channelId: string | string[] | undefined,
+  isSubscribe: boolean,
 ) => {
   const [loading, setLoading] = useState<boolean>(true);
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
@@ -32,16 +33,36 @@ export const useScrollAndLoad = (
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      loading ? scrollToBottom() : scrollToBottom({ behavior: "smooth" });
-    }, 100);
+    // Check if the user is close to the bottom of the message list.
+    const isUserCloseToBottom = () => {
+      if (!messageContainerRef.current) return false;
+
+      const { scrollTop, scrollHeight, clientHeight } = messageContainerRef.current;
+      const distanceToBottom = scrollHeight - scrollTop - clientHeight;
+
+      // Consider the user close to the bottom if they are within 100px of the bottom.
+      return distanceToBottom < 100;
+    };
+
+    // Decide whether to scroll to the bottom based on loading state and user's position.
+    const handleScrollToBottom = () => {
+      if (loading || !isSubscribe) {
+        // If still loading, just scroll to bottom without smooth behavior.
+        scrollToBottom();
+      } else if (isUserCloseToBottom()) {
+        // If not loading and user is close to the bottom, scroll smoothly.
+        scrollToBottom({ behavior: "smooth" });
+      }
+    };
+
+    // Use a timer to defer scrolling until the new messages are rendered.
+    const timer = setTimeout(handleScrollToBottom, 100);
+    // console.log("scroll to bottom", { initialMessagesLoaded, loading });
 
     return () => clearTimeout(timer);
-  }, [messages, initialMessagesLoaded]);
+  }, [messages, initialMessagesLoaded, loading, channelId]);
 
   useEffect(() => {
-    if (!initialMessagesLoaded) return;
-
     const container = messageContainerRef.current;
     if (container) {
       setLoading(true);
