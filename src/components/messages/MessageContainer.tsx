@@ -32,7 +32,7 @@ export default function MessageContainer({}: any) {
   const emojiPickerRef = useRef<HTMLDivElement | null>(null);
   const [isSubscribe, setIsSubscribe] = useState(false);
 
-  const [currentPage, setCurrentPage] = useState(3);
+  const [currentPage, setCurrentPage] = useState(2);
   const pageSize = 10; // Set the page size as needed
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
 
@@ -131,7 +131,7 @@ export default function MessageContainer({}: any) {
 
     if (pageMessages?.messages && pageMessages?.messages?.length > 0) {
       // Convert pageMessages.messages to a Map
-      const newMessagesMap: any = new Map(pageMessages.messages.map((message: any) => [message.id, message]));
+      const newMessagesMap: any = new Map(pageMessages.messages.reverse().map((message: any) => [message.id, message]));
 
       // Merge the new messages with the existing ones
       const updatedMessages = new Map([...newMessagesMap, ...messages.entries()]);
