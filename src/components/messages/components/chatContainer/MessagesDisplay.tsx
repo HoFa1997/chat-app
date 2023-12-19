@@ -1,5 +1,7 @@
+import React, { useState, useEffect, useCallback } from "react";
 import { Box, Chip, Typography } from "@mui/material";
 import MessageCard from "./MessageCard";
+import ScrollToBottomButton from "./ScrollToBottomButton"; // Import the new component
 
 export const MessagesDisplay = ({
   messages,
@@ -20,30 +22,34 @@ export const MessagesDisplay = ({
   }
 
   return (
-    <Box
-      className="message_list"
-      sx={{
-        px: 10,
-        flexGrow: 1,
-        display: "flex",
-        flexDirection: "column",
-        overflowY: "auto",
-        scrollbarWidth: "none",
-      }}
-      ref={messageContainerRef}
-    >
-      {Array.from(messages.values()).map((item: any, index: any, array: any) => (
-        <MessageCard
-          key={item.id}
-          data={item}
-          user={userSession}
-          ref={index === array.length - 1 ? messagesEndRef : null}
-          lastMsgUserId={lastMsgUserId}
-          setLastMsgUserId={setLastMsgUserId}
-          toggleEmojiPicker={toggleEmojiPicker}
-          selectedEmoji={selectedEmoji}
-        />
-      ))}
-    </Box>
+    <>
+      <Box
+        className="message_list"
+        sx={{
+          px: 10,
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          overflowY: "auto",
+          scrollbarWidth: "none",
+          position: "relative",
+        }}
+        ref={messageContainerRef}
+      >
+        {Array.from(messages.values()).map((item: any, index: any, array: any) => (
+          <MessageCard
+            key={item.id}
+            data={item}
+            user={userSession}
+            ref={index === array.length - 1 ? messagesEndRef : null}
+            lastMsgUserId={lastMsgUserId}
+            setLastMsgUserId={setLastMsgUserId}
+            toggleEmojiPicker={toggleEmojiPicker}
+            selectedEmoji={selectedEmoji}
+          />
+        ))}
+      </Box>
+      <ScrollToBottomButton messagesContainer={messageContainerRef} />
+    </>
   );
 };
