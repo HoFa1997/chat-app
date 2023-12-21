@@ -1,14 +1,9 @@
-import { Database } from "@/types/supabase";
-import { createBrowserClient, createServerClient } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { createClient } from "@supabase/supabase-js";
 import { create } from "zustand";
 import createSelectors from "./zustand.ts";
-
-// export const supabaseClient = createBrowserClient<Database>(
-//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-// );
+import { useMemo } from "react";
 
 export const supabaseServer = (cookieStore: ReadonlyRequestCookies) =>
   createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
@@ -37,3 +32,14 @@ const AuthStore = create((set) => ({
 }));
 
 export const useAuthStore = createSelectors(AuthStore);
+
+export const useOnAuthStateChange = () => {
+  useMemo(() => {
+    supabaseClient?.auth?.onAuthStateChange((event, session) => {
+      session && useAuthStore.getState().setUser(session?.user || null);
+      if (session && window.location.pathname === "/login") {
+        window.location.href = "/";
+      }
+    });
+  }, [supabaseClient]);
+};
