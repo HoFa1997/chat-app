@@ -55,7 +55,6 @@ export const useMessageSubscription = (
               ...payload.new,
               user_details: userdata,
               user_id: userdata,
-              // reply_to_message_id: reply_to_message_id && { user_id: reply_to_message_id?.user_id },
               replied_message_details: reply_to_message_id && {
                 message: reply_to_message_id,
                 user: reply_to_message_id?.user_details,
@@ -83,8 +82,12 @@ export const useMessageSubscription = (
                 const newMessages = new Map(prevMessages);
                 newMessages.set(payload.new.id, {
                   ...updatedMessage,
+                  user_details: userdata,
                   user_id: userdata,
-                  reply_to_message_id: reply_to_message_id && { user_id: reply_to_message_id?.user_id },
+                  replied_message_details: reply_to_message_id && {
+                    message: reply_to_message_id,
+                    user: reply_to_message_id?.user_details,
+                  },
                 });
                 return newMessages;
               });
