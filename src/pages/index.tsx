@@ -1,18 +1,19 @@
 import { ChatContainer } from "@/components/chat";
 import { Box } from "@mui/material";
 import React from "react";
-
 import { type GetServerSidePropsContext } from "next";
 import { createServerClient, type CookieOptions, serialize } from "@supabase/ssr";
 import ChannelList from "@/components/channel/ChannelList";
-// import { createClient } from "@supabase/supabase-js";
-// import { supabaseClient } from "@/api/supabase";
 
-export default function Page({ session, channels }) {
+import { useAuthStore } from "@/api/supabase";
+
+export default function Page({ channels }) {
+  const user = useAuthStore.use.user();
+
   return (
     <Box>
       <div style={{ display: "flex", flexDirection: "row", maxHeight: "100vh" }}>
-        {session?.data?.session && <ChannelList user={session.data.session.user} channels={channels} />}
+        {user && <ChannelList user={user} channels={channels} />}
         <ChatContainer />
       </div>
     </Box>
@@ -39,10 +40,9 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     },
   );
 
-  const session = await supabase.auth.getSession();
   const { data: channels } = await supabase.from("channels").select("*").order("id", { ascending: true });
 
   return {
-    props: { session, channels },
+    props: { channels },
   };
 };

@@ -3,6 +3,7 @@ import { Box, Chip, Typography } from "@mui/material";
 import MessageCard from "./MessageCard";
 import ScrollToBottomButton from "./ScrollToBottomButton"; // Import the new component
 import { format, isSameDay, parseISO } from "date-fns"; // Make sure to install date-fns
+import CircularProgress from "@mui/material/CircularProgress"; // Import the spinner component
 
 export const MessagesDisplay = ({
   messages,
@@ -13,6 +14,7 @@ export const MessagesDisplay = ({
   setLastMsgUserId,
   toggleEmojiPicker,
   selectedEmoji,
+  isLoadingMore,
 }: any) => {
   const [isScrollingUp, setIsScrollingUp] = useState(false);
   const lastScrollTop = useRef(0);
@@ -109,6 +111,11 @@ export const MessagesDisplay = ({
         }}
         ref={messageContainerRef}
       >
+        {isLoadingMore && (
+          <Box display="flex" justifyContent="center" pt={2}>
+            <CircularProgress /> {/* Spinner component */}
+          </Box>
+        )}
         {messageElements}
       </Box>
       <ScrollToBottomButton messagesContainer={messageContainerRef} />

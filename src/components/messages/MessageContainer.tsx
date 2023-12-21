@@ -1,6 +1,6 @@
 "use stric";
 
-import React, { useState, useRef, useEffect, useMemo, use } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Box } from "@mui/material";
 import { MessageHeader } from "./MessageHeader";
 import { useChannleInitialData, useMessageSubscription, useScrollAndLoad, useEmojiBoxHandler } from "./hooks";
@@ -11,11 +11,8 @@ import {
   EmojiPickerWrapper,
   PinnedMessagesDisplay,
 } from "./components/chatContainer";
-
 import { supabaseClient } from "@/api/supabase";
-
 import { useRouter } from "next/router";
-import { Coming_Soon } from "next/font/google";
 
 export default function MessageContainer({}: any) {
   const {
@@ -35,6 +32,7 @@ export default function MessageContainer({}: any) {
   const [currentPage, setCurrentPage] = useState(2);
   const pageSize = 10; // Set the page size as needed
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
     setInitialMessagesLoaded(false);
@@ -106,6 +104,7 @@ export default function MessageContainer({}: any) {
   /* eslint-disable */
   const loadMoreMessages = async () => {
     if (!hasMoreMessages || !messageContainerRef.current) return;
+    setIsLoadingMore(true);
 
     // select first ".MessageCard" from messageContainerRef.current
     const firstVisibleMessage = messageContainerRef.current.querySelector(".msg_card") as HTMLElement;
@@ -129,6 +128,7 @@ export default function MessageContainer({}: any) {
           const date_chip = messageContainerRef.current.querySelector(".date_chip") as HTMLElement;
           const currentTop = firstVisibleMessage.offsetTop + date_chip.offsetHeight; //;
           messageContainerRef.current.scrollTop += currentTop - prevTop;
+          setIsLoadingMore(false);
         }
       });
     } else {
@@ -185,6 +185,7 @@ export default function MessageContainer({}: any) {
         setLastMsgUserId={setLastMsgUserId}
         toggleEmojiPicker={toggleEmojiPicker}
         selectedEmoji={selectedEmoji}
+        isLoadingMore={isLoadingMore}
       />
       <EmojiPickerWrapper
         isEmojiBoxOpen={isEmojiBoxOpen}

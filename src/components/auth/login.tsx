@@ -38,7 +38,6 @@ export default function LoginForm() {
           theme="dark"
           showLinks={false}
           providers={["google"]}
-          redirectTo={process.env.NEXT_PUBLIC_AUTH_REDIRECT_TO}
         />
       </Box>
     </Box>

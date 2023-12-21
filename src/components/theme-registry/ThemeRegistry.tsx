@@ -1,39 +1,37 @@
-"use client";
-import * as React from "react";
-import { ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
+import React, { useEffect } from "react";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import { SnackbarProvider } from "notistack";
+import { useRouter } from "next/router";
+import { supabaseClient } from "@/api/supabase";
+
 import NextAppDirEmotionCacheProvider from "./EmotionCache";
 import theme from "./theme";
-import { useRouter } from "next/navigation";
-import { Session } from "@supabase/supabase-js";
-import { SnackbarProvider } from "notistack";
-import { supabaseClient } from "@/api/supabase";
-import { type GetServerSidePropsContext } from "next";
-import { createServerClient, type CookieOptions, serialize } from "@supabase/ssr";
 
-export default function ThemeRegistry({ children, session }: { children: React.ReactNode; session: Session | null }) {
+interface ThemeRegistryProps {
+  children: React.ReactNode;
+}
+
+export default function ThemeRegistry({ children }: ThemeRegistryProps) {
   const router = useRouter();
-  React.useEffect(() => {
-    const getSession = async () => {
-      const { data } = await supabaseClient.auth.getSession();
-      console.log({ data }, "====>###");
-      if (!data.session) {
+
+  useEffect(() => {
+    async function checkSessionAndRedirect() {
+      const {
+        data: { session },
+      } = await supabaseClient.auth.getSession();
+
+      if (!session) {
+        // Use the replace method to ensure there's no back button to the _app without session
         router.replace("/login");
       }
-    };
+    }
 
-    getSession();
-
-    // if (!session) {
-    // replace("/login");
-    // }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    checkSessionAndRedirect();
   }, []);
 
   return (
     <NextAppDirEmotionCacheProvider options={{ key: "mui" }}>
       <ThemeProvider theme={theme}>
-        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
         <SnackbarProvider>{children}</SnackbarProvider>
       </ThemeProvider>
