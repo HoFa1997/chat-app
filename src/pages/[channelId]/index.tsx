@@ -7,11 +7,15 @@ import { Box } from "@mui/material";
 import { type GetServerSidePropsContext } from "next";
 import { createServerClient, type CookieOptions, serialize } from "@supabase/ssr";
 
+import { useAuthStore } from "@/api/supabase";
+
 export default function ChatRoomContainer({ session, channels }) {
+  const user = useAuthStore.use.user();
+
   return (
     <Box>
       <div style={{ display: "flex", flexDirection: "row", maxHeight: "100vh" }}>
-        {session?.data?.session && <ChannelList user={session.data.session.user} channels={channels} />}
+        {user && <ChannelList user={user} channels={channels} />}
         <MessageContainer />
       </div>
     </Box>
@@ -38,10 +42,9 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     },
   );
 
-  const session = await supabase.auth.getSession();
   const { data: channels } = await supabase.from("channels").select("*").order("id", { ascending: true });
 
   return {
-    props: { session, channels },
+    props: { channels },
   };
 };
