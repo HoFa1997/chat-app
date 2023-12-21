@@ -71,9 +71,14 @@ export default function SendMessage({ channelId, user }: SendMessageProps) {
 
   const submit = useCallback(async () => {
     if (!html || !text) return;
-    console.log({
-      channelId,
-    });
+
+    if (replayedMessage?.id) {
+      document.dispatchEvent(
+        new CustomEvent("update:channel:usersPresence", {
+          detail: { newUser: replayedMessage.user_details },
+        }),
+      );
+    }
     await supabaseClient
       .from("messages")
       .insert({

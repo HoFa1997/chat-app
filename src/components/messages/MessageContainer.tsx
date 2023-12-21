@@ -38,6 +38,20 @@ export default function MessageContainer({}: any) {
     setInitialMessagesLoaded(false);
   }, [channelId]);
 
+  useEffect(() => {
+    // listen to custom event update:channel:usersPresence
+    const handleUpdateChannelUsersPresence = (e: any) => {
+      const { newUser } = e.detail;
+      // check if the user is already in the channelUsersPresence
+      if (channelUsersPresence.has(newUser.id)) return;
+      setChannelUsersPresence((prevChannelUsersPresence) => new Map(prevChannelUsersPresence).set(newUser.id, newUser));
+    };
+    document.addEventListener("update:channel:usersPresence", handleUpdateChannelUsersPresence);
+    return () => {
+      document.removeEventListener("update:channel:usersPresence", handleUpdateChannelUsersPresence);
+    };
+  }, [channelUsersPresence]);
+
   // get user session and profile
   // useUserData(setUserSession, setError);
   // get channel initial data, includes pinned messages, last messages and channel members count
