@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabaseClient } from "@/api/supabase";
 
 // there is not relation join in realtime subscription
@@ -26,8 +26,9 @@ export const useMessageSubscription = (
   user: any,
   userProfile: any,
   setChannelUsersPresence: any,
-  setIsSubscribe: any,
 ) => {
+  const [isSubscribe, setIsSubscribe] = useState(false);
+
   useEffect(() => {
     if (!channelId) return;
     if (!user) return;
@@ -165,4 +166,6 @@ export const useMessageSubscription = (
     };
     channelId;
   }, [channelId, userProfile]);
+
+  return { isSubscribe };
 };

@@ -1,18 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabaseClient } from "@/api/supabase";
 
-export const useChannleInitialData = (
-  channelId: any,
-  setMessages: any,
-  setPinnedMessages: any,
-  setInitialMessagesLoaded: any,
-  setError: any,
-) => {
+export const useChannleInitialData = (channelId: any, setMessages: any, setError: any) => {
   const [userSession, setUserSession] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [channelInfo, setChannelInfo] = useState(null);
   const [isUserChannelMember, setIsUserChannelMember] = useState(false);
   const [channelMemberInfo, setChannelMemberInfo] = useState(null);
+  const [initialMessagesLoaded, setInitialMessagesLoaded] = useState(false);
+  const [pinnedMessages, setPinnedMessages] = useState(new Map());
 
   useEffect(() => {
     if (!channelId) return;
@@ -90,5 +86,13 @@ export const useChannleInitialData = (
     }
   }, [channelId]);
 
-  return { userSession, userProfile, channelInfo, isUserChannelMember, channelMemberInfo };
+  return {
+    pinnedMessages,
+    initialMessagesLoaded,
+    userSession,
+    userProfile,
+    channelInfo,
+    isUserChannelMember,
+    channelMemberInfo,
+  };
 };

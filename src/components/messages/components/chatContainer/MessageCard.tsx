@@ -18,8 +18,6 @@ import PushPinIcon from "@mui/icons-material/PushPin";
 type TMessageCardProps = {
   data: TMessageWithUser;
   user: User | null;
-  lastMsgUserId: string | null;
-  setLastMsgUserId: any;
   toggleEmojiPicker: any;
   selectedEmoji: any;
 };

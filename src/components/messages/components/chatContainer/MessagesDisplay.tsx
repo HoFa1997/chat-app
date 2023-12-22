@@ -10,8 +10,6 @@ export const MessagesDisplay = ({
   messageContainerRef,
   messagesEndRef,
   userSession,
-  lastMsgUserId,
-  setLastMsgUserId,
   toggleEmojiPicker,
   selectedEmoji,
   isLoadingMore,
@@ -85,8 +83,6 @@ export const MessagesDisplay = ({
         data={message}
         user={userSession}
         ref={index === array.length - 1 ? messagesEndRef : null}
-        lastMsgUserId={lastMsgUserId}
-        setLastMsgUserId={setLastMsgUserId}
         toggleEmojiPicker={toggleEmojiPicker}
         selectedEmoji={selectedEmoji}
       />,
