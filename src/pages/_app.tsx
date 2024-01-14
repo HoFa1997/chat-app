@@ -1,18 +1,23 @@
-import ThemeRegistry from "@/components/theme-registry/ThemeRegistry";
-import "../components/theme-registry/global.css";
-import useServiceWorker from "../shared/hooks/useServiceWorker";
-import { useOnAuthStateChange } from "@/api/supabase";
-import { useEffect } from "react";
+import type { AppProps } from "next/app";
+import useServiceWorker from "@/shared/hooks/useServiceWorker";
+import { Toaster } from "react-hot-toast";
+import { useOnAuthStateChange } from "@/shared/hooks/useOnAuthStateChange";
+import { useCatchUserPresences } from "@/shared/hooks/useCatchUserPresences";
+import { useBroadcastListner } from "@/shared/hooks/useBroadcastListner";
+import "@/styles/globals.scss";
 
-function MyApp({ Component, pageProps }) {
+const MyApp = ({ Component, pageProps }: AppProps) => {
   useServiceWorker();
   useOnAuthStateChange();
+  useCatchUserPresences();
+  useBroadcastListner();
 
   return (
-    <ThemeRegistry>
+    <div id="root">
       <Component {...pageProps} />
-    </ThemeRegistry>
+      <Toaster />
+    </div>
   );
-}
+};
 
 export default MyApp;

@@ -1,120 +1,101 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Box, Chip, Typography } from "@mui/material";
+import React, { useState, useEffect, useRef } from "react";
 import MessageCard from "./MessageCard";
-import ScrollToBottomButton from "./ScrollToBottomButton"; // Import the new component
-import { format, isSameDay, parseISO } from "date-fns"; // Make sure to install date-fns
-import CircularProgress from "@mui/material/CircularProgress"; // Import the spinner component
+import { format, isSameDay, parseISO } from "date-fns";
+import { useStore } from "@stores/index";
 
-export const MessagesDisplay = ({
-  messages,
-  messageContainerRef,
-  messagesEndRef,
-  userSession,
-  toggleEmojiPicker,
-  selectedEmoji,
-  isLoadingMore,
-}: any) => {
-  const [isScrollingUp, setIsScrollingUp] = useState(false);
-  const lastScrollTop = useRef(0);
+interface MessagesDisplayProps {
+  messageContainerRef: React.RefObject<HTMLDivElement>;
+  messagesEndRef: React.RefObject<HTMLDivElement>;
+  toggleEmojiPicker: any;
+  selectedEmoji: any; // Update the type based on your emoji implementation
+  isLoadingMore: boolean;
+}
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollTop = messageContainerRef.current?.scrollTop || 0;
-      // Set the state based on the scroll direction
-      setIsScrollingUp(currentScrollTop < lastScrollTop.current);
-      // Update the last scroll position
-      lastScrollTop.current = currentScrollTop;
-    };
+const NoMessagesDisplay = () => (
+  <div className="flex h-dvh items-center justify-center">
+    <div className="badge badge-neutral">No messages yet!</div>
+  </div>
+);
 
-    const currentRef = messageContainerRef.current;
-    // Add the scroll event listener
-    currentRef?.addEventListener("scroll", handleScroll, { passive: true });
+const LoadingSpinner = () => (
+  <div className="flex justify-center pt-2">
+    <span className="loading loading-spinner text-primary"></span>
+  </div>
+);
 
-    return () => {
-      // Clean up the event listener
-      currentRef?.removeEventListener("scroll", handleScroll);
-    };
-  }, [messageContainerRef.current, messages]);
-
-  if (messages.size === 0) {
-    return (
-      <Box display="flex" alignItems="center" height="100vh" justifyContent="center" flexGrow={1}>
-        <Chip label={<Typography variant="body2">No messages yet!</Typography>} />
-      </Box>
-    );
-  }
-
-  // This function checks if two dates are different days.
-  const isNewDay = (currentMessageDate, previousMessageDate) => {
-    return !isSameDay(parseISO(currentMessageDate), parseISO(previousMessageDate));
-  };
-
-  const messageElements = Array.from(messages.values()).flatMap((message, index, array) => {
+const generateMessageElements = (
+  messages: Map<string, any>,
+  isScrollingUp: boolean,
+  messagesEndRef: React.RefObject<HTMLDivElement>,
+  toggleEmojiPicker: any,
+  selectedEmoji: string,
+) => {
+  const messagesArray = Array.from(messages.values());
+  return messagesArray.flatMap((message, index, array) => {
     const elements = [];
-
-    // Check if the message is the start of a new day.
-    if (index === 0 || isNewDay(message.created_at, array[index - 1].created_at)) {
-      // Push a date chip into the elements array with sticky positioning.
-      elements.push(
-        <Box
-          key={message.created_at}
-          className="date_chip"
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            my: 2,
-            pt: 2,
-            width: "100%",
-            position: isScrollingUp ? "sticky" : "relative", // Position sticky when scrolling up
-            top: isScrollingUp ? 0 : undefined, // Stick to the top when scrolling up
-            zIndex: 2, // Ensure the sticky element is above other elements
-            backgroundColor: "inherit", // Use the appropriate color to match your design
-          }}
-        >
-          <Chip label={format(parseISO(message.created_at), "MMMM do, yyyy")} />
-        </Box>,
-      );
+    if (index === 0 || isNewDay(message.created_at, array[index - 1]?.created_at)) {
+      elements.push(<DateChip key={message.created_at} date={message.created_at} isScrollingUp={isScrollingUp} />);
     }
-
-    // Push the message card into the elements array.
     elements.push(
       <MessageCard
         key={message.id}
         data={message}
-        user={userSession}
         ref={index === array.length - 1 ? messagesEndRef : null}
         toggleEmojiPicker={toggleEmojiPicker}
         selectedEmoji={selectedEmoji}
       />,
     );
-
     return elements;
   });
+};
+
+const isNewDay = (currentMessageDate: string, previousMessageDate: string) => {
+  return !isSameDay(parseISO(currentMessageDate), parseISO(previousMessageDate));
+};
+
+const DateChip: React.FC<{ date: string; isScrollingUp: boolean }> = ({ date, isScrollingUp }) => (
+  <div
+    className="date_chip z-10 relative my-2 flex w-full justify-center pt-2"
+    style={{ position: isScrollingUp ? "sticky" : "relative", top: isScrollingUp ? 0 : undefined }}
+  >
+    <div className="badge relative z-10 bg-base-100">{format(parseISO(date), "MMMM do, yyyy")}</div>
+  </div>
+);
+
+export const MessagesDisplay: React.FC<MessagesDisplayProps> = ({
+  messageContainerRef,
+  messagesEndRef,
+  toggleEmojiPicker,
+  selectedEmoji,
+  isLoadingMore,
+}) => {
+  const [isScrollingUp, setIsScrollingUp] = useState(false);
+  const lastScrollTop = useRef(0);
+  const { channelId } = useStore((state: any) => state.workspaceSettings);
+  const messagesByChannel = useStore((state: any) => state.messagesByChannel);
+  const messages = messagesByChannel.get(channelId) as Map<string, any>;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollTop = messageContainerRef.current?.scrollTop || 0;
+      setIsScrollingUp(currentScrollTop < lastScrollTop.current);
+      lastScrollTop.current = currentScrollTop;
+    };
+
+    const currentRef = messageContainerRef.current;
+    currentRef?.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => currentRef?.removeEventListener("scroll", handleScroll);
+  }, [messageContainerRef]);
+
+  if (!messages || messages.size === 0) {
+    return <NoMessagesDisplay />;
+  }
 
   return (
-    <>
-      <Box
-        className="message_list"
-        sx={{
-          pt: 1,
-          px: 10,
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          overflowY: "auto",
-          scrollbarWidth: "none",
-          position: "relative",
-        }}
-        ref={messageContainerRef}
-      >
-        {isLoadingMore && (
-          <Box display="flex" justifyContent="center" pt={2}>
-            <CircularProgress /> {/* Spinner component */}
-          </Box>
-        )}
-        {messageElements}
-      </Box>
-      <ScrollToBottomButton messagesContainer={messageContainerRef} />
-    </>
+    <div className="relative flex w-full grow flex-col overflow-y-auto px-10 pt-1" ref={messageContainerRef}>
+      {isLoadingMore && <LoadingSpinner />}
+      {generateMessageElements(messages, isScrollingUp, messagesEndRef, toggleEmojiPicker, selectedEmoji)}
+    </div>
   );
 };

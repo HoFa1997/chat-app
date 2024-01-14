@@ -1,10 +1,5 @@
-Primary Background Color: #121212 (Dark Grey)
-Secondary Background Colors: #1E1E1E (Slightly lighter Grey)
-Accent Colors: #25D366 (WhatsApp Signature Green), #34B7F1 (Blue for links), #FFAB00 (Yellow for Highlights)
-Text Colors: #FFFFFF (White for Primary Text), #CCCCCC (Light Grey for Secondary Text)
-Icons and Imagery: #FFFFFF (White for Icons)
-Borders and Separators: #2C2C2C (Dark Grey for Borders)
-Notification Colors: #FF3B30 (Red for Notifications)
-Opacity Settings: Use varying opacities of the primary or secondary background colors.
-Input Fields and Forms: #333333 (Dark Grey for Input Fields), #FFFFFF (White for Input Text)
-Hover and Active State Colors: #292929 (Slightly lighter Grey for Hover State), #0A8D48 (Darker Green for Active State)
+# Slack, Telegram Clone
+
+This is a clone of Slack and Telegram like. It is a chat application that allows users to create workspace, channels and chat with each other in real time.
+
+This application is build with Next.js, React, Zustand, Supabase, TailwindCSS, DaisyUI, and more.

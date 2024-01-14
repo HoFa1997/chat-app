@@ -1,224 +1,98 @@
 /* eslint-disable */
 // @ts-nocheck
 
-"use client";
-
-import React, { useEffect, useMemo, useState } from "react";
-import { TMessageWithUser, emojiReaction } from "@/api";
-import { getColorFromClass } from "@/shared/utils";
-import { User } from "@supabase/supabase-js";
-import DOMPurify from "dompurify";
-import { useContextMenu } from "@/shared/hooks";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { TMessageWithUser } from "@/api";
 import { MessageContextMenu } from "../../MessageContextMenu";
-import { Box, Avatar, Typography, Stack, Chip, useTheme } from "@mui/material";
-import ReplyIcon from "@mui/icons-material/Reply";
 import MessageReaction from "../../MessageReaction";
-import PushPinIcon from "@mui/icons-material/PushPin";
+import { useUserProfileModalStore } from "../UserProfileModal";
+import { Avatar } from "@/components/ui/Avatar";
+import { useAuthStore } from "@stores/index";
+import MessageFooter from "./MessageFooter";
+import MessageHeader from "./MessageHeader";
+import MessageContent from "./MessageContent";
+import { setReplayMessage } from "@/shared/hooks";
 
 type TMessageCardProps = {
   data: TMessageWithUser;
-  user: User | null;
   toggleEmojiPicker: any;
   selectedEmoji: any;
 };
 
-let lastMessageUserId: any = null;
-
-const DEFAULT_AVATAR_URL = "https://avatars.dicebear.com/api/avataaars/1.svg";
-
-const formatDateTime = (date: Date) => {
-  return date.toLocaleString("en-US", {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-  });
-};
-
-const getUserMessageStyle = (isCurrentUser: boolean, theme: any) => {
-  const commonStyle = {
-    my: 1,
-    width: "fit-content",
-    maxWidth: "60%",
-    minWidth: "20%",
-    display: "flex",
-    borderRadius: 3,
-    position: "relative",
-    p: 1,
-    px: 2,
-    pb: 0,
-    ":before": {
-      content: "''",
-      position: "absolute",
-      width: 0,
-      height: 0,
-      top: 0,
-      borderRadius: 1,
-      borderStyle: "solid",
-      borderWidth: "0 10px 20px 10px",
-      rotate: "180deg",
-    },
-  };
-
-  if (isCurrentUser) {
-    return {
-      ...commonStyle,
-      bgcolor: theme.palette.whatsAppGreen[100],
-      marginLeft: "auto",
-      ":before": {
-        ...commonStyle[":before"],
-        right: -10,
-        borderColor: `transparent transparent ${theme.palette.whatsAppGreen[100]} transparent`,
-      },
-    };
-  }
-
-  return {
-    ...commonStyle,
-    marginLeft: "10px",
-    bgcolor: theme.palette.whatsAppGreen[200],
-    ":before": {
-      ...commonStyle[":before"],
-      left: -10,
-      borderColor: `transparent transparent ${theme.palette.whatsAppGreen[200]} transparent`,
-    },
-  };
-};
-
-function MessageCard({ data, user, toggleEmojiPicker, selectedEmoji }: TMessageCardProps, ref: any) {
-  const theme = useTheme();
-  const [htmlContent, setHtmlContent] = useState("");
-  const contextMenu = useContextMenu();
-  const [userMessageStyle, setUserMessageStyle] = useState({});
-  const [currentUserMsg, setCurrentUserMsg] = useState(false);
+function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardProps, ref: any) {
+  const user = useAuthStore.use.profile();
+  const openModal = useUserProfileModalStore((state) => state.openModal);
+  const modalOpen = useUserProfileModalStore((state) => state.modalOpen);
+  const closeModal = useUserProfileModalStore((state) => state.closeModal);
+  const cardRef = useRef(null);
 
   useEffect(() => {
-    const sanitizedHtml = DOMPurify.sanitize(data.html);
-    setHtmlContent(sanitizedHtml);
-  }, [data.html]);
+    if (ref) ref.current = cardRef.current;
+  }, [ref]);
 
-  useEffect(() => {
-    if (!theme) return;
-    const userMsgStyle = getUserMessageStyle(data.user_details.id === user?.id, theme);
-
-    if (data.user_details.id === user?.id) setCurrentUserMsg(true);
-
-    if (lastMessageUserId === null) lastMessageUserId = data.user_details.id;
-
-    if (lastMessageUserId === data.user_details.id) {
-      userMsgStyle["marginTop"] = "0px";
-      userMsgStyle["marginBottom"] = "8px";
-      delete (userMsgStyle as any)[":before"];
+  const handleAvatarClick = () => {
+    // Assuming data contains user information
+    if (modalOpen) closeModal();
+    else {
+      openModal("userProfileModal", data.user_details);
     }
-
-    setUserMessageStyle(userMsgStyle);
-    lastMessageUserId = data.user_details.id;
-  }, [data, theme]);
-
-  const createdAt = useMemo(
-    () => formatDateTime(new Date(data.edited_at ? data.edited_at : data.created_at)),
-    [data.edited_at, data.created_at],
-  );
-
-  const countRepliedMessages = data.metadata?.replied?.length;
-
-  const currentUserReactionSyle = {
-    backgroundColor: "#1264a3",
-    cursor: "pointer",
-    fontSize: "1.08rem",
   };
+
+  const handleDoubleClick = useCallback(() => {
+    setReplayMessage(data);
+    // Triggering editor focus if needed
+    const event = new CustomEvent("editor:focus");
+    document.dispatchEvent(event);
+  }, [data]);
+
+  const isGroupEnd = useMemo(() => {
+    return data.isGroupEnd;
+  }, [data.isGroupEnd]);
+
+  const isGroupStart = useMemo(() => {
+    return data.isGroupStart;
+  }, [data.isGroupStart]);
 
   return (
-    <Box className="msg_card" onContextMenu={contextMenu.showMenu} sx={{ ...userMessageStyle }} ref={ref}>
+    <div
+      className={`group ${
+        data?.user_details?.id === user?.id ? "msg_card chat-end ml-auto" : "chat-start mr-auto"
+      } chat relative w-auto min-w-[30%] max-w-[70%] ${isGroupEnd ? "chat_group-end" : "chat_group-start "}`}
+      ref={cardRef}
+      onDoubleClick={handleDoubleClick}
+    >
       <Avatar
-        src={data?.user_details?.avatar_url ?? DEFAULT_AVATAR_URL}
-        sx={{
+        src={data?.user_details?.avatar_url}
+        className="w-10 rounded-full chat-image avatar"
+        style={{
           width: 40,
           height: 40,
-          mr: 2,
-          position: "absolute",
-          bottom: "0",
-          right: "0",
-          left: currentUserMsg ? "calc(100% + 10px)" : "-50px",
+          cursour: "pointer",
+          visibility: isGroupEnd ? "visible" : "hidden",
         }}
-        alt="User Avatar"
+        id={data?.user_details?.id}
+        alt={`avatar_${data?.user_details?.id}`}
+        onClick={handleAvatarClick}
       />
-      <Box sx={{ display: "flex", flexDirection: "column", width: "100%", alignItems: "start" }}>
-        {data.reply_to_message_id && (
-          <Box
-            sx={{
-              bgcolor: (t) => t.palette.background.paper,
-              p: 1,
-              px: 1,
-              paddingBottom: "2px",
-              borderRadius: "4px 6px 6px 4px",
-              borderLeft: "4px solid #ff5722",
-              width: "100%",
-            }}
-          >
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                fontSize: ".8rem",
-                color: getColorFromClass(data?.replied_message_details?.user?.username),
-              }}
-            >
-              {data?.replied_message_details.user?.username}
-            </Typography>
-            <Typography variant="body1" mt={1} dir="auto">
-              {data?.replied_message_preview}
-            </Typography>
-          </Box>
-        )}
-        <Typography mt={1} variant="caption" sx={{}}>
-          {data.user_details.username}
-        </Typography>
 
-        <Box
-          className="message--card__content"
-          dir="auto"
-          sx={{ typography: "body1", color: "text.primary", lineHeight: "1rem" }}
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
-        />
+      <div
+        className={`chat-bubble flex flex-col w-full ${
+          isGroupEnd ? "bubble_group-end" : "bubble_group-start !rounded-ee-xl"
+        }`}
+      >
+        <MessageHeader data={data} />
+        <MessageContent data={data} />
+        <MessageFooter data={data} />
+      </div>
 
-        <Box marginLeft="auto" style={{ float: "right" }} display="flex" alignItems="center">
-          <MessageReaction message={data} selectedEmoji={selectedEmoji} toggleEmojiPicker={toggleEmojiPicker} />
+      <MessageReaction message={data} selectedEmoji={selectedEmoji} toggleEmojiPicker={toggleEmojiPicker} />
 
-          <Stack direction="row" spacing={1} margin="0 4px">
-            {data?.reactions &&
-              Object.keys(data?.reactions).map((reaction: string, index: number) => (
-                <Chip
-                  size="small"
-                  style={
-                    data?.reactions[reaction]?.find((x: any) => x.user_id === user?.id)
-                      ? currentUserReactionSyle
-                      : {
-                          backgroundColor: "#aaa",
-                          cursor: "pointer",
-                        }
-                  }
-                  key={index}
-                  onClick={() => emojiReaction(data, reaction)}
-                  label={reaction + " " + data?.reactions[reaction].length}
-                />
-              ))}
-          </Stack>
-
-          <Box margin={"0 20px"}>
-            {countRepliedMessages && (
-              <Typography variant="subtitle2" display="flex" alignItems="center">
-                {countRepliedMessages}
-                <ReplyIcon />
-              </Typography>
-            )}
-          </Box>
-          <Typography variant="subtitle2"> {createdAt}</Typography>
-          {data.metadata?.pinned && <PushPinIcon sx={{ color: "#fff", ml: 1, fontSize: "1rem" }} />}
-        </Box>
-      </Box>
-
-      {contextMenu.menuState.visible && <MessageContextMenu props={contextMenu} messageData={data} />}
-    </Box>
+      <MessageContextMenu
+        parrentRef={cardRef}
+        messageData={data}
+        className="m-0 z-20 menu p-2 outline-none shadow bg-base-100 rounded-lg w-40"
+      />
+    </div>
   );
 }
 

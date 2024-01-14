@@ -3,20 +3,19 @@ import { create } from "zustand";
 
 type TUseReplayOrForwardMessage = {
   replayToMessage: TMessageWithUser | null;
-  forwardMessage: TMessageWithUser | null;
+  editeMessage: TMessageWithUser | null;
 };
 
 const useReplayOrForwardMessage = create<TUseReplayOrForwardMessage>(() => ({
   replayToMessage: null,
-  forwardMessage: null,
+  editeMessage: null,
 }));
 
 export const useReplayMessageInfo = () => useReplayOrForwardMessage().replayToMessage;
-
-export const useForwardMessageInfo = () => useReplayOrForwardMessage().forwardMessage;
+export const useEditeMessageInfo = () => useReplayOrForwardMessage().editeMessage;
 
 export const setReplayMessage = (replayToMessageId: TUseReplayOrForwardMessage["replayToMessage"]) =>
-  useReplayOrForwardMessage.setState({ replayToMessage: replayToMessageId, forwardMessage: null });
+  useReplayOrForwardMessage.setState({ replayToMessage: replayToMessageId });
 
-export const setForwardMessage = (forwardedMessage: TUseReplayOrForwardMessage["forwardMessage"]) =>
-  useReplayOrForwardMessage.setState({ forwardMessage: forwardedMessage, replayToMessage: null });
+export const setEditeMessage = (editeMessage: TUseReplayOrForwardMessage["editeMessage"]) =>
+  useReplayOrForwardMessage.setState({ editeMessage });

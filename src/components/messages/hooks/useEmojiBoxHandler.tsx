@@ -13,14 +13,16 @@ export const useEmojiBoxHandler = (emojiPikerRef: any, messageContainerRef: any)
   const [editor, setEditor] = useState(null);
 
   useEffect(() => {
-    document.addEventListener("toggelEmojiPicker", (e: any) => {
+    const toggelEmojiPickerHandler = (e: any) => {
+      if (!emojiPikerRef?.current) return;
       const event = e.detail.clickEvent;
       const message = e.detail?.message;
       const type = e.detail.type;
       const editor = e.detail?.editor;
       setEditor(editor);
       setEventTypes(type);
-      const { clientHeight, clientWidth } = emojiPikerRef.current;
+
+      const { clientHeight, clientWidth } = emojiPikerRef?.current;
 
       // we need to pick up these dynamic values from the DOM
       const emojiButtonWidth = 24;
@@ -46,8 +48,14 @@ export const useEmojiBoxHandler = (emojiPikerRef: any, messageContainerRef: any)
       setEmojiPickerPosition({ top: newTop, left: newLeft });
       setIsEmojiBoxOpen(!isEmojiBoxOpen);
       setSelectedMessage(message);
-    });
-  }, []);
+    };
+
+    document.addEventListener("toggelEmojiPicker", toggelEmojiPickerHandler);
+
+    return () => {
+      document.removeEventListener("toggelEmojiPicker", toggelEmojiPickerHandler);
+    };
+  }, [emojiPikerRef]);
 
   useEffect(() => {
     // Only attach listeners if the emoji box is open and the container exists

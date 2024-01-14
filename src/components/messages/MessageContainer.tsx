@@ -1,10 +1,8 @@
-"use stric";
-
 import React, { useState, useRef, useEffect } from "react";
-import { Box } from "@mui/material";
 import { MessageHeader } from "./MessageHeader";
+import ScrollToBottomButton from "./components/chatContainer/ScrollToBottomButton"; // Import the new component
 import {
-  useChannleInitialData,
+  useChannelInitialData,
   useMessageSubscription,
   useScrollAndLoad,
   useEmojiBoxHandler,
@@ -18,81 +16,52 @@ import {
   EmojiPickerWrapper,
   PinnedMessagesDisplay,
 } from "./components/chatContainer";
-import { useRouter } from "next/router";
+import { twx } from "@utils/index";
+
+const MessageWrapper = twx.div`prose relative flex h-dvh w-full max-w-full max-w-full items-center justify-center bg-base-300`;
 
 export default function MessageContainer({}: any) {
-  const router = useRouter();
-  const channelId = router.query.channelId as string;
-
   const [channelUsersPresence, setChannelUsersPresence] = useState(new Map());
-  const [messages, setMessages] = useState(new Map());
   const [error, setError] = useState(null);
   const emojiPickerRef = useRef<HTMLDivElement | null>(null);
+  const messageContainerRef = useRef<HTMLDivElement | null>(null);
 
   // get user session and profile
-  // useUserData(setUserSession, setError);
   // get channel initial data, includes pinned messages, last messages and channel members count
   // TODO: we need to consider the last message loaded, and when the user subscribe to the channel, we need to load the messages after the last message loaded
-  const {
-    pinnedMessages,
-    initialMessagesLoaded,
-    userSession,
-    userProfile,
-    channelInfo,
-    isUserChannelMember,
-    channelMemberInfo,
-  } = useChannleInitialData(channelId, setMessages, setError);
+  const { initialMessagesLoading, channelMemberInfo, msgLength } = useChannelInitialData(setError);
 
-  const { isSubscribe } = useMessageSubscription(
-    channelId,
-    setMessages,
-    messages,
-    channelUsersPresence,
-    userSession,
-    userProfile,
-    setChannelUsersPresence,
-  );
-
-  const { loading, messageContainerRef, messagesEndRef } = useScrollAndLoad(
-    messages,
-    initialMessagesLoaded,
-    channelId,
-    isSubscribe,
-  );
-
+  const { initialSubscribeLoading } = useMessageSubscription();
+  const { loading, messagesEndRef } = useScrollAndLoad(initialMessagesLoading, messageContainerRef, msgLength);
   const { isEmojiBoxOpen, closeEmojiPicker, emojiPickerPosition, selectedEmoji, handleEmojiSelect, toggleEmojiPicker } =
     useEmojiBoxHandler(emojiPickerRef, messageContainerRef);
 
-  useCustomEventHandler(channelUsersPresence, setChannelUsersPresence, messageContainerRef, messagesEndRef, messages);
-  const { isLoadingMore } = useInfiniteLoadMessages(channelId, messageContainerRef, messages, setMessages);
+  useCustomEventHandler(channelUsersPresence, setChannelUsersPresence, messageContainerRef, messagesEndRef);
+  const { isLoadingMore } = useInfiniteLoadMessages(messageContainerRef);
 
   if (error) {
-    return <Box>Error loading messages...</Box>;
+    return (
+      <MessageWrapper>
+        <div className="badge badge-error">Error loading messages...</div>
+      </MessageWrapper>
+    );
   }
 
+  if (initialSubscribeLoading || initialMessagesLoading)
+    return (
+      <MessageWrapper className="flex-col justify-start">
+        <LoadingOverlay loading={true} />
+      </MessageWrapper>
+    );
+
   return (
-    <Box
-      sx={{
-        width: "100%",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "start",
-        backgroundImage: "url(/bg-chat.webp)",
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center",
-        position: "relative",
-      }}
-    >
-      <MessageHeader channelId={channelId} />
-      <PinnedMessagesDisplay pinnedMessages={pinnedMessages} loading={loading} />
+    <MessageWrapper className="flex-col  justify-start">
+      <MessageHeader />
+      <PinnedMessagesDisplay loading={loading} />
       <LoadingOverlay loading={loading} />
       <MessagesDisplay
-        messages={messages}
         messageContainerRef={messageContainerRef}
         messagesEndRef={messagesEndRef}
-        userSession={userSession}
         toggleEmojiPicker={toggleEmojiPicker}
         selectedEmoji={selectedEmoji}
         isLoadingMore={isLoadingMore}
@@ -104,13 +73,8 @@ export default function MessageContainer({}: any) {
         handleEmojiSelect={handleEmojiSelect}
         ref={emojiPickerRef}
       />
-      <ActionBar
-        channelId={channelId}
-        userSession={userSession}
-        channelInfo={channelInfo}
-        channelMemberInfo={channelMemberInfo}
-        isUserChannelMember={isUserChannelMember}
-      />
-    </Box>
+      <ActionBar channelMemberInfo={channelMemberInfo} />
+      <ScrollToBottomButton messagesContainer={messageContainerRef} />
+    </MessageWrapper>
   );
 }

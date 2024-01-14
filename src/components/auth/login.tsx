@@ -1,45 +1,37 @@
-"use client";
-
-import { Auth } from "@supabase/auth-ui-react";
-import {
-  // Import predefined theme
-  ThemeSupa,
-} from "@supabase/auth-ui-shared";
-import { supabaseClient } from "@/api/supabase";
-import { Box, Typography } from "@mui/material";
+import { FcGoogle } from "react-icons/fc";
+import { signInWithOAuth } from "@/api/auth";
+import SignInWithPasswordForm from "./signInWithPasswordForm";
+import { Provider } from "@supabase/supabase-js";
+import { useSupabase } from "@/shared";
 
 export default function LoginForm() {
+  const { loading, request, setLoading } = useSupabase(signInWithOAuth, null, false);
+
+  // Handle authentication with OAuth
+  const handleOAuthSignIn = async (provider: Provider) => {
+    try {
+      await request({ provider });
+      // set loading true untile the redirect to login
+      setLoading(true);
+    } catch (error) {
+      console.error("Authentication error:", error);
+    } finally {
+    }
+  };
+
   return (
-    <Box
-      sx={{
-        height: "100vh",
-        width: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "column",
-      }}
-    >
-      <Box
-        style={{
-          border: "2px solid #aaa",
-          padding: "1.5rem",
-          width: "400px",
-          borderRadius: "8px",
-        }}
-      >
-        <Typography variant="h5" align="center" pb={2}>
-          Sign in to your account
-        </Typography>
-        <Auth
-          supabaseClient={supabaseClient}
-          view="sign_in"
-          appearance={{ theme: ThemeSupa }}
-          theme="dark"
-          showLinks={false}
-          providers={["google"]}
-        />
-      </Box>
-    </Box>
+    <div className="prose flex h-dvh max-w-full items-center justify-center bg-base-200">
+      <div className="card w-96 bg-base-100 shadow-xl">
+        <div className="card-body items-center text-center">
+          <h2 className="card-title my-2 mb-4">Sign in to your account</h2>
+          <button className="btn w-full" onClick={() => handleOAuthSignIn("google")} disabled={loading}>
+            <FcGoogle size={26} /> Sign in with Google
+            {loading && <span className="loading loading-spinner ml-auto"></span>}
+          </button>
+          <div className="divider"></div>
+          <SignInWithPasswordForm />
+        </div>
+      </div>
+    </div>
   );
 }

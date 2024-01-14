@@ -1,32 +1,20 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { User } from "@supabase/supabase-js";
 import { newChannel } from "@/api";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  CircularProgress,
-  FormControlLabel,
-  Switch,
-  MenuItem,
-  Box,
-  Typography,
-} from "@mui/material";
 import { ChannelsSchemaType, NewChannelsSchema } from "@/shared/schema";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { supabaseClient } from "@/api/supabase";
 import { ChannelTypeEnum } from "@/shared";
-import { enqueueSnackbar } from "notistack";
-import AddReactionIcon from "@mui/icons-material/AddReaction";
-import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import slugify from "slugify";
+import { useStore, useAuthStore } from "@stores/index";
+import { BiVolumeMute } from "react-icons/bi";
+import { MdOutlineEmojiEmotions } from "react-icons/md";
+import { ModalContainer, ModalTrigger } from "@/components/ui";
+import toast from "react-hot-toast";
+import { useRouter } from "next/router";
 
 export default function NewChannelModal() {
+  const router = useRouter();
+  const setOrUpdateChannel = useStore((state) => state.setOrUpdateChannel);
   const { handleSubmit, control, watch, reset, setValue } = useForm<ChannelsSchemaType>({
     resolver: yupResolver(NewChannelsSchema),
     defaultValues: {
@@ -38,27 +26,23 @@ export default function NewChannelModal() {
       mute_in_app_notifications: false,
     },
   });
-  const [isOpen, setIsOpen] = useState(false);
+  const { workspaceId } = useStore((state) => state.workspaceSettings);
   const [loading, setLoading] = useState(false);
   const [slugPreview, setSlugPreview] = useState("");
+  const triggerRef = React.useRef<any>(null);
+  const user = useAuthStore((state) => state.profile);
+
+  const closeModal = () => {
+    triggerRef.current?.click();
+    reset();
+  };
 
   const name = watch("name");
-
-  const [user, setUser] = useState<User | null>(null);
-  useEffect(() => {
-    if (isOpen) {
-      const fetchSession = async () => {
-        const { data } = await supabaseClient.auth.getSession();
-        if (data.session?.user) setUser(data.session.user);
-      };
-      fetchSession();
-    }
-  }, [isOpen]);
 
   // This useEffect will update the slugPreview state whenever the name changes
   useEffect(() => {
     if (name) {
-      const slug = slugify(name, { lower: true });
+      const slug = slugify(name, { lower: true, strict: true });
       setValue("slug", slug); // This sets the slug field value
       setSlugPreview(slug); // This updates the slug preview below the name input
     }
@@ -70,164 +54,182 @@ export default function NewChannelModal() {
     if (user) {
       setLoading(true);
       try {
-        await newChannel({ created_by: user.id, ...data });
-        enqueueSnackbar("Channel created successfully", { variant: "success" });
-        handleCloseModal();
+        const { data: NEWChannel, error } = await newChannel({
+          created_by: user.id,
+          workspace_id: workspaceId as string,
+          ...data,
+        });
+        // TODO: after create channle, close the modal also we need a loader here!
+        // and then we need to update the channel list,
+        // otherwise in the channelId page, we have realtime listener for this
+        if (!router.query.channelId) {
+          setOrUpdateChannel(NEWChannel.id, NEWChannel);
+        }
+
+        router.push(`/${workspaceId}/${NEWChannel?.id}`);
+        closeModal();
+        toast.success("Channel created successfully");
       } catch (error: any) {
         console.error(error);
-        enqueueSnackbar(error.message, { variant: "error" });
+        toast.error(error.message);
       } finally {
         setLoading(false);
       }
     }
   };
 
-  const handleCloseModal = () => {
-    setIsOpen(false);
-    reset();
-  };
-
   return (
     <>
-      <Button variant="contained" onClick={() => setIsOpen(true)}>
+      <ModalTrigger id="modal-new_chatroom" className="btn btn-active btn-sm btn-block">
         New Chat Room
-      </Button>
-      <Dialog open={isOpen} onClose={handleCloseModal} maxWidth="sm" fullWidth>
-        <DialogTitle>Create a new chat room</DialogTitle>
+      </ModalTrigger>
+
+      <ModalContainer id="modal-new_chatroom" triggerRef={triggerRef}>
+        <p className="mb-6 text-lg font-bold">Create a new chat room</p>
         <form onSubmit={handleSubmit(submit)}>
-          <DialogContent>
+          <div className="my-2">
             <Controller
               control={control}
               name={"name"}
               render={({ field, fieldState: { error } }) => (
-                <Box>
-                  <TextField
-                    autoFocus
-                    {...field}
-                    margin="dense"
-                    label="Name"
-                    type="text"
-                    fullWidth
-                    variant="outlined"
-                    error={!!error}
-                    helperText={error ? error.message : " "}
-                  />
-                </Box>
+                <label className="form-control w-full ">
+                  <div className="label">
+                    <span className="label-text">Name</span>
+                  </div>
+                  <input {...field} type="text" placeholder="Name" className="input input-bordered w-full " />
+                  <div className="label">
+                    <span className="label-text-alt">{error ? error.message : ""}</span>
+                    <span className="label-text-alt">
+                      {slugPreview && (
+                        <span>
+                          <b>Slug:</b> {slugPreview}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                </label>
               )}
             />
+          </div>
+          <div className="my-2">
             <Controller
               control={control}
               name={"description"}
               render={({ field, fieldState: { error } }) => (
-                <TextField
-                  {...field}
-                  autoFocus
-                  margin="dense"
-                  label="Description"
-                  fullWidth
-                  variant="outlined"
-                  multiline
-                  rows={4} // Adjust the number of rows as needed
-                  error={!!error}
-                  helperText={error ? error.message : " "}
-                />
+                <label className="form-control">
+                  <div className="label">
+                    <span className="label-text">Description</span>
+                  </div>
+                  <textarea
+                    {...field}
+                    rows={4}
+                    className="textarea textarea-bordered w-full"
+                    placeholder="Description"
+                  ></textarea>
+                  <div className="label">
+                    <span className="label-text-alt">{error ? error.message : ""}</span>
+                    <span className="label-text-alt">You can change it later!</span>
+                  </div>
+                </label>
               )}
             />
-
+          </div>
+          <div className="my-2">
             <Controller
               control={control}
               name={"type"}
               render={({ field, fieldState: { error } }) => (
-                <TextField
-                  {...field}
-                  margin="dense"
-                  label="Type"
-                  select
-                  fullWidth
-                  variant="outlined"
-                  error={!!error}
-                  helperText={error ? error.message : " "}
-                >
-                  {Object.keys(ChannelTypeEnum).map((key) => (
-                    <MenuItem key={key} value={key}>
-                      {key}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                <label className="form-control w-full ">
+                  <div className="label">
+                    <span className="label-text">Channel Type</span>
+                  </div>
+                  <select {...field} className="select select-bordered w-full ">
+                    <option disabled value="">
+                      Pick your channel type
+                    </option>
+
+                    {Object.keys(ChannelTypeEnum).map((key) => (
+                      <option key={key} value={key}>
+                        {key}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="label">
+                    <span className="label-text-alt">{error ? error.message : " "}</span>
+                  </div>
+                </label>
               )}
             />
+          </div>
 
-            <Box display="flex" justifyContent="space-between" alignItems="center" paddingY="10px">
-              <Typography variant="caption" color="textSecondary">
-                {slugPreview && `Slug will be: ${slugPreview}`}
-              </Typography>
-            </Box>
+          <div className="divider"></div>
 
-            <Box borderTop="1px solid #ddd" padding="8px 0">
-              <Box display="flex" justifyContent="space-between" alignItems="center" paddingY="10px" width="100%">
-                <Controller
-                  control={control}
-                  name="allow_emoji_reactions"
-                  render={({ field }) => (
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={field.value}
-                          onChange={(e) => field.onChange(e.target.checked)}
-                          inputProps={{ "aria-label": "allow emoji reactions" }}
-                        />
-                      }
-                      label={
-                        <Box display="flex" alignItems="center">
-                          <AddReactionIcon style={{ marginRight: "8px" }} />
+          <div>
+            <div>
+              <Controller
+                control={control}
+                name="allow_emoji_reactions"
+                render={({ field }) => (
+                  <div className="form-control flex justify-between">
+                    <label className="label cursor-pointer">
+                      <div>
+                        <div className="flex items-center">
+                          <MdOutlineEmojiEmotions size={26} className="mr-2" />
                           Allow Emoji Reactions
-                        </Box>
-                      }
-                      labelPlacement="start"
-                      style={{ margin: 0, width: "100%", justifyContent: "space-between" }}
-                    />
-                  )}
-                />
-              </Box>
-
-              <Box display="flex" justifyContent="space-between" alignItems="center" paddingY="10px" width="100%">
-                <Controller
-                  control={control}
-                  name="mute_in_app_notifications"
-                  render={({ field }) => (
-                    <FormControlLabel
-                      control={
-                        <Switch
+                        </div>
+                      </div>
+                      <div>
+                        <input
+                          type="checkbox"
+                          className="toggle"
                           checked={field.value}
                           onChange={(e) => field.onChange(e.target.checked)}
-                          inputProps={{ "aria-label": "mute in-app notifications" }}
                         />
-                      }
-                      label={
-                        <Box display="flex" alignItems="center">
-                          <VolumeOffIcon style={{ marginRight: "8px" }} />
+                      </div>
+                    </label>
+                  </div>
+                )}
+              />
+            </div>
+            <div>
+              <Controller
+                control={control}
+                name="mute_in_app_notifications"
+                render={({ field }) => (
+                  <div className="form-control flex justify-between">
+                    <label className="label cursor-pointer">
+                      <div>
+                        <div className="flex items-center">
+                          <BiVolumeMute size={24} className="mr-2" />
                           Mute Notifications for everyone!
-                        </Box>
-                      }
-                      labelPlacement="start"
-                      style={{ margin: 0, width: "100%", justifyContent: "space-between" }}
-                    />
-                  )}
-                />
-              </Box>
-            </Box>
-          </DialogContent>
+                        </div>
+                      </div>
+                      <div>
+                        <input
+                          type="checkbox"
+                          className="toggle"
+                          checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                        />
+                      </div>
+                    </label>
+                  </div>
+                )}
+              />
+            </div>
+          </div>
 
-          <DialogActions style={{ justifyContent: "space-between", padding: "8px 10px" }}>
-            <Button onClick={handleCloseModal} color="primary" style={{ width: "50%" }}>
+          <div className="mt-10 flex w-full justify-between">
+            <button className="btn btn-neutral w-1/6" onClick={closeModal}>
               Cancel
-            </Button>
-            <Button type="submit" color="primary" style={{ width: "50%" }}>
-              {loading ? <CircularProgress size={24} /> : "Create"}
-            </Button>
-          </DialogActions>
+            </button>
+            <button className="btn btn-secondary  w-4/6" type="submit" disabled={loading}>
+              Create
+              {loading && <span className="loading loading-spinner loading-md ml-auto"></span>}
+            </button>
+          </div>
         </form>
-      </Dialog>
+      </ModalContainer>
     </>
   );
 }

@@ -1,22 +1,16 @@
 import { useState, useRef, useEffect } from "react";
+import { useStore } from "@stores/index";
 
-// Define a type for the messages parameter if it's not defined elsewhere.
-// Assuming that the messages Map has a string key and a custom message type value.
-type Message = {
-  id: string;
-  // other properties of a message
-};
+const SCROLL_TIMEOUT_DELAY = 100;
 
 // If the type of messages is different, adjust the Map type accordingly.
-export const useScrollAndLoad = (
-  messages: Map<string, Message>,
-  initialMessagesLoaded: boolean,
-  channelId: string | string[] | undefined,
-  isSubscribe: boolean,
-) => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const messageContainerRef = useRef<HTMLDivElement | null>(null);
+export const useScrollAndLoad = (initialMessagesLoaded: boolean, messageContainerRef: any, msgLength: number) => {
+  const [loading, setLoading] = useState<boolean>(msgLength === 0 ? false : true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const { channelId } = useStore((state) => state.workspaceSettings);
+  const messagesByChannel = useStore((state: any) => state.messagesByChannel);
+  const messages = messagesByChannel.get(channelId);
 
   const scrollToBottom = (options: ScrollIntoViewOptions = {}) => {
     messagesEndRef.current?.scrollIntoView(options);
@@ -46,7 +40,7 @@ export const useScrollAndLoad = (
 
     // Decide whether to scroll to the bottom based on loading state and user's position.
     const handleScrollToBottom = () => {
-      if (loading || !isSubscribe) {
+      if (loading) {
         // If still loading, just scroll to bottom without smooth behavior.
         scrollToBottom();
       } else if (isUserCloseToBottom()) {
@@ -63,23 +57,29 @@ export const useScrollAndLoad = (
   }, [messages, initialMessagesLoaded, loading, channelId]);
 
   useEffect(() => {
-    const container = messageContainerRef.current;
-    if (container) {
+    const checkScrollPosition = async () => {
+      const container = messageContainerRef.current;
+      if (!container) return;
+
       setLoading(true);
 
       const { scrollTop, scrollHeight, clientHeight } = container;
+
       container.addEventListener("scroll", checkIfScrolledToBottom);
 
-      // it mean there is not message tha need to scroll to bottom
-      if (scrollTop === 0 && scrollHeight === clientHeight) setLoading(false);
-    } else {
-      setLoading(false);
-    }
+      if (scrollTop === 0 && scrollHeight === clientHeight) {
+        setLoading(false);
+      }
+    };
+
+    const timeoutId = setTimeout(checkScrollPosition, SCROLL_TIMEOUT_DELAY);
 
     return () => {
+      const container = messageContainerRef.current;
       if (container) {
         container.removeEventListener("scroll", checkIfScrolledToBottom);
       }
+      clearTimeout(timeoutId);
     };
   }, [messageContainerRef, initialMessagesLoaded]);
 

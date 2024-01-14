@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { useEffect } from "react";
 
 const useServiceWorker = () => {
@@ -20,6 +22,7 @@ const useServiceWorker = () => {
 
       const promptNewVersionAvailable = (event) => {
         // Custom logic for prompting new version
+        console.log(`Event ${event.type} is triggered.`, event);
         // ...
       };
 

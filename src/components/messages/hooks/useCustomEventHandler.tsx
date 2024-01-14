@@ -1,12 +1,15 @@
 import { useEffect, MutableRefObject, Dispatch, SetStateAction } from "react";
-
+import { useStore } from "@stores/index";
 export const useCustomEventHandler = (
   channelUsersPresence: Map<string, any>,
   setChannelUsersPresence: Dispatch<SetStateAction<Map<string, any>>>,
   messageContainerRef: MutableRefObject<HTMLElement | null>,
   messagesEndRef: MutableRefObject<HTMLElement | null>,
-  messages: Map<string, any>,
 ) => {
+  const { channelId } = useStore((state: any) => state.workspaceSettings);
+  const messagesByChannel = useStore((state: any) => state.messagesByChannel);
+  const messages = messagesByChannel.get(channelId);
+
   useEffect(() => {
     // listen to custom event update:channel:usersPresence
     const handleUpdateChannelUsersPresence = (e: any) => {

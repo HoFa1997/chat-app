@@ -1,23 +1,15 @@
-"use client";
 import { supabaseClient } from "@/api/supabase";
-import { User } from "@supabase/supabase-js";
 import { useEffect, useState, useCallback } from "react";
-import { Box, Button } from "@mui/material";
+import { useStore, useAuthStore } from "@stores/index";
 
 type JoinChannelProp = {
-  channelId: string;
-  user: User;
-  isUserChannelMember: boolean;
   channelMemberInfo: any;
 };
 
-export default function JoinBroadcastChannel({
-  channelId,
-  user,
-  isUserChannelMember,
-  channelMemberInfo,
-}: JoinChannelProp) {
+export default function JoinBroadcastChannel({ channelMemberInfo }: JoinChannelProp) {
   const [mute, setMute] = useState(false);
+  const { channelId, isUserChannelMember } = useStore((state: any) => state.workspaceSettings);
+  const user = useAuthStore.getState().profile;
 
   useEffect(() => {
     if (!channelMemberInfo) return;
@@ -29,7 +21,7 @@ export default function JoinBroadcastChannel({
     try {
       const { error } = await supabaseClient
         .from("channel_members")
-        .upsert({ channel_id: channelId, member_id: user.id });
+        .upsert({ channel_id: channelId, member_id: user?.id });
 
       if (error) {
         console.error(error);
@@ -51,7 +43,7 @@ export default function JoinBroadcastChannel({
             mute_in_app_notifications: muteOrUnmute,
           })
           .eq("channel_id", channelId)
-          .eq("member_id", user.id)
+          .eq("member_id", user?.id)
           .select();
 
         if (error) {
@@ -64,26 +56,19 @@ export default function JoinBroadcastChannel({
     [user, channelId],
   );
 
+  if (!user || !channelId) return null;
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "space-between",
-        background: "#121212",
-        borderTop: "2px solid #464646",
-      }}
-    >
+    <div className="flex w-full flex-col items-center justify-center p-2">
       {isUserChannelMember ? (
-        <Button variant="text" onClick={() => muteHandler(!mute)} style={{ padding: "16px 0" }} fullWidth>
+        <button className="btn btn-block" onClick={() => muteHandler(!mute)}>
           {mute ? "Unmute" : "Mute"}
-        </Button>
+        </button>
       ) : (
-        <Button variant="text" onClick={joinUserToChannel} style={{ padding: "16px 0" }} fullWidth>
+        <button className="btn btn-block" onClick={joinUserToChannel}>
           Join
-        </Button>
+        </button>
       )}
-    </Box>
+    </div>
   );
 }

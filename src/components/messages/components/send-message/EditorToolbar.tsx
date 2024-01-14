@@ -1,24 +1,17 @@
-import BoldIcon from "@mui/icons-material/FormatBoldRounded";
-import ItalicIcon from "@mui/icons-material/FormatItalicRounded";
-import OrderedListIcon from "@mui/icons-material/FormatListNumberedRounded";
-import BulletListIcon from "@mui/icons-material/FormatListBulletedRounded";
-import CodeIcon from "@mui/icons-material/CodeRounded";
-import StrikeIcon from "@mui/icons-material/StrikethroughSRounded";
-import QuotesIcon from "@mui/icons-material/FormatQuoteRounded";
-import UndoIcon from "@mui/icons-material/UndoRounded";
-import RedoIcon from "@mui/icons-material/RedoRounded";
 import { useEffect, useState } from "react";
 import { Editor } from "@tiptap/react";
-import { Box, IconButton as MuiIcon, styled, Divider } from "@mui/material";
+import { twx } from "@utils/index";
+import { twMerge } from "tailwind-merge";
 
-const IconButton = styled(MuiIcon)(({}) => ({
-  // background: "#464646",
-  borderRadius: 2,
-  width: 32,
-  height: 32,
-}));
+import { FaBold, FaItalic, FaListOl, FaListUl, FaCode, FaStrikethrough, FaQuoteRight } from "react-icons/fa6";
 
-export const EditorToolbar = ({ editor, sx }: { editor: Editor; sx: any }) => {
+type BtnIcon = React.ComponentProps<"button"> & { $active?: boolean };
+
+const IconButton = twx.button<BtnIcon>(
+  (prop) => `btn btn-ghost w-9 h-9 btn-xs mr-2 ${prop.$active ? "btn-active" : ""}`,
+);
+
+export const EditorToolbar = ({ editor, className, style }: { editor: Editor; className: any; style: any }) => {
   const [isFocused, setIsFocused] = useState(false);
 
   // Update the focus state based on editor's events
@@ -42,70 +35,56 @@ export const EditorToolbar = ({ editor, sx }: { editor: Editor; sx: any }) => {
     return condition ? "grey.500" : "";
   };
 
+  const toolbarStyle = twMerge("flex h-9 w-full flex-row items-center justify-start bg-base-200", className);
+
   return (
-    <Box
-      sx={{
-        bgcolor: "menuBackground",
-        color: "primaryText",
-        display: "flex",
-        flexDirection: "row",
-        width: "100%",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        flexGrow: 1,
-        gap: 1,
-        ...sx,
-      }}
-    >
+    <div className={toolbarStyle} style={style}>
       <IconButton
         onClick={() => editor.chain().focus().toggleBold().run()}
         disabled={!editor.can().chain().focus().toggleBold().run()}
-        sx={{ bgcolor: (t) => (editor.isActive("bold") ? t.palette.grey[100] : "") }}
+        $active={editor.isActive("bold")}
       >
-        <BoldIcon sx={{ color: getBackgroundColor(editor.isActive("bold")) }} />
+        <FaBold size={16} style={{ color: getBackgroundColor(editor.isActive("bold")) }} />
       </IconButton>
       <IconButton
         onClick={() => editor.chain().focus().toggleItalic().run()}
         disabled={!editor.can().chain().focus().toggleItalic().run()}
-        sx={{ bgcolor: (t) => (editor.isActive("italic") ? t.palette.grey[100] : "") }}
+        $active={editor.isActive("italic")}
       >
-        <ItalicIcon sx={{ color: getBackgroundColor(editor.isActive("italic")) }} />
+        <FaItalic size={16} style={{ color: getBackgroundColor(editor.isActive("italic")) }} />
       </IconButton>
       <IconButton
         onClick={() => editor.chain().focus().toggleStrike().run()}
         disabled={!editor.can().chain().focus().toggleStrike().run()}
-        sx={{ bgcolor: (t) => (editor.isActive("strike") ? t.palette.grey[100] : "") }}
+        $active={editor.isActive("strike")}
       >
-        <StrikeIcon sx={{ color: getBackgroundColor(editor.isActive("strike")) }} />
+        <FaStrikethrough size={16} style={{ color: getBackgroundColor(editor.isActive("strike")) }} />
       </IconButton>
-      <Divider orientation="vertical" flexItem />
+      <hr />
       <IconButton
         onClick={() => editor.chain().focus().toggleBulletList().run()}
-        sx={{ bgcolor: (t) => (editor.isActive("bulletList") ? t.palette.grey[100] : "") }}
+        $active={editor.isActive("bulletList")}
       >
-        <BulletListIcon sx={{ color: getBackgroundColor(editor.isActive("bulletList")) }} />
+        <FaListUl size={26} style={{ color: getBackgroundColor(editor.isActive("bulletList")) }} />
       </IconButton>
       <IconButton
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        sx={{ bgcolor: (t) => (editor.isActive("orderedList") ? t.palette.grey[100] : "") }}
+        $active={editor.isActive("orderedList")}
       >
-        <OrderedListIcon sx={{ color: getBackgroundColor(editor.isActive("orderedList")) }} />
+        <FaListOl size={26} style={{ color: getBackgroundColor(editor.isActive("orderedList")) }} />
       </IconButton>
-      <Divider orientation="vertical" flexItem />
+      <hr />
 
-      <IconButton
-        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        sx={{ bgcolor: (t) => (editor.isActive("codeBlock") ? t.palette.grey[100] : "") }}
-      >
-        <CodeIcon sx={{ color: getBackgroundColor(editor.isActive("codeBlock")) }} />
+      <IconButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} $active={editor.isActive("codeBlock")}>
+        <FaCode size={26} style={{ color: getBackgroundColor(editor.isActive("codeBlock")) }} />
       </IconButton>
       <IconButton
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        sx={{ bgcolor: (t) => (editor.isActive("blockquote") ? t.palette.grey[100] : "") }}
+        $active={editor.isActive("blockquote")}
       >
-        <QuotesIcon sx={{ color: getBackgroundColor(editor.isActive("blockquote")) }} />
+        <FaQuoteRight size={26} style={{ color: getBackgroundColor(editor.isActive("blockquote")) }} />
       </IconButton>
-      <IconButton
+      {/* <IconButton
         onClick={() => editor.chain().focus().undo().run()}
         disabled={!editor.can().chain().focus().undo().run()}
       >
@@ -116,7 +95,7 @@ export const EditorToolbar = ({ editor, sx }: { editor: Editor; sx: any }) => {
         disabled={!editor.can().chain().focus().redo().run()}
       >
         <RedoIcon />
-      </IconButton>
-    </Box>
+      </IconButton> */}
+    </div>
   );
 };

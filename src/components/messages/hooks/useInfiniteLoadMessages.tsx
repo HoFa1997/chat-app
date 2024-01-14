@@ -1,63 +1,63 @@
-import { useState, useEffect, MutableRefObject, SetStateAction, Dispatch } from "react";
-import { supabaseClient } from "@/api/supabase";
+import { useState, useEffect, MutableRefObject } from "react";
+import { groupedMessages } from "@utils/index";
+import { useStore } from "@stores/index";
+import { fetchMessagesPaginated } from "@/api";
 
-export const useInfiniteLoadMessages = (
-  channelId: string,
-  messageContainerRef: MutableRefObject<HTMLElement | null>,
-  messages: Map<string, any>,
-  setMessages: Dispatch<SetStateAction<Map<string, any>>>,
-) => {
-  const pageSize = 10;
-  const [currentPage, setCurrentPage] = useState<number>(2);
+const PAGE_SIZE = 20;
+const START_PAGE = 2;
+
+export const useInfiniteLoadMessages = (messageContainerRef: MutableRefObject<HTMLElement | null>) => {
+  const [currentPage, setCurrentPage] = useState<number>(START_PAGE);
   const [hasMoreMessages, setHasMoreMessages] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
-  const fetchMessages = async (channelId: string, pageNumber: number, pageSize: number) => {
-    try {
-      // eslint-disable-next-line
-      let { data, error } = await supabaseClient
-        .rpc("get_channel_messages_paginated", {
-          input_channel_id: channelId,
-          page: pageNumber,
-          page_size: pageSize,
-        })
-        .single();
+  const { channelId } = useStore((state: any) => state.workspaceSettings);
 
-      if (error) throw error;
-
-      return data as any;
-    } catch (error: any) {
-      console.error("Error fetching messages:", error.message);
-      return null;
-    }
-  };
+  const replaceMessages = useStore((state: any) => state.replaceMessages);
+  const messagesByChannel = useStore((state: any) => state.messagesByChannel);
+  const messages = messagesByChannel.get(channelId);
 
   const loadMoreMessages = async () => {
-    if (!hasMoreMessages || !messageContainerRef.current) return;
+    const msgContainer = messageContainerRef.current;
+    if (!hasMoreMessages || !msgContainer) return;
     setIsLoadingMore(true);
 
-    // select first ".MessageCard" from messageContainerRef.current
-    const firstVisibleMessage = messageContainerRef.current.querySelector(".msg_card") as HTMLElement;
+    // select first ".MessageCard" from msgContainer
+    const firstVisibleMessage = msgContainer.childNodes[1] as HTMLElement | null;
     const prevTop = firstVisibleMessage ? firstVisibleMessage?.offsetTop : 0;
 
-    const pageMessages = (await fetchMessages(channelId, currentPage, pageSize)) as any;
+    const pageMessages = await fetchMessagesPaginated({
+      input_channel_id: channelId,
+      page: currentPage,
+      page_size: PAGE_SIZE,
+    });
+
+    // If there are no messages, stop loading more
+    if (!pageMessages?.messages || pageMessages?.messages?.length == 0) {
+      setIsLoadingMore(false);
+      return;
+    }
 
     if (pageMessages?.messages && pageMessages?.messages?.length > 0) {
       // Convert pageMessages.messages to a Map
-      const newMessagesMap: any = new Map(pageMessages.messages.reverse().map((message: any) => [message.id, message]));
+      const newMessagesMap: any = new Map(
+        groupedMessages(pageMessages.messages.reverse()).map((message: any) => [message.id, message]),
+      );
 
       // Merge the new messages with the existing ones
       const updatedMessages: Map<string, any> = new Map([...newMessagesMap, ...messages]);
 
-      setMessages(updatedMessages);
+      replaceMessages(channelId, updatedMessages);
       setCurrentPage(currentPage + 1);
 
       // Adjust the scroll position
       requestAnimationFrame(() => {
-        if (messageContainerRef.current && firstVisibleMessage) {
-          const date_chip = messageContainerRef.current.querySelector(".date_chip") as HTMLElement;
-          const currentTop = firstVisibleMessage.offsetTop + date_chip.offsetHeight; //;
-          messageContainerRef.current.scrollTop += currentTop - prevTop;
+        if (msgContainer && firstVisibleMessage) {
+          // stop scrolling
+          const date_chip = msgContainer.querySelector(".date_chip") as HTMLElement;
+          const currentTop = firstVisibleMessage.offsetTop + date_chip.offsetHeight;
+          msgContainer.scrollTop += currentTop - prevTop;
+
           setIsLoadingMore(false);
         }
       });
@@ -67,21 +67,25 @@ export const useInfiniteLoadMessages = (
   };
 
   useEffect(() => {
+    const currentRef = messageContainerRef.current;
+
     const handleScroll = () => {
       const current = messageContainerRef.current;
+
       if (current) {
         const isAtTop = current.scrollTop == 0;
-        if (isAtTop) loadMoreMessages();
+        if (isAtTop && current) {
+          loadMoreMessages();
+        }
       }
     };
 
-    const currentRef = messageContainerRef.current;
     currentRef?.addEventListener("scroll", handleScroll);
 
     return () => {
       currentRef?.removeEventListener("scroll", handleScroll);
     };
-  }, [messageContainerRef, messages]);
+  }, [messageContainerRef.current, messages]);
 
   return { isLoadingMore };
 };

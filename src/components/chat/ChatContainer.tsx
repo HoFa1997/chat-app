@@ -1,9 +1,7 @@
-import { Box, Chip } from "@mui/material";
-
 export const ChatContainer = () => {
   return (
-    <Box display="flex" alignItems="center" height="100vh" justifyContent="center" bgcolor="gray" flexGrow={1}>
-      <Chip label="Select a chat to start messaging" />
-    </Box>
+    <div className="prose flex h-dvh w-full max-w-full items-center justify-center bg-base-300">
+      <div className="badge badge-neutral">[Select OR Create] a Workspace to start messaging</div>
+    </div>
   );
 };

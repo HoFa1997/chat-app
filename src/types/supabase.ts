@@ -7,6 +7,7 @@ export interface Database {
         Row: {
           channel_id: string;
           channel_member_role: Database["public"]["Enums"]["channel_member_role"] | null;
+          created_at: string;
           joined_at: string;
           last_read_message_id: string | null;
           last_read_update: string | null;
@@ -14,10 +15,12 @@ export interface Database {
           member_id: string;
           mute_in_app_notifications: boolean | null;
           unread_message_count: number | null;
+          updated_at: string | null;
         };
         Insert: {
           channel_id: string;
           channel_member_role?: Database["public"]["Enums"]["channel_member_role"] | null;
+          created_at?: string;
           joined_at?: string;
           last_read_message_id?: string | null;
           last_read_update?: string | null;
@@ -25,10 +28,12 @@ export interface Database {
           member_id: string;
           mute_in_app_notifications?: boolean | null;
           unread_message_count?: number | null;
+          updated_at?: string | null;
         };
         Update: {
           channel_id?: string;
           channel_member_role?: Database["public"]["Enums"]["channel_member_role"] | null;
+          created_at?: string;
           joined_at?: string;
           last_read_message_id?: string | null;
           last_read_update?: string | null;
@@ -36,6 +41,7 @@ export interface Database {
           member_id?: string;
           mute_in_app_notifications?: boolean | null;
           unread_message_count?: number | null;
+          updated_at?: string | null;
         };
         Relationships: [
           {
@@ -44,6 +50,13 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "channels";
             referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "channel_members_channel_id_fkey";
+            columns: ["channel_id"];
+            isOneToOne: false;
+            referencedRelation: "view_channels";
+            referencedColumns: ["channel_id"];
           },
           {
             foreignKeyName: "channel_members_last_read_message_id_fkey";
@@ -77,6 +90,7 @@ export interface Database {
           name: string;
           slug: string;
           type: Database["public"]["Enums"]["channel_type"] | null;
+          workspace_id: string;
         };
         Insert: {
           allow_emoji_reactions?: boolean | null;
@@ -93,6 +107,7 @@ export interface Database {
           name: string;
           slug: string;
           type?: Database["public"]["Enums"]["channel_type"] | null;
+          workspace_id: string;
         };
         Update: {
           allow_emoji_reactions?: boolean | null;
@@ -109,6 +124,7 @@ export interface Database {
           name?: string;
           slug?: string;
           type?: Database["public"]["Enums"]["channel_type"] | null;
+          workspace_id?: string;
         };
         Relationships: [
           {
@@ -116,6 +132,13 @@ export interface Database {
             columns: ["created_by"];
             isOneToOne: false;
             referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "channels_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
             referencedColumns: ["id"];
           },
         ];
@@ -129,12 +152,16 @@ export interface Database {
           edited_at: string | null;
           html: string | null;
           id: string;
+          is_thread_root: boolean | null;
           medias: Json | null;
           metadata: Json | null;
-          original_message_id: string | null;
+          origin_message_id: string | null;
           reactions: Json | null;
           replied_message_preview: string | null;
           reply_to_message_id: string | null;
+          thread_depth: number | null;
+          thread_id: string | null;
+          thread_owner_user_id: string | null;
           type: Database["public"]["Enums"]["message_type"] | null;
           updated_at: string;
           user_id: string;
@@ -147,12 +174,16 @@ export interface Database {
           edited_at?: string | null;
           html?: string | null;
           id?: string;
+          is_thread_root?: boolean | null;
           medias?: Json | null;
           metadata?: Json | null;
-          original_message_id?: string | null;
+          origin_message_id?: string | null;
           reactions?: Json | null;
           replied_message_preview?: string | null;
           reply_to_message_id?: string | null;
+          thread_depth?: number | null;
+          thread_id?: string | null;
+          thread_owner_user_id?: string | null;
           type?: Database["public"]["Enums"]["message_type"] | null;
           updated_at?: string;
           user_id: string;
@@ -165,12 +196,16 @@ export interface Database {
           edited_at?: string | null;
           html?: string | null;
           id?: string;
+          is_thread_root?: boolean | null;
           medias?: Json | null;
           metadata?: Json | null;
-          original_message_id?: string | null;
+          origin_message_id?: string | null;
           reactions?: Json | null;
           replied_message_preview?: string | null;
           reply_to_message_id?: string | null;
+          thread_depth?: number | null;
+          thread_id?: string | null;
+          thread_owner_user_id?: string | null;
           type?: Database["public"]["Enums"]["message_type"] | null;
           updated_at?: string;
           user_id?: string;
@@ -184,8 +219,15 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "messages_original_message_id_fkey";
-            columns: ["original_message_id"];
+            foreignKeyName: "messages_channel_id_fkey";
+            columns: ["channel_id"];
+            isOneToOne: false;
+            referencedRelation: "view_channels";
+            referencedColumns: ["channel_id"];
+          },
+          {
+            foreignKeyName: "messages_origin_message_id_fkey";
+            columns: ["origin_message_id"];
             isOneToOne: false;
             referencedRelation: "messages";
             referencedColumns: ["id"];
@@ -195,6 +237,20 @@ export interface Database {
             columns: ["reply_to_message_id"];
             isOneToOne: false;
             referencedRelation: "messages";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "messages_thread_id_fkey";
+            columns: ["thread_id"];
+            isOneToOne: false;
+            referencedRelation: "messages";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "messages_thread_owner_user_id_fkey";
+            columns: ["thread_owner_user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
             referencedColumns: ["id"];
           },
           {
@@ -215,8 +271,9 @@ export interface Database {
           message_id: string | null;
           message_preview: string | null;
           read_at: string | null;
+          receiver_user_id: string;
+          sender_user_id: string | null;
           type: Database["public"]["Enums"]["notification_category"];
-          user_id: string;
         };
         Insert: {
           action_url?: string | null;
@@ -226,8 +283,9 @@ export interface Database {
           message_id?: string | null;
           message_preview?: string | null;
           read_at?: string | null;
+          receiver_user_id: string;
+          sender_user_id?: string | null;
           type: Database["public"]["Enums"]["notification_category"];
-          user_id: string;
         };
         Update: {
           action_url?: string | null;
@@ -237,8 +295,9 @@ export interface Database {
           message_id?: string | null;
           message_preview?: string | null;
           read_at?: string | null;
+          receiver_user_id?: string;
+          sender_user_id?: string | null;
           type?: Database["public"]["Enums"]["notification_category"];
-          user_id?: string;
         };
         Relationships: [
           {
@@ -249,6 +308,13 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
+            foreignKeyName: "notifications_channel_id_fkey";
+            columns: ["channel_id"];
+            isOneToOne: false;
+            referencedRelation: "view_channels";
+            referencedColumns: ["channel_id"];
+          },
+          {
             foreignKeyName: "notifications_message_id_fkey";
             columns: ["message_id"];
             isOneToOne: false;
@@ -256,8 +322,15 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "notifications_user_id_fkey";
-            columns: ["user_id"];
+            foreignKeyName: "notifications_receiver_user_id_fkey";
+            columns: ["receiver_user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_sender_user_id_fkey";
+            columns: ["sender_user_id"];
             isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
@@ -267,6 +340,7 @@ export interface Database {
       pinned_messages: {
         Row: {
           channel_id: string;
+          content: string;
           id: string;
           message_id: string;
           pinned_at: string;
@@ -274,6 +348,7 @@ export interface Database {
         };
         Insert: {
           channel_id: string;
+          content: string;
           id?: string;
           message_id: string;
           pinned_at?: string;
@@ -281,6 +356,7 @@ export interface Database {
         };
         Update: {
           channel_id?: string;
+          content?: string;
           id?: string;
           message_id?: string;
           pinned_at?: string;
@@ -293,6 +369,13 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "channels";
             referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "pinned_messages_channel_id_fkey";
+            columns: ["channel_id"];
+            isOneToOne: false;
+            referencedRelation: "view_channels";
+            referencedColumns: ["channel_id"];
           },
           {
             foreignKeyName: "pinned_messages_message_id_fkey";
@@ -315,9 +398,11 @@ export interface Database {
           avatar_url: string | null;
           created_at: string;
           description: string | null;
+          display_name: string | null;
           email: string | null;
           full_name: string | null;
           id: string;
+          last_seen_at: string | null;
           status: Database["public"]["Enums"]["user_status"] | null;
           updated_at: string;
           username: string;
@@ -327,9 +412,11 @@ export interface Database {
           avatar_url?: string | null;
           created_at?: string;
           description?: string | null;
+          display_name?: string | null;
           email?: string | null;
           full_name?: string | null;
           id: string;
+          last_seen_at?: string | null;
           status?: Database["public"]["Enums"]["user_status"] | null;
           updated_at?: string;
           username: string;
@@ -339,9 +426,11 @@ export interface Database {
           avatar_url?: string | null;
           created_at?: string;
           description?: string | null;
+          display_name?: string | null;
           email?: string | null;
           full_name?: string | null;
           id?: string;
+          last_seen_at?: string | null;
           status?: Database["public"]["Enums"]["user_status"] | null;
           updated_at?: string;
           username?: string;
@@ -357,11 +446,154 @@ export interface Database {
           },
         ];
       };
+      workspaces: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          description: string | null;
+          id: string;
+          metadata: Json | null;
+          name: string;
+          slug: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          description?: string | null;
+          id?: string;
+          metadata?: Json | null;
+          name: string;
+          slug: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          description?: string | null;
+          id?: string;
+          metadata?: Json | null;
+          name?: string;
+          slug?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "workspaces_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
-      [_ in never]: never;
+      view_channels: {
+        Row: {
+          allow_emoji_reactions: boolean | null;
+          channel_id: string | null;
+          channel_type: Database["public"]["Enums"]["channel_type"] | null;
+          created_at: string | null;
+          created_by: string | null;
+          description: string | null;
+          is_avatar_set: boolean | null;
+          last_activity_at: string | null;
+          last_message_preview: string | null;
+          member_count: number | null;
+          member_limit: number | null;
+          metadata: Json | null;
+          mute_in_app_notifications: boolean | null;
+          name: string | null;
+          slug: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "channels_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      view_pinned_messages: {
+        Row: {
+          channel_id: string | null;
+          content: string | null;
+          html: string | null;
+          medias: Json | null;
+          message_created_at: string | null;
+          message_type: Database["public"]["Enums"]["message_type"] | null;
+          message_updated_at: string | null;
+          message_user_id: string | null;
+          metadata: Json | null;
+          pinned_at: string | null;
+          pinned_by: string | null;
+          pinned_message_id: string | null;
+          pinner_avatar_url: string | null;
+          pinner_full_name: string | null;
+          pinner_username: string | null;
+          reactions: Json | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "messages_user_id_fkey";
+            columns: ["message_user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "pinned_messages_channel_id_fkey";
+            columns: ["channel_id"];
+            isOneToOne: false;
+            referencedRelation: "channels";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "pinned_messages_channel_id_fkey";
+            columns: ["channel_id"];
+            isOneToOne: false;
+            referencedRelation: "view_channels";
+            referencedColumns: ["channel_id"];
+          },
+          {
+            foreignKeyName: "pinned_messages_pinned_by_fkey";
+            columns: ["pinned_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Functions: {
+      get_channel_aggregate_data: {
+        Args: {
+          input_channel_id: string;
+          message_limit?: number;
+        };
+        Returns: {
+          channel_info: Json;
+          last_messages: Json;
+          member_count: number;
+          pinned_messages: Json;
+          user_profile: Json;
+          is_user_channel_member: boolean;
+          channel_member_info: Json;
+        }[];
+      };
+      get_channel_messages_paginated: {
+        Args: {
+          input_channel_id: string;
+          page: number;
+          page_size?: number;
+        };
+        Returns: {
+          messages: Json;
+        }[];
+      };
       truncate_content: {
         Args: {
           input_content: string;
@@ -393,6 +625,7 @@ export interface Database {
         | "message"
         | "reply"
         | "reaction"
+        | "thread_message"
         | "channel_event"
         | "direct_message"
         | "invitation"

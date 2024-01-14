@@ -36,6 +36,7 @@ export type TMessageWithUser = {
       username: string;
     };
   };
+  user_details: any;
   replied_message_preview?: any;
   original_message_id?: any;
 };

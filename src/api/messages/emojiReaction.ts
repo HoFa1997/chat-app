@@ -1,38 +1,78 @@
 import { supabaseClient } from "../supabase";
+import { useAuthStore } from "@stores/index";
 
 export const emojiReaction = async (message: any, newReaction: string) => {
-  const {
-    data: { session: user },
-    error,
-  } = await supabaseClient.auth.getSession();
+  const user = useAuthStore.getState().profile;
 
-  if (error) {
-    throw error;
-  }
+  if (!user) return;
 
-  if (!user) throw new Error("User not found");
+  const updatedMessage = { ...message, reactions: message.reactions ? { ...message.reactions } : {} };
 
-  const findReaction = message.reactions && message.reactions[newReaction];
+  const findReaction = updatedMessage.reactions && updatedMessage.reactions[newReaction];
 
   if (findReaction) {
-    const findUser = findReaction.find((reaction: any) => reaction.user_id === user?.user.id);
-    // if user already reacted, remove reaction
+    // Clone the array before modifying it
+    const findReactionClone = [...findReaction];
+    const findUser = findReactionClone.find((reaction: any) => reaction.user_id === user.id);
+
     if (findUser) {
-      const index = findReaction.indexOf(findUser);
-      findReaction.splice(index, 1);
-      if (findReaction.length === 0) delete message.reactions[newReaction];
+      const index = findReactionClone.indexOf(findUser);
+      findReactionClone.splice(index, 1);
+
+      if (findReactionClone.length === 0) {
+        delete updatedMessage.reactions[newReaction];
+      } else {
+        updatedMessage.reactions[newReaction] = findReactionClone;
+      }
     } else {
-      findReaction.push({ user_id: user?.user.id, created_at: new Date().toISOString() });
+      // If the user hasn't reacted yet, push the reaction to the cloned array
+      findReactionClone.push({ user_id: user.id, created_at: new Date().toISOString() });
+      updatedMessage.reactions[newReaction] = findReactionClone;
     }
   } else {
-    if (!message.reactions) message.reactions = {};
-    message.reactions[newReaction] = [{ user_id: user?.user.id, created_at: new Date().toISOString() }];
+    // Handle the case for a new reaction
+    updatedMessage.reactions[newReaction] = [{ user_id: user.id, created_at: new Date().toISOString() }];
   }
 
   return await supabaseClient
     .from("messages")
-    .update({ reactions: message.reactions })
-    .eq("channel_id", message.channel_id)
+    .update({ reactions: updatedMessage.reactions })
+    .eq("channel_id", updatedMessage.channel_id)
+    .eq("id", message.id)
+    .select()
+    .throwOnError();
+};
+
+export const removeReaction = async (message: any, reaction: string) => {
+  const user = useAuthStore.getState().profile;
+
+  if (!user) return;
+
+  const updatedMessage = { ...message, reactions: message.reactions ? { ...message.reactions } : {} };
+
+  const findReaction = updatedMessage.reactions && updatedMessage.reactions[reaction];
+
+  if (findReaction) {
+    // Clone the array before modifying it
+    const findReactionClone = [...findReaction];
+    const findUser = findReactionClone.find((reaction: any) => reaction.user_id === user.id);
+
+    if (findUser) {
+      const index = findReactionClone.indexOf(findUser);
+      findReactionClone.splice(index, 1);
+
+      if (findReactionClone.length === 0) {
+        delete updatedMessage.reactions[reaction];
+      } else {
+        updatedMessage.reactions[reaction] = findReactionClone;
+      }
+    }
+  }
+
+  return await supabaseClient
+    .from("messages")
+    .update({ reactions: updatedMessage.reactions })
+    .eq("channel_id", updatedMessage.channel_id)
     .eq("id", message.id)
     .select()
     .throwOnError();

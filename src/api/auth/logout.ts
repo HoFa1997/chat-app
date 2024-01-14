@@ -1,3 +1,8 @@
 import { supabaseClient } from "../supabase";
+import { AuthError } from "@supabase/supabase-js";
 
-export const logout = async () => await supabaseClient.auth.signOut();
+// Refactored logout function
+export const logout = async (): Promise<{ data: null; error: AuthError | null }> => {
+  const { error } = await supabaseClient.auth.signOut();
+  return { data: null, error };
+};

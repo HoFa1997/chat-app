@@ -1,55 +1,29 @@
 import SendMessage from "./send-message/SendMessage";
 import JoinBroadcastChannel from "./JoinBroadcastChannel";
 import JoinGroupChannel from "./JoinGroupChannel";
-type JoinGroupChannelProp = {
-  channelId: string;
-  user: any;
-  channelInfo: any;
-  channelMemberInfo: any;
-  isUserChannelMember: boolean;
-};
+import { useStore } from "@stores/index";
 
-export const ChannelActionBar = ({
-  channelId,
-  user,
-  channelInfo,
-  channelMemberInfo,
-  isUserChannelMember,
-}: JoinGroupChannelProp) => {
-  if (!channelMemberInfo) return null;
-
-  const isChannelOwner = channelInfo?.created_by === user?.id;
-  const isChannelAdmin = channelMemberInfo.channel_member_role === "ADMIN";
+export const ChannelActionBar = ({ channelMemberInfo }: any) => {
+  const { isUserChannelMember, isUserChannelOwner, isUserChannelAdmin, channelInfo } = useStore(
+    (state: any) => state.workspaceSettings,
+  );
 
   // For DIRECT, PRIVATE and default cases
   if (["DIRECT", "PRIVATE"].includes(channelInfo?.type) || !channelInfo?.type) {
-    return <SendMessage channelId={channelId} user={user} />;
+    return <SendMessage />;
   }
 
   // Specific logic for BROADCAST
   if (channelInfo?.type === "BROADCAST") {
-    if (isChannelOwner || isChannelAdmin) {
-      return <SendMessage channelId={channelId} user={user} />;
+    if (isUserChannelOwner || isUserChannelAdmin) {
+      return <SendMessage />;
     }
-    return isUserChannelMember ? (
-      <JoinBroadcastChannel
-        channelId={channelId}
-        user={user}
-        isUserChannelMember={isUserChannelMember}
-        channelMemberInfo={channelMemberInfo}
-      />
-    ) : (
-      <JoinGroupChannel channelId={channelId} user={user} />
-    );
+    return isUserChannelMember ? <JoinBroadcastChannel channelMemberInfo={channelMemberInfo} /> : <JoinGroupChannel />;
   }
 
   // For GROUP and PUBLIC cases
   if (["GROUP", "PUBLIC"].includes(channelInfo?.type)) {
-    return isUserChannelMember ? (
-      <SendMessage channelId={channelId} user={user} />
-    ) : (
-      <JoinGroupChannel channelId={channelId} user={user} />
-    );
+    return isUserChannelMember ? <SendMessage /> : <JoinGroupChannel />;
   }
 
   // For ARCHIVE

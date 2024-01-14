@@ -1,21 +1,22 @@
 "use client";
 import { supabaseClient } from "@/api/supabase";
-import { User } from "@supabase/supabase-js";
 import { useCallback } from "react";
-import { Box, Button } from "@mui/material";
+import { useStore } from "@stores/index";
+import { useRouter } from "next/router";
+import { useAuthStore } from "@stores/index";
 
-type JoinGroupChannelProp = {
-  channelId: string;
-  user: User;
-};
+export default function JoinGroupChannel() {
+  const { channelId } = useStore((state: any) => state.workspaceSettings);
+  const user = useAuthStore.getState().profile;
+  const router = useRouter();
 
-export default function JoinGroupChannel({ channelId, user }: JoinGroupChannelProp) {
+  // TODO: move to api layer
   const joinToChannel = useCallback(async () => {
     try {
       const { error } = await supabaseClient
         .from("channel_members")
-        .upsert({ channel_id: channelId, member_id: user.id });
-
+        .upsert({ channel_id: channelId, member_id: user?.id });
+      router.reload();
       if (error) {
         console.error(error);
       }
@@ -24,20 +25,13 @@ export default function JoinGroupChannel({ channelId, user }: JoinGroupChannelPr
     }
   }, [user, channelId]);
 
+  if (!user || !channelId) return null;
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "space-between",
-        background: "#121212",
-        borderTop: "2px solid #464646",
-      }}
-    >
-      <Button variant="text" onClick={joinToChannel} style={{ padding: "16px 0" }} fullWidth>
+    <div className="flex w-full flex-col items-center justify-center p-2">
+      <button className="btn btn-block" onClick={joinToChannel}>
         Join Channel
-      </Button>
-    </Box>
+      </button>
+    </div>
   );
 }

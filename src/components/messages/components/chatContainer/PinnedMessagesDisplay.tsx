@@ -1,20 +1,17 @@
-import { Box } from "@mui/material";
+import { useEffect, useMemo } from "react";
 import PinnedMessagesSlider from "../PinnedMessagesSlider";
+import { useStore } from "@stores/index";
 
-export const PinnedMessagesDisplay = ({ pinnedMessages, loading }: any) => {
-  if (pinnedMessages.size === 0) return null;
+export const PinnedMessagesDisplay = ({ loading }: any) => {
+  const channelId = useStore((state: any) => state.workspaceSettings.channelId);
+  const channelPinnedMessages = useStore((state: any) => state.pinnedMessages);
+  const pinnedMessages = channelPinnedMessages.get(channelId);
+
+  if (!pinnedMessages || pinnedMessages?.size === 0) return null;
+
   return (
-    <Box
-      display={!loading ? "block" : "none"}
-      sx={{
-        width: "100%",
-        bgcolor: "#464646",
-        borderBottom: "2px solid #fff",
-        zIndex: 999,
-        position: "relative",
-      }}
-    >
+    <div className="relative z-10 w-full   bg-base-100 " style={{ display: loading ? "none" : "block" }}>
       <PinnedMessagesSlider pinnedMessagesMap={pinnedMessages} />
-    </Box>
+    </div>
   );
 };

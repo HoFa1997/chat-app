@@ -1,44 +1,20 @@
-"use client";
-import { useEffect, useState } from "react";
-import { TChannel, getChannelById } from "@/api";
-import { Avatar, Box, Typography } from "@mui/material";
-import ImageIcon from "@mui/icons-material/Image";
-type SendMessageProps = { channelId: string };
+import { useStore } from "@stores/index";
+import { Avatar } from "@/components/ui/Avatar";
 
-export const MessageHeader = ({ channelId }: SendMessageProps) => {
-  const [channelData, setChannelData] = useState<TChannel | null>(null);
-
-  useEffect(() => {
-    const fetchChannelData = async () => {
-      try {
-        const { data: channel } = await getChannelById(channelId);
-        setChannelData(channel);
-      } catch (error) {
-        console.error("Error fetching channel data:", error);
-      }
-    };
-
-    fetchChannelData();
-  }, [channelId]);
+export const MessageHeader = () => {
+  const { channelId } = useStore((state: any) => state.workspaceSettings);
+  const channel = useStore((state: any) => state.channels.get(channelId));
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        bgcolor: (t) => t.palette.background.paper,
-        px: 2,
-        py: 1,
-      }}
-    >
-      <Avatar>
-        <ImageIcon />
-      </Avatar>
-      <Typography ml={3} flexGrow={1} variant="h6" sx={{ ml: 2 }}>
-        {channelData?.name}
-      </Typography>
-    </Box>
+    <div className="flex w-full flex-row items-center justify-start bg-base-200 p-4">
+      <div className="h-10 w-10">
+        <Avatar className="m-0 rounded-full ring-2 ring-base-300 ring-offset-2" id={channelId} collection="shapes" />
+      </div>
+
+      <div className="ml-3 flex flex-col">
+        <h6 className="m-0 font-semibold">{channel?.name}</h6>
+        <span className="text-xs text-base-content">{channel?.member_count} subscribers</span>
+      </div>
+    </div>
   );
 };

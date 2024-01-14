@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Fab } from "@mui/material";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import { FaChevronDown } from "react-icons/fa6";
 
 // Debounce function to limit the rate at which a function can fire.
 const debounce = (func: (...args: any[]) => void, delay: number): ((...args: any[]) => void) => {
@@ -8,16 +7,14 @@ const debounce = (func: (...args: any[]) => void, delay: number): ((...args: any
   return function (...args: any[]) {
     clearTimeout(timer);
     timer = setTimeout(() => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       func.apply(this, args);
     }, delay);
   };
 };
 
-interface ScrollToBottomButtonProps {
-  messagesContainer: React.RefObject<HTMLDivElement>;
-}
-
-const ScrollToBottomButton = ({ messagesContainer }: ScrollToBottomButtonProps) => {
+const ScrollToBottomButton = ({ messagesContainer }: any) => {
   const [showScrollButton, setShowScrollButton] = useState(false);
 
   // Handle scroll event: Determines whether to show or hide the button
@@ -61,18 +58,9 @@ const ScrollToBottomButton = ({ messagesContainer }: ScrollToBottomButtonProps) 
   if (!showScrollButton) return null;
 
   return (
-    <Fab
-      color="primary"
-      size="small"
-      onClick={scrollToBottomHandler}
-      sx={{
-        position: "fixed",
-        bottom: 160,
-        right: 30,
-      }}
-    >
-      <ArrowDownwardIcon />
-    </Fab>
+    <button onClick={scrollToBottomHandler} className="btn btn-circle btn-primary fixed bottom-[160px] right-[30px]">
+      <FaChevronDown size={23} color="#fff" />
+    </button>
   );
 };
 

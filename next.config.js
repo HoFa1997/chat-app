@@ -4,12 +4,11 @@
 // just open console logs and put this `-/workbox/` in the filter bar.
 
 const runtimeCaching = require("next-pwa/cache");
-const isProduction = process.env.NODE_ENV === "production";
 const path = require("path");
 
 const withPWA = require("next-pwa")({
   dest: "public",
-  disable: isProduction,
+  disable: process.env.NODE_ENV === "development",
   register: true,
   skipWaiting: false,
   runtimeCaching,
@@ -40,12 +39,18 @@ module.exports = withPWA({
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "ui-avatars.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
   compiler: {
-    removeConsole: isProduction,
+    removeConsole: process.env.NODE_ENV === "production",
   },
 });

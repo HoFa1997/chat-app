@@ -8,6 +8,7 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
+    "maxNodeModuleJsDepth": 10,
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
@@ -15,7 +16,11 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@ui/*": ["./src/components/ui/*"],
+      "@utils/*": ["./src/shared/utils/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@stores/*": ["./src/stores/*"],
     },
     "plugins": [
       {
