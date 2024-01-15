@@ -17,6 +17,32 @@ import { sendMessage, updateMessage } from "@/api";
 import { useApi } from "@/shared/hooks/useApi";
 import toast from "react-hot-toast";
 import { EditeMessageIndicator } from "./EditeMessageIndicator";
+
+// Code and Syntax Highlighting
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import css from "highlight.js/lib/languages/css";
+import js from "highlight.js/lib/languages/javascript";
+import ts from "highlight.js/lib/languages/typescript";
+import html from "highlight.js/lib/languages/xml";
+import md from "highlight.js/lib/languages/markdown";
+import yaml from "highlight.js/lib/languages/yaml";
+// import python from "highlight.js/lib/languages/python";
+import json from "highlight.js/lib/languages/json";
+// import bash from "highlight.js/lib/languages/bash";
+
+// load all highlight.js languages
+import { createLowlight } from "lowlight";
+const lowlight = createLowlight();
+lowlight.register("html", html);
+lowlight.register("css", css);
+lowlight.register("js", js);
+lowlight.register("ts", ts);
+lowlight.register("markdown", md);
+// lowlight.register("python", python);
+lowlight.register("yaml", yaml);
+lowlight.register("json", json);
+// lowlight.register("bash", bash);
+
 type BtnIcon = React.ComponentProps<"button"> & { $active?: boolean; $size?: number };
 
 const IconButton = twx.button<BtnIcon>((prop) =>
@@ -50,6 +76,7 @@ export default function SendMessage() {
     {
       extensions: [
         StarterKit.configure({
+          codeBlock: false,
           bulletList: {
             keepMarks: true,
             keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
@@ -58,6 +85,9 @@ export default function SendMessage() {
             keepMarks: true,
             keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
           },
+        }),
+        CodeBlockLowlight.configure({
+          lowlight,
         }),
         Mention.configure({
           HTMLAttributes: {

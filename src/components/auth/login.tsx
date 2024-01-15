@@ -25,7 +25,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="prose flex h-dvh max-w-full items-center justify-center bg-base-200">
+    <div className="flex h-dvh max-w-full items-center justify-center bg-base-200">
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body items-center text-center">
           <h2 className="card-title my-2 mb-4">Sign in to your account</h2>

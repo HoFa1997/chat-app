@@ -18,7 +18,7 @@ import {
 } from "./components/chatContainer";
 import { twx } from "@utils/index";
 
-const MessageWrapper = twx.div`prose relative flex h-dvh w-full max-w-full max-w-full items-center justify-center bg-base-300`;
+const MessageWrapper = twx.div`relative flex h-dvh w-full max-w-full max-w-full items-center justify-center bg-base-300`;
 
 export default function MessageContainer({}: any) {
   const [channelUsersPresence, setChannelUsersPresence] = useState(new Map());
