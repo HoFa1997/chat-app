@@ -33,19 +33,17 @@ const ReactionsCard: React.FC<ReactionsCardProps> = ({ reactions, message }) => 
       {reactions &&
         Object.entries(reactions).map(([emoji, users]: any, index) => (
           <button
-            className={`btn btn-ghost btn-xs mx-1 flex items-center p-0 px-1 ${
+            className={`btn btn-ghost btn-active btn-xs mx-1 flex h-8 w-8 items-center justify-center gap-2 text-xl  first-of-type:ml-0  ${
               hasCurrentUserReacted(users)
-                ? "bg-primary "
-                : "!border-secondary !bg-secondary !text-opacity-100 !opacity-100"
+                ? "!bg-secondary "
+                : "!bg-gray-200 !bg-opacity-20 !text-opacity-100 !opacity-100"
             }`}
             key={index}
             onClick={() => handleReactionClick(emoji)}
             disabled={!hasCurrentUserReacted(users)}
           >
-            <div className="flex h-4 min-w-4 items-center justify-center gap-2">
-              <div className="text-xl">{emoji}</div>
-              {users.length >= 2 ? <div className="badge badge-xs">{users.length}</div> : ""}
-            </div>
+            <span>{emoji}</span>
+            {users.length >= 2 ? <div className="badge badge-xs">{users.length}</div> : ""}
           </button>
         ))}
     </div>
