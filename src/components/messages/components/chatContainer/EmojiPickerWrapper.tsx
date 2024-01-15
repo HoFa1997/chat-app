@@ -1,5 +1,5 @@
 import React from "react";
-import data from "@emoji-mart/data";
+import data from "@emoji-mart/data/sets/14/native.json";
 import Picker from "@emoji-mart/react";
 
 export const EmojiPickerWrapper = React.forwardRef(
