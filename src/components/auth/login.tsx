@@ -10,7 +10,12 @@ export default function LoginForm() {
   // Handle authentication with OAuth
   const handleOAuthSignIn = async (provider: Provider) => {
     try {
-      await request({ provider });
+      await request({
+        provider,
+        options: {
+          redirectTo: process.env.NEXT_PUBLIC_AUTH_REDIRECT_TO,
+        },
+      });
       // set loading true untile the redirect to login
       setLoading(true);
     } catch (error) {
