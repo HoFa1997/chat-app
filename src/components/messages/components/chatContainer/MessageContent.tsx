@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import DOMPurify from "dompurify";
-
+import { isOnlyEmoji, splitEmojis } from "@/shared";
 interface MessageContentProps {
   data: {
     content: string;
@@ -8,20 +8,37 @@ interface MessageContentProps {
   };
 }
 
-const sanitizeContent = (data: MessageContentProps["data"]): string => {
-  return data.html ? DOMPurify.sanitize(data.html) : data.content;
-};
-
 const MessageContent: React.FC<MessageContentProps> = ({ data }) => {
-  const [htmlContent, setHtmlContent] = useState("");
+  const sanitizedHtml = useMemo(() => {
+    return data.html ? DOMPurify.sanitize(data.html) : data.content;
+  }, [data.html, data.content]);
+
+  const [htmlContent, setHtmlContent] = useState(sanitizedHtml);
 
   useEffect(() => {
-    setHtmlContent(sanitizeContent(data));
-  }, [data]);
+    setHtmlContent(sanitizedHtml);
+  }, [sanitizedHtml]);
+
+  // Check if the content is only emoji outside of JSX for readability.
+  const contentIsOnlyEmoji = isOnlyEmoji(data.content);
 
   return (
     <div className="flex flex-col">
-      <div className="message--card__content" dir="auto" dangerouslySetInnerHTML={{ __html: htmlContent }}></div>
+      {contentIsOnlyEmoji ? (
+        <div>
+          {splitEmojis(data.content)?.map((emoji: string, index: number) => (
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            <em-emoji key={index} native={emoji} size="4rem"></em-emoji>
+          ))}
+        </div>
+      ) : (
+        <div
+          className="message--card__content prose-slate prose-invert"
+          dir="auto"
+          dangerouslySetInnerHTML={{ __html: htmlContent }}
+        />
+      )}
     </div>
   );
 };

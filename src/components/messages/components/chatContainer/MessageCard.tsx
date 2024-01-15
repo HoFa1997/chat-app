@@ -12,6 +12,7 @@ import MessageFooter from "./MessageFooter";
 import MessageHeader from "./MessageHeader";
 import MessageContent from "./MessageContent";
 import { setReplayMessage } from "@/shared/hooks";
+import { isOnlyEmoji } from "@/shared";
 
 type TMessageCardProps = {
   data: TMessageWithUser;
@@ -75,15 +76,23 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
         onClick={handleAvatarClick}
       />
 
-      <div
-        className={`chat-bubble flex flex-col w-full ${
-          isGroupEnd ? "bubble_group-end" : "bubble_group-start !rounded-ee-xl"
-        }`}
-      >
-        <MessageHeader data={data} />
-        <MessageContent data={data} />
-        <MessageFooter data={data} />
-      </div>
+      {isOnlyEmoji(data?.content) ? (
+        <div>
+          <MessageHeader data={data} />
+          <MessageContent data={data} />
+          <MessageFooter data={data} />
+        </div>
+      ) : (
+        <div
+          className={`chat-bubble flex flex-col w-full ${
+            isGroupEnd ? "bubble_group-end" : "bubble_group-start !rounded-ee-xl"
+          }`}
+        >
+          <MessageHeader data={data} />
+          <MessageContent data={data} />
+          <MessageFooter data={data} />
+        </div>
+      )}
 
       <MessageReaction message={data} selectedEmoji={selectedEmoji} toggleEmojiPicker={toggleEmojiPicker} />
 
