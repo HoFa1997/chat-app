@@ -164,60 +164,68 @@ export default function NewChannelModal() {
             />
           </div>
 
-          <div className="divider"></div>
+          <div className="divider my-1"></div>
 
-          <div>
-            <div>
-              <Controller
-                control={control}
-                name="allow_emoji_reactions"
-                render={({ field }) => (
-                  <div className="form-control flex justify-between">
-                    <label className="label cursor-pointer">
-                      <div>
-                        <div className="flex items-center">
-                          <MdOutlineEmojiEmotions size={26} className="mr-2" />
-                          Allow Emoji Reactions
-                        </div>
-                      </div>
-                      <div>
-                        <input
-                          type="checkbox"
-                          className="toggle"
-                          checked={field.value}
-                          onChange={(e) => field.onChange(e.target.checked)}
-                        />
-                      </div>
-                    </label>
-                  </div>
-                )}
-              />
+          <div className="collapse collapse-plus bg-base-200">
+            <input type="checkbox" className="peer" />
+            <div className="collapse-title bg-base-100 p-4 text-primary-content peer-checked:bg-base-200 peer-checked:text-secondary-content">
+              More options:
             </div>
-            <div>
-              <Controller
-                control={control}
-                name="mute_in_app_notifications"
-                render={({ field }) => (
-                  <div className="form-control flex justify-between">
-                    <label className="label cursor-pointer">
-                      <div>
-                        <div className="flex items-center">
-                          <BiVolumeMute size={24} className="mr-2" />
-                          Mute Notifications for everyone!
-                        </div>
+            <div className="collapse-content  bg-base-100 text-primary-content peer-checked:bg-base-200 peer-checked:text-secondary-content">
+              <div>
+                <div>
+                  <Controller
+                    control={control}
+                    name="allow_emoji_reactions"
+                    render={({ field }) => (
+                      <div className="form-control flex justify-between">
+                        <label className="label cursor-pointer">
+                          <div>
+                            <div className="flex items-center">
+                              <MdOutlineEmojiEmotions size={26} className="mr-2" />
+                              Allow Emoji Reactions
+                            </div>
+                          </div>
+                          <div>
+                            <input
+                              type="checkbox"
+                              className="toggle"
+                              checked={field.value}
+                              onChange={(e) => field.onChange(e.target.checked)}
+                            />
+                          </div>
+                        </label>
                       </div>
-                      <div>
-                        <input
-                          type="checkbox"
-                          className="toggle"
-                          checked={field.value}
-                          onChange={(e) => field.onChange(e.target.checked)}
-                        />
+                    )}
+                  />
+                </div>
+                <div>
+                  <Controller
+                    control={control}
+                    name="mute_in_app_notifications"
+                    render={({ field }) => (
+                      <div className="form-control flex justify-between">
+                        <label className="label cursor-pointer">
+                          <div>
+                            <div className="flex items-center">
+                              <BiVolumeMute size={24} className="mr-2" />
+                              Mute Notifications for everyone!
+                            </div>
+                          </div>
+                          <div>
+                            <input
+                              type="checkbox"
+                              className="toggle"
+                              checked={field.value}
+                              onChange={(e) => field.onChange(e.target.checked)}
+                            />
+                          </div>
+                        </label>
                       </div>
-                    </label>
-                  </div>
-                )}
-              />
+                    )}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
