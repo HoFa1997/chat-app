@@ -1,6 +1,7 @@
 import { TMessageWithUser } from "@/api";
 import { create } from "zustand";
 
+// TODO: this is not good enough, we need to create these for each channel, in order when user back to channel, has last state of replay or edit message
 type TUseReplayOrForwardMessage = {
   replayToMessage: TMessageWithUser | null;
   editeMessage: TMessageWithUser | null;
