@@ -12,17 +12,16 @@ const sortChannelsByLastActivity = (channels: TChannel[]) => {
 };
 
 export const useChannelFilter = () => {
+  const router = useRouter();
   const user = useAuthStore((state) => state.profile);
   const setWorkspaceSettings = useStore((state) => state.setWorkspaceSettings);
-  const router = useRouter();
-  const [filteredChannels, setFilteredChannels] = useState<any>();
+  const [filteredChannels, setFilteredChannels] = useState<any>([]);
   const channels = useStore((state) => state.channels);
+  const channelId = router.query.channelId as string;
 
   useEffect(() => {
     if (!user || !channels) return;
     if (channels.size === 0) return;
-
-    const channelId = router.query.channelId as string;
     const selectedChannel = channels.get(channelId);
     if (!selectedChannel) return;
     const isUserChannelOwner = selectedChannel.created_by === user.id;
@@ -31,13 +30,15 @@ export const useChannelFilter = () => {
       isUserChannelOwner,
       channelInfo: selectedChannel,
     });
-  }, [router.query, user, channels]);
+  }, [user, channels, channelId]);
 
   // set and sort channels
   useEffect(() => {
     if (channels && channels.size > 0) {
       const sortedChannels = sortChannelsByLastActivity(Array.from(channels.values()));
       setFilteredChannels(sortedChannels);
+    } else {
+      setFilteredChannels([]);
     }
   }, [channels]);
 
