@@ -81,7 +81,7 @@ export const useScrollAndLoad = (initialMessagesLoaded: boolean, messageContaine
       }
       clearTimeout(timeoutId);
     };
-  }, [messageContainerRef, initialMessagesLoaded]);
+  }, [messageContainerRef?.current?.children, initialMessagesLoaded]);
 
   return { loading, messageContainerRef, messagesEndRef };
 };
