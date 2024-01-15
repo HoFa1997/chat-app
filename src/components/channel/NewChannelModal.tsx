@@ -41,6 +41,8 @@ export default function NewChannelModal() {
 
   // This useEffect will update the slugPreview state whenever the name changes
   useEffect(() => {
+    if (name.length === 0) setSlugPreview("");
+
     if (name) {
       const slug = slugify(name, { lower: true, strict: true });
       setValue("slug", slug); // This sets the slug field value
@@ -85,9 +87,9 @@ export default function NewChannelModal() {
       </ModalTrigger>
 
       <ModalContainer id="modal-new_chatroom" triggerRef={triggerRef}>
-        <p className="mb-6 text-lg font-bold">Create a new chat room</p>
+        <p className="mb-2 text-lg font-bold">Create a new chat room</p>
         <form onSubmit={handleSubmit(submit)}>
-          <div className="my-2">
+          <div>
             <Controller
               control={control}
               name={"name"}
@@ -99,7 +101,7 @@ export default function NewChannelModal() {
                   <input {...field} type="text" placeholder="Name" className="input input-bordered w-full " />
                   <div className="label">
                     <span className="label-text-alt">{error ? error.message : ""}</span>
-                    <span className="label-text-alt">
+                    <span className="label-text-alt min-h-4">
                       {slugPreview && (
                         <span>
                           <b>Slug:</b> {slugPreview}
@@ -111,7 +113,7 @@ export default function NewChannelModal() {
               )}
             />
           </div>
-          <div className="my-2">
+          <div>
             <Controller
               control={control}
               name={"description"}
@@ -134,7 +136,7 @@ export default function NewChannelModal() {
               )}
             />
           </div>
-          <div className="my-2">
+          <div>
             <Controller
               control={control}
               name={"type"}
@@ -219,7 +221,7 @@ export default function NewChannelModal() {
             </div>
           </div>
 
-          <div className="mt-10 flex w-full justify-between">
+          <div className="mt-8 flex w-full justify-between">
             <button className="btn btn-neutral w-1/6" onClick={closeModal}>
               Cancel
             </button>
