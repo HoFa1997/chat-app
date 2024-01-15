@@ -11,7 +11,7 @@ interface PinnedMessagesSliderProps {
 
 export default function PinnedMessagesSlider({ pinnedMessagesMap }: PinnedMessagesSliderProps): ReactElement | null {
   const [activeStep, setActiveStep] = useState<number>(0);
-  const pinnedMessages: PinnedMessage[] = Array.from(pinnedMessagesMap.values());
+  const pinnedMessages: PinnedMessage[] = Array.from(pinnedMessagesMap.values()).reverse();
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
   const handleClick = (index: number): void => {

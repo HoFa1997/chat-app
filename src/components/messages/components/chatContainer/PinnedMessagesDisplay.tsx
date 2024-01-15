@@ -1,4 +1,3 @@
-import { useEffect, useMemo } from "react";
 import PinnedMessagesSlider from "../PinnedMessagesSlider";
 import { useStore } from "@stores/index";
 
