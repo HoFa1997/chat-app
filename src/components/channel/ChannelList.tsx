@@ -12,14 +12,14 @@ export default function ChannelList({ loading = false }) {
   const panelRef = useRef<any>(null);
 
   const { onMouseDown } = useResizeChannelList({ panelRef });
-  const { filteredChannels, handleFilterChange } = useChannelFilter();
+  const { filteredChannels, handleFilterChange, channels } = useChannelFilter();
 
   if (!user) return null;
 
   return (
     <div ref={panelRef} className="relative flex h-dvh w-3/12 flex-col bg-base-200 p-4 text-base-content">
       <WorkspaceCard />
-      {filteredChannels?.length !== 0 && (
+      {channels.size > 0 && (
         <>
           <FilterBar onFilterChange={handleFilterChange} />
           <NewChannelModal />

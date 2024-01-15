@@ -49,5 +49,5 @@ export const useChannelFilter = () => {
     }
   };
 
-  return { filteredChannels, handleFilterChange };
+  return { filteredChannels, handleFilterChange, channels };
 };
