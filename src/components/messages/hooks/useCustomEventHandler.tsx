@@ -25,6 +25,8 @@ export const useCustomEventHandler = (
   }, [channelUsersPresence]);
 
   useEffect(() => {
+    if (!messagesEndRef?.current) return;
+
     const handleScrollDown = () => {
       setTimeout(() => {
         const container = messagesEndRef.current;
@@ -37,9 +39,7 @@ export const useCustomEventHandler = (
     }
 
     return () => {
-      if (messagesEndRef.current) {
-        document.removeEventListener("messages:container:scroll:down", handleScrollDown);
-      }
+      document.removeEventListener("messages:container:scroll:down", handleScrollDown);
     };
-  }, [messageContainerRef, messages]);
+  }, [messagesEndRef.current, messages]);
 };

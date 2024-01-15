@@ -35,7 +35,7 @@ export const useScrollAndLoad = (initialMessagesLoaded: boolean, messageContaine
       const distanceToBottom = scrollHeight - scrollTop - clientHeight;
 
       // Consider the user close to the bottom if they are within 100px of the bottom.
-      return distanceToBottom < 100;
+      return distanceToBottom < 200;
     };
 
     // Decide whether to scroll to the bottom based on loading state and user's position.

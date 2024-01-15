@@ -138,7 +138,7 @@ export default function SendMessage() {
       toast.error(error.message);
     } finally {
       // clear the editor
-      if (replayedMessage) document.dispatchEvent(new CustomEvent("messages:container:scroll:down"));
+      document.dispatchEvent(new CustomEvent("messages:container:scroll:down"));
     }
 
     // if it has reply or forward message, clear it
