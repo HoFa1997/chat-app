@@ -42,9 +42,9 @@ const ReactionsCard: React.FC<ReactionsCardProps> = ({ reactions, message }) => 
             onClick={() => handleReactionClick(emoji)}
             disabled={!hasCurrentUserReacted(users)}
           >
-            <div className="flex h-4 items-center justify-center gap-2">
+            <div className="flex h-4 min-w-4 items-center justify-center gap-2">
               <div className="text-xl">{emoji}</div>
-              <div className="badge badge-xs">{users.length}</div>
+              {users.length >= 2 ? <div className="badge badge-xs">{users.length}</div> : ""}
             </div>
           </button>
         ))}
