@@ -29,7 +29,7 @@ export default function MessageReaction({ message }: any) {
   return (
     <div
       className={`dropdown dropdown-end dropdown-bottom absolute top-[50%] translate-y-[-50%] ${
-        message?.user_details?.id === user?.id ? "dropdown-left -left-2" : "dropdown-right -right-2"
+        message?.user_details?.id === user?.id ? "dropdown-left -left-4" : "dropdown-right -right-4"
       } hidden group-hover:block`}
     >
       <IconButton onClick={openEmojiPicker}>
