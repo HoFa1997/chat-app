@@ -7,11 +7,11 @@ const FilterBar = ({ onFilterChange }: any) => {
   const containerRef = useRef(null);
 
   const channelTypes = [
-    { type: "PUBLIC", icon: <MdOutlinePublic /> },
-    { type: "PRIVATE", icon: <RiLock2Fill /> },
+    { type: "PUBLIC", icon: <MdOutlinePublic siz={24} /> },
     { type: "DIRECT", icon: <FaUserGroup /> },
+    { type: "GROUP", icon: <MdGroups size={20} /> },
     { type: "BROADCAST", icon: <MdCampaign /> },
-    { type: "GROUP", icon: <MdGroups /> },
+    { type: "PRIVATE", icon: <RiLock2Fill /> },
     { type: "ARCHIVE", icon: <RiArchiveFill /> },
   ];
 
