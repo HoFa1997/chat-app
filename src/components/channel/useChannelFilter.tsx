@@ -44,7 +44,7 @@ export const useChannelFilter = () => {
 
   const handleFilterChange = (filterType: string) => {
     if (filterType === "all") {
-      setFilteredChannels(channels); // Show all channels
+      setFilteredChannels(Array.from(channels.values())); // Show all channels
     } else {
       setFilteredChannels([...channels.values()].filter((channel: any) => channel.type === filterType));
     }

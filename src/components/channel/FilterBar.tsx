@@ -40,7 +40,7 @@ const FilterBar = ({ onFilterChange }: any) => {
   return (
     <div
       ref={containerRef}
-      className="scrollable-container mb-2 p-2 pb-3 flex flex-row space-x-2 overflow-x-auto overflow-y-hidden "
+      className="scrollable-container mb-2 flex flex-row space-x-2 overflow-x-auto overflow-y-hidden p-2 pb-3 "
     >
       <button
         key="all"
