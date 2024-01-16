@@ -14,6 +14,7 @@ import { useApi } from "@/shared/hooks/useApi";
 import toast from "react-hot-toast";
 import { EditeMessageIndicator } from "./EditeMessageIndicator";
 import { useTiptapEditor } from "./Editor";
+import { chunckHtmlContent } from "@/shared/utils/chunckHtmlContent";
 
 type BtnIcon = React.ComponentProps<"button"> & { $active?: boolean; $size?: number };
 
@@ -59,6 +60,7 @@ export default function SendMessage() {
 
   const submit = useCallback(async () => {
     if (!html || !text || loading) return;
+    const { htmlChunks, textChunks } = chunckHtmlContent(html, 3000);
 
     if (replayedMessage?.id) {
       const user = replayedMessage.user_details;
@@ -75,10 +77,14 @@ export default function SendMessage() {
     try {
       editor?.commands.clearContent(true);
 
-      if (editeMessage) {
-        await editeRequestMessage(text, html, messageId);
-      } else {
-        await postRequestMessage(text, channelId, user.id, html, messageId);
+      // INFO: order to send message is important
+      for (const [index, htmlChunk] of htmlChunks.entries()) {
+        const textChunk = textChunks[index];
+        if (editeMessage) {
+          editeRequestMessage(textChunk, htmlChunk, messageId);
+        } else {
+          postRequestMessage(textChunk, channelId, user.id, htmlChunk, messageId);
+        }
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -135,13 +141,13 @@ export default function SendMessage() {
         className={`my-2 mt-1 w-full px-2${showEditorToolbar ? 0 : 2}`}
         onKeyDown={(e) => e.key === "Enter" && (e.metaKey || e.ctrlKey) && submit()}
       >
-        <div className="flex w-full flex-col rounded-md bg-base-300 px-3">
-          <div className="flex items-center py-2 text-base">
+        <div className="flex w-full flex-col  rounded-md bg-base-300 px-3">
+          <div className="flex items-end py-2 text-base">
             <IconButton $size={8}>
               <ImAttachment size={20} />
             </IconButton>
 
-            <EditorContent style={{ width: "100%" }} editor={editor} dir="auto" />
+            <EditorContent className="max-h-52 w-full overflow-auto" editor={editor} dir="auto" />
 
             <IconButton $size={8} onClick={() => setShowEditorToolbar(!showEditorToolbar)}>
               <MdFormatColorText size={22} />
