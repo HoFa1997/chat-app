@@ -33,11 +33,11 @@ const ReactionsCard: React.FC<ReactionsCardProps> = ({ reactions, message }) => 
       {reactions &&
         Object.entries(reactions).map(([emoji, users]: any, index) => (
           <button
-            className={`btn btn-ghost btn-active btn-xs mx-1 flex h-8 min-w-8 items-center justify-center gap-2 p-0 text-xl  first-of-type:ml-0  ${
+            className={`btn btn-ghost btn-active btn-xs mx-1  flex h-8 min-w-8 items-center justify-center gap-2 p-0 text-xl  first-of-type:ml-0  ${
               hasCurrentUserReacted(users)
                 ? "!bg-secondary "
                 : "!bg-gray-200 !bg-opacity-20 !text-opacity-100 !opacity-100"
-            }`}
+            } ${users.length >= 2 ? "px-2" : ""}`}
             key={index}
             onClick={() => handleReactionClick(emoji)}
             disabled={!hasCurrentUserReacted(users)}
