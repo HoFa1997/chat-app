@@ -50,7 +50,7 @@ const MessageContent: React.FC<MessageContentProps> = ({ data }) => {
               {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                <em-emoji native={emoji} size="4rem"></em-emoji>
+                <em-emoji native={emoji} set="native" size="4rem"></em-emoji>
               }
             </div>
           ))}

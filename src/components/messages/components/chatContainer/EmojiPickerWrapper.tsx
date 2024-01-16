@@ -16,7 +16,13 @@ export const EmojiPickerWrapper = React.forwardRef(
         }}
         ref={ref}
       >
-        <Picker data={data} onClickOutside={closeEmojiPicker} onEmojiSelect={handleEmojiSelect} />
+        <Picker
+          data={data}
+          emojiVersion="14"
+          set="native"
+          onClickOutside={closeEmojiPicker}
+          onEmojiSelect={handleEmojiSelect}
+        />
       </div>
     );
   },

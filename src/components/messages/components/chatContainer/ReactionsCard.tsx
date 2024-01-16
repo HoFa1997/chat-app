@@ -29,11 +29,11 @@ const ReactionsCard: React.FC<ReactionsCardProps> = ({ reactions, message }) => 
   );
 
   return (
-    <div className="mr-auto flex   flex-row justify-start overflow-hidden overflow-x-auto">
+    <div className="relative mr-auto  flex flex-row justify-start overflow-hidden overflow-x-auto">
       {reactions &&
         Object.entries(reactions).map(([emoji, users]: any, index) => (
           <button
-            className={`btn btn-ghost btn-active btn-xs mx-1 flex h-8 min-w-8 items-center justify-center gap-2 text-xl  first-of-type:ml-0  ${
+            className={`btn btn-ghost btn-active btn-xs mx-1 flex h-8 min-w-8 items-center justify-center gap-2 p-0 text-xl  first-of-type:ml-0  ${
               hasCurrentUserReacted(users)
                 ? "!bg-secondary "
                 : "!bg-gray-200 !bg-opacity-20 !text-opacity-100 !opacity-100"
@@ -42,7 +42,11 @@ const ReactionsCard: React.FC<ReactionsCardProps> = ({ reactions, message }) => 
             onClick={() => handleReactionClick(emoji)}
             disabled={!hasCurrentUserReacted(users)}
           >
-            <span>{emoji}</span>
+            {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              <em-emoji native={emoji} set="native" size="20"></em-emoji>
+            }
             {users.length >= 2 ? <div className="badge badge-sm">{users.length}</div> : ""}
           </button>
         ))}
