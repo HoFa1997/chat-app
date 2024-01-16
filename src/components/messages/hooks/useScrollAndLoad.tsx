@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useStore } from "@stores/index";
 
 const SCROLL_TIMEOUT_DELAY = 100;
@@ -12,17 +12,31 @@ export const useScrollAndLoad = (initialMessagesLoaded: boolean, messageContaine
   const messagesByChannel = useStore((state: any) => state.messagesByChannel);
   const messages = messagesByChannel.get(channelId);
 
-  const scrollToBottom = (options: ScrollIntoViewOptions = {}) => {
-    messagesEndRef.current?.scrollIntoView(options);
-  };
+  const scrollToBottom = useCallback(
+    (options: ScrollIntoViewOptions = {}) => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView(options);
+      }
+    },
+    [messagesEndRef],
+  );
 
   const checkIfScrolledToBottom = () => {
-    if (messageContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = messageContainerRef.current;
+    const container = messageContainerRef.current;
+    if (!container && !loading) return;
 
-      if (scrollHeight - scrollTop - 2 <= clientHeight) {
-        setLoading(false);
-      }
+    const { scrollTop, scrollHeight, clientHeight } = container;
+
+    // Check if the container is scrollable (content is taller than the visible area)
+    const isScrollable = scrollHeight > clientHeight;
+
+    // Calculate the distance to the bottom of the scroll
+    // Include a small threshold (e.g., 5px) to account for fractional pixels in calculations
+    const isScrolledToBottom = scrollHeight - scrollTop - clientHeight <= 100;
+
+    // Update loading state based on whether it's scrolled to bottom and is scrollable
+    if (isScrollable && isScrolledToBottom) {
+      setLoading(false);
     }
   };
 
@@ -45,13 +59,12 @@ export const useScrollAndLoad = (initialMessagesLoaded: boolean, messageContaine
         scrollToBottom();
       } else if (isUserCloseToBottom()) {
         // If not loading and user is close to the bottom, scroll smoothly.
-        scrollToBottom({ behavior: "smooth" });
+        scrollToBottom({ behavior: "smooth", block: "end", inline: "end" });
       }
     };
 
     // Use a timer to defer scrolling until the new messages are rendered.
     const timer = setTimeout(handleScrollToBottom, 100);
-    // console.log("scroll to bottom", { initialMessagesLoaded, loading });
 
     return () => clearTimeout(timer);
   }, [messages, initialMessagesLoaded, loading, channelId]);
