@@ -57,8 +57,8 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
   return (
     <div
       className={`group ${
-        data?.user_details?.id === user?.id ? "msg_card chat-end ml-auto" : "chat-start mr-auto"
-      } chat relative w-auto min-w-[30%] max-w-[70%] ${isGroupEnd ? "chat_group-end" : "chat_group-start "}`}
+        data?.user_details?.id === user?.id ? "msg_card chat-end ml-auto" : "chat-start  mr-auto"
+      } chat relative w-auto min-w-[30%] max-w-[70%] ${isGroupEnd ? "chat_group-end !mb-2" : "chat_group-start "}`}
       ref={cardRef}
       onDoubleClick={handleDoubleClick}
     >
@@ -84,8 +84,8 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
         </div>
       ) : (
         <div
-          className={`chat-bubble flex flex-col w-full ${
-            isGroupEnd ? "bubble_group-end" : "bubble_group-start !rounded-ee-xl"
+          className={`chat-bubble !mt-0 flex flex-col w-full ${
+            isGroupEnd ? "bubble_group-end" : "bubble_group-start !rounded-ee-xl !rounded-es-xl"
           }`}
         >
           <MessageHeader data={data} />
