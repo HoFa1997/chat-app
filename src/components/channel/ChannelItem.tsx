@@ -14,10 +14,13 @@ export const ChannelItem = ({ data, ...props }: { data: TChannel }) => {
     hour12: true,
   });
 
+  if (!data.id) return null;
+
   return (
     <li
       className="mb-1 flex w-full cursor-pointer pl-0"
       {...props}
+      key={data.id}
       id={data.id}
       onClick={() => push(`/${workspaceId}/${data.id}`)}
     >

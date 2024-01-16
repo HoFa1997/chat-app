@@ -1,9 +1,9 @@
 import { ChannelActionBar } from "../ChannelActionBar";
 
-export const ActionBar = ({ channelMemberInfo }: any) => {
+export const ActionBar = () => {
   return (
     <div className="mt-auto w-full">
-      <ChannelActionBar channelMemberInfo={channelMemberInfo} />
+      <ChannelActionBar />
     </div>
   );
 };

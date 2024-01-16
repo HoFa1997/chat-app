@@ -29,7 +29,7 @@ export default function MessageContainer({}: any) {
   // get user session and profile
   // get channel initial data, includes pinned messages, last messages and channel members count
   // TODO: we need to consider the last message loaded, and when the user subscribe to the channel, we need to load the messages after the last message loaded
-  const { initialMessagesLoading, channelMemberInfo, msgLength } = useChannelInitialData(setError);
+  const { initialMessagesLoading, msgLength } = useChannelInitialData(setError);
 
   const { initialSubscribeLoading } = useMessageSubscription();
   const { loading, messagesEndRef } = useScrollAndLoad(initialMessagesLoading, messageContainerRef, msgLength);
@@ -73,7 +73,7 @@ export default function MessageContainer({}: any) {
         handleEmojiSelect={handleEmojiSelect}
         ref={emojiPickerRef}
       />
-      <ActionBar channelMemberInfo={channelMemberInfo} />
+      <ActionBar />
       <ScrollToBottomButton messagesContainer={messageContainerRef} />
     </MessageWrapper>
   );

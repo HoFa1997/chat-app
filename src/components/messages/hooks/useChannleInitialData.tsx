@@ -5,12 +5,10 @@ import { fetchChannelInitialData } from "@/api";
 
 interface UseChannelInitialData {
   initialMessagesLoading: boolean;
-  channelMemberInfo?: any; // Replace with the correct type
   msgLength: number;
 }
 
 export const useChannelInitialData = (setError: (error: any) => void): UseChannelInitialData => {
-  const [channelMemberInfo, setChannelMemberInfo] = useState<any>();
   const [initialMessagesLoading, setInitialMessagesLoading] = useState<boolean>(true);
   const [msgLength, setMsgLength] = useState<number>(0);
 
@@ -20,6 +18,7 @@ export const useChannelInitialData = (setError: (error: any) => void): UseChanne
   const setWorkspaceSetting = useStore((state: any) => state.setWorkspaceSetting);
   const setOrUpdateChannel = useStore((state: any) => state.setOrUpdateChannel);
   const currentChannel = useStore((state: any) => state.channels.get(channelId));
+  const bulkSetChannelMembers = useStore((state: any) => state.bulkSetChannelMembers);
 
   const processChannelData = async (channelId: string) => {
     const { data: channelData, error: channelError } = await fetchChannelInitialData({
@@ -55,7 +54,7 @@ export const useChannelInitialData = (setError: (error: any) => void): UseChanne
       setOrUpdateChannel(channelId, { ...currentChannel, member_count: channelData.member_count });
     }
 
-    setChannelMemberInfo(channelData.channel_member_info || undefined);
+    bulkSetChannelMembers(channelId, channelData.channel_members || []);
 
     if (channelData.is_user_channel_member) {
       setWorkspaceSetting("isUserChannelMember", channelData.is_user_channel_member);
@@ -80,7 +79,6 @@ export const useChannelInitialData = (setError: (error: any) => void): UseChanne
 
   return {
     initialMessagesLoading,
-    channelMemberInfo,
     msgLength,
   };
 };

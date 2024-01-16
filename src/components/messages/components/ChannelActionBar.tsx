@@ -3,7 +3,7 @@ import JoinBroadcastChannel from "./JoinBroadcastChannel";
 import JoinGroupChannel from "./JoinGroupChannel";
 import { useStore } from "@stores/index";
 
-export const ChannelActionBar = ({ channelMemberInfo }: any) => {
+export const ChannelActionBar = () => {
   const { isUserChannelMember, isUserChannelOwner, isUserChannelAdmin, channelInfo } = useStore(
     (state: any) => state.workspaceSettings,
   );
@@ -18,7 +18,7 @@ export const ChannelActionBar = ({ channelMemberInfo }: any) => {
     if (isUserChannelOwner || isUserChannelAdmin) {
       return <SendMessage />;
     }
-    return isUserChannelMember ? <JoinBroadcastChannel channelMemberInfo={channelMemberInfo} /> : <JoinGroupChannel />;
+    return isUserChannelMember ? <JoinBroadcastChannel /> : <JoinGroupChannel />;
   }
 
   // For GROUP and PUBLIC cases
