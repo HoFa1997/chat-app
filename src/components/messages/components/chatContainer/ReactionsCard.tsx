@@ -29,7 +29,7 @@ const ReactionsCard: React.FC<ReactionsCardProps> = ({ reactions, message }) => 
   );
 
   return (
-    <div className="relative mr-auto flex w-auto flex-row justify-start overflow-hidden overflow-x-auto">
+    <div className="relative mr-auto flex w-full flex-row justify-start overflow-hidden overflow-x-auto">
       {reactions &&
         Object.entries(reactions).map(([emoji, users]: any, index) => (
           <button

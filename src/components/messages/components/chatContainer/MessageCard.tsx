@@ -77,7 +77,7 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
       />
 
       {isOnlyEmoji(data?.content) ? (
-        <div className="max-w-[70%] w-full overflow-hidden">
+        <div className="max-w-[70%] min-w-full mb-4">
           <MessageHeader data={data} />
           <MessageContent data={data} />
           <MessageFooter data={data} />
