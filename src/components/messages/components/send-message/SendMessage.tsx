@@ -14,7 +14,7 @@ import { useApi } from "@/shared/hooks/useApi";
 import toast from "react-hot-toast";
 import { EditeMessageIndicator } from "./EditeMessageIndicator";
 import { useTiptapEditor } from "./Editor";
-import { chunckHtmlContent } from "@/shared/utils/chunckHtmlContent";
+import { chunkHtmlContent } from "@/shared/utils/chunkHtmlContent";
 
 type BtnIcon = React.ComponentProps<"button"> & { $active?: boolean; $size?: number };
 
@@ -60,7 +60,7 @@ export default function SendMessage() {
 
   const submit = useCallback(async () => {
     if (!html || !text || loading) return;
-    const { htmlChunks, textChunks } = chunckHtmlContent(html, 3000);
+    const { htmlChunks, textChunks } = chunkHtmlContent(html, 3000);
 
     if (replayedMessage?.id) {
       const user = replayedMessage.user_details;
@@ -76,6 +76,15 @@ export default function SendMessage() {
 
     try {
       editor?.commands.clearContent(true);
+
+      if (htmlChunks.length === 0) {
+        if (editeMessage) {
+          editeRequestMessage(text, html, messageId);
+        } else {
+          postRequestMessage(text, channelId, user.id, html, messageId);
+        }
+        return;
+      }
 
       // INFO: order to send message is important
       for (const [index, htmlChunk] of htmlChunks.entries()) {

@@ -15,7 +15,11 @@ export const useScrollAndLoad = (initialMessagesLoaded: boolean, messageContaine
   const scrollToBottom = useCallback(
     (options: ScrollIntoViewOptions = {}) => {
       if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView(options);
+        if (options.behavior === "smooth") {
+          messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "end" });
+        } else {
+          messagesEndRef.current.scrollIntoView(false);
+        }
       }
     },
     [messagesEndRef],

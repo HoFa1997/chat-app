@@ -22,7 +22,7 @@ export default function PinnedMessagesSlider({ pinnedMessagesMap }: PinnedMessag
   if (pinnedMessages.length === 0) return null;
 
   return (
-    <div className="relative flex w-full items-center justify-start p-2">
+    <div className="relative  flex w-full items-center justify-start p-2">
       <div className="mr-2 flex h-12 flex-col overflow-hidden">
         {pinnedMessages.map((_, index) => (
           <button
@@ -36,10 +36,10 @@ export default function PinnedMessagesSlider({ pinnedMessagesMap }: PinnedMessag
         ))}
       </div>
 
-      <div className="relative flex h-10 w-full flex-col text-sm">
+      <div className="relative  flex h-10 w-full flex-col text-sm">
         <span className="font-bold text-primary-content">Pinned messages</span>
         {pinnedMessages.map((message, index) => (
-          <div key={index} style={{ display: activeStep === index ? "block" : "none" }} className="">
+          <div key={index} className="truncate text-wrap" style={{ display: activeStep === index ? "block" : "none" }}>
             {message.content}
           </div>
         ))}
