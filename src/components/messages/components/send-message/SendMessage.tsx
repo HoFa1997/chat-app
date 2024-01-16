@@ -1,12 +1,8 @@
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Placeholder from "@tiptap/extension-placeholder";
 import { EditorToolbar } from "./EditorToolbar";
 import { ReplayMessageIndicator } from "./ReplayMessageIndicator";
 import { useReplayMessageInfo, setReplayMessage, useEditeMessageInfo, setEditeMessage } from "@/shared/hooks";
 import { useState, useCallback, useEffect, useMemo } from "react";
-import Mention from "@tiptap/extension-mention";
-import suggestion from "./suggestion";
 import { twx, cn } from "@utils/index";
 import { ImAttachment } from "react-icons/im";
 import { IoSend } from "react-icons/io5";
@@ -17,31 +13,7 @@ import { sendMessage, updateMessage } from "@/api";
 import { useApi } from "@/shared/hooks/useApi";
 import toast from "react-hot-toast";
 import { EditeMessageIndicator } from "./EditeMessageIndicator";
-
-// Code and Syntax Highlighting
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import css from "highlight.js/lib/languages/css";
-import js from "highlight.js/lib/languages/javascript";
-import ts from "highlight.js/lib/languages/typescript";
-import html from "highlight.js/lib/languages/xml";
-import md from "highlight.js/lib/languages/markdown";
-import yaml from "highlight.js/lib/languages/yaml";
-// import python from "highlight.js/lib/languages/python";
-import json from "highlight.js/lib/languages/json";
-// import bash from "highlight.js/lib/languages/bash";
-
-// load all highlight.js languages
-import { createLowlight } from "lowlight";
-const lowlight = createLowlight();
-lowlight.register("html", html);
-lowlight.register("css", css);
-lowlight.register("js", js);
-lowlight.register("ts", ts);
-lowlight.register("markdown", md);
-// lowlight.register("python", python);
-lowlight.register("yaml", yaml);
-lowlight.register("json", json);
-// lowlight.register("bash", bash);
+import { useTiptapEditor } from "./Editor";
 
 type BtnIcon = React.ComponentProps<"button"> & { $active?: boolean; $size?: number };
 
@@ -54,8 +26,6 @@ const IconButton = twx.button<BtnIcon>((prop) =>
 );
 
 export default function SendMessage() {
-  const [html, setHtml] = useState("");
-  const [text, setText] = useState("");
   const [showEditorToolbar, setShowEditorToolbar] = useState(false);
 
   const user = useAuthStore((state: any) => state.profile);
@@ -64,7 +34,6 @@ export default function SendMessage() {
   const usersPresence = useStore((state: any) => state.usersPresence);
   const replayedMessage = useReplayMessageInfo();
   const editeMessage = useEditeMessageInfo();
-
   const { request: postRequestMessage, loading: postMsgLoading } = useApi(sendMessage, null, false);
   const { request: editeRequestMessage, loading: editMsgLoading } = useApi(updateMessage, null, false);
 
@@ -72,60 +41,7 @@ export default function SendMessage() {
     return postMsgLoading || editMsgLoading;
   }, [postMsgLoading, editMsgLoading]);
 
-  const editor: Editor | null = useEditor(
-    {
-      extensions: [
-        StarterKit.configure({
-          codeBlock: false,
-          bulletList: {
-            keepMarks: true,
-            keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
-          },
-          orderedList: {
-            keepMarks: true,
-            keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
-          },
-        }),
-        CodeBlockLowlight.configure({
-          lowlight,
-        }),
-        Mention.configure({
-          HTMLAttributes: {
-            class: "mention",
-          },
-          suggestion,
-        }),
-        Placeholder.configure({
-          placeholder: "Write a message...",
-          showOnlyWhenEditable: false,
-        }),
-      ],
-      onUpdate: ({ editor }) => {
-        setHtml(editor?.getHTML());
-        setText(editor?.getText());
-      },
-      editable: true,
-      editorProps: {
-        handleKeyDown: (view, event) => {
-          if (event.key === "Enter" && event.metaKey) {
-            return true; // Indicates that this key event was handled
-          }
-          // Return false to let other keydown handlers (or TipTap defaults) process the event
-          return false;
-        },
-      },
-    },
-    [],
-  );
-
-  useEffect(() => {
-    if (!editor) return;
-    // custom event listener, to handle focus on editor
-    const handleFocus = () => {
-      editor.commands.focus();
-    };
-    document.addEventListener("editor:focus", handleFocus);
-  }, [editor]);
+  const { editor, text, html } = useTiptapEditor({ loading });
 
   useEffect(() => {
     if (!editor) return;
@@ -184,11 +100,6 @@ export default function SendMessage() {
     });
     document.dispatchEvent(event);
   };
-
-  useEffect(() => {
-    if (!editor) return;
-    editor.setEditable(!loading);
-  }, [loading, editor]);
 
   // Handler for the ESC key
   const handleEsc = useCallback(
