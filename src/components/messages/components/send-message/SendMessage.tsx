@@ -100,11 +100,10 @@ export default function SendMessage() {
     } finally {
       // clear the editor
       document.dispatchEvent(new CustomEvent("messages:container:scroll:down"));
+      // if it has reply or forward message, clear it
+      if (replayedMessage) setReplayMessage(null);
+      if (editeMessage) setEditeMessage(null);
     }
-
-    // if it has reply or forward message, clear it
-    if (replayedMessage) setReplayMessage(null);
-    if (editeMessage) setEditeMessage(null);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, text, html]);
