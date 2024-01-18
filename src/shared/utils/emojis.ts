@@ -1,6 +1,9 @@
 export const isOnlyEmoji = (str: string): boolean => {
+  // This regex pattern aims to match strings that consist solely of emojis,
+  // including those with skin tone modifiers, zero-width joiners, etc.,
+  // but exclude numbers and other non-emoji characters.
   const emojiRegex =
-    /^(\p{Emoji}|\p{Emoji_Presentation}|\p{Emoji_Modifier}|\p{Emoji_Modifier_Base}|\p{Emoji_Component}|\u200d)+$/u;
+    /^(?:(?:\p{Emoji_Presentation}|\p{Emoji_Modifier_Base})\p{Emoji_Modifier}?|\p{Emoji})\p{Extended_Pictographic}*\uFE0F?$/u;
   return emojiRegex.test(str);
 };
 
