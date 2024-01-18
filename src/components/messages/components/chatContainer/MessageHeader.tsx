@@ -6,6 +6,8 @@ import { MsgReplyTo } from "./MsgReplyTo";
 interface MessageHeaderProps {
   data: {
     isGroupStart?: boolean;
+    isGroupEnd?: boolean;
+    isNewGroupById?: boolean;
     origin_message_id?: string;
     metadata?: {
       forwarding_chain?: Array<{ username: string }>;

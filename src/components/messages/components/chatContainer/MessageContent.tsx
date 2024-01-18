@@ -57,7 +57,7 @@ const MessageContent: React.FC<MessageContentProps> = ({ data }) => {
         </div>
       ) : (
         <div
-          className="message--card__content prose-slate prose-invert overflow-hidden"
+          className="message--card__content prose-slate prose-invert overflow-hidden text-wrap"
           dir="auto"
           dangerouslySetInnerHTML={{ __html: htmlContent }}
         />

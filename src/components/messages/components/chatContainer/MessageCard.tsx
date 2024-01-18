@@ -54,6 +54,10 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
     return data.isGroupStart;
   }, [data.isGroupStart]);
 
+  const isNewGroupById = useMemo(() => {
+    return data.isNewGroupById;
+  }, [data.isNewGroupById]);
+
   return (
     <div
       className={`group ${

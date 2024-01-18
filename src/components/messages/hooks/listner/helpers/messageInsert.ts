@@ -32,12 +32,15 @@ export const messageInsert = (payload: any) => {
   // if there is no messages, just add the message
   if (!messages) return setOrUpdateMessage(channelId, payload.new.id, newMessage);
 
+  const msgs = [...getChannelMessages(channelId)?.values()];
+
   // get last message and check if the last message is from the same user
-  const lastMessage = [...getChannelMessages(channelId)?.values()].pop();
+  const lastMessage0 = msgs.pop();
+  const lastMessage1 = msgs.pop();
 
   // if the last message is from the same user, we need to group the messages
-  const newInstanceOfMessages = groupedMessages([lastMessage, newMessage]);
+  const newInstanceOfMessages = groupedMessages([lastMessage1, lastMessage0, newMessage]);
 
-  setOrUpdateMessage(channelId, lastMessage.id, newInstanceOfMessages.at(0));
-  setOrUpdateMessage(channelId, newMessage.id, newInstanceOfMessages.at(1));
+  setOrUpdateMessage(channelId, lastMessage0.id, newInstanceOfMessages.at(1));
+  setOrUpdateMessage(channelId, newMessage.id, newInstanceOfMessages.at(2));
 };
