@@ -8,12 +8,13 @@ export const useScrollAndLoad = (initialMessagesLoaded: boolean, messageContaine
   const [loading, setLoading] = useState<boolean>(msgLength === 0 ? false : true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const { channelId } = useStore((state) => state.workspaceSettings);
+  const { channelId, userPickingEmoji } = useStore((state) => state.workspaceSettings);
   const messagesByChannel = useStore((state: any) => state.messagesByChannel);
   const messages = messagesByChannel.get(channelId);
 
   const scrollToBottom = useCallback(
     (options: ScrollIntoViewOptions = {}) => {
+      if (userPickingEmoji) return;
       if (messagesEndRef.current) {
         if (options.behavior === "smooth") {
           messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "end" });

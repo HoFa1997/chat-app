@@ -8,6 +8,7 @@ type WorkspaceSettings = {
   isUserChannelOwner?: boolean;
   isUserChannelAdmin?: boolean;
   workspaceBroadcaster?: any;
+  userPickingEmoji?: boolean;
 };
 
 export interface IWorkspaceSettingsStore {
@@ -24,6 +25,7 @@ const useWorkspaceSettingsStore = immer<IWorkspaceSettingsStore>((set) => ({
     isUserChannelMember: false,
     isUserChannelOwner: false,
     isUserChannelAdmin: false,
+    userPickingEmoji: false,
   },
 
   // Update a single setting

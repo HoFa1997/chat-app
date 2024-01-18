@@ -1,8 +1,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, UIEvent } from "react";
 import { emojiReaction } from "@/api";
+import { useStore } from "@stores/index";
 
 export const useEmojiBoxHandler = (emojiPikerRef: any, messageContainerRef: any) => {
   const [isEmojiBoxOpen, setIsEmojiBoxOpen] = useState(false);
@@ -11,6 +12,8 @@ export const useEmojiBoxHandler = (emojiPikerRef: any, messageContainerRef: any)
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [eventTypes, setEventTypes] = useState(null);
   const [editor, setEditor] = useState(null);
+  const { userPickingEmoji } = useStore((state) => state.workspaceSettings);
+  const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
 
   useEffect(() => {
     const toggelEmojiPickerHandler = (e: any) => {
@@ -57,15 +60,20 @@ export const useEmojiBoxHandler = (emojiPikerRef: any, messageContainerRef: any)
     };
   }, [emojiPikerRef]);
 
+  const handleEvent = useCallback(
+    (event: UIEvent) => {
+      if (event.type === "scroll" && userPickingEmoji) return;
+      closeEmojiPicker();
+      setWorkspaceSetting("userPickingEmoji", false);
+    },
+    [userPickingEmoji],
+  );
+
   useEffect(() => {
     // Only attach listeners if the emoji box is open and the container exists
     if (!isEmojiBoxOpen || !messageContainerRef.current) {
       return;
     }
-
-    const handleEvent = () => {
-      closeEmojiPicker();
-    };
 
     // Attach event listeners
     const msgContainer = messageContainerRef.current;
@@ -81,6 +89,7 @@ export const useEmojiBoxHandler = (emojiPikerRef: any, messageContainerRef: any)
 
   const openEmojiPicker = useCallback(() => {
     setIsEmojiBoxOpen(true);
+    setWorkspaceSetting("userPickingEmoji", true);
   }, [isEmojiBoxOpen]);
 
   const closeEmojiPicker = useCallback(() => {
