@@ -8,19 +8,21 @@ type TBroadcastPayload = {
 };
 
 export const useBroadcastListner = () => {
-  const { workspaceBroadcaster } = useStore((state) => state.workspaceSettings);
+  const { workspaceBroadcaster: broadcaster } = useStore((state) => state.workspaceSettings);
   const addChannelPinnedMessage = useStore((state) => state.addChannelPinnedMessage);
   const removeChannelPinnedMessage = useStore((state) => state.removeChannelPinnedMessage);
 
   useEffect(() => {
-    if (!workspaceBroadcaster) return;
-    workspaceBroadcaster.on("broadcast", { event: "pinnedMessage" }, ({ payload }: TBroadcastPayload) => {
+    if (!broadcaster) return;
+    broadcaster.on("broadcast", { event: "pinnedMessage" }, ({ payload }: TBroadcastPayload) => {
       const message = payload.message;
-      if (payload.actionType === "pin") {
+      const type = payload.actionType;
+
+      if (type === "pin") {
         addChannelPinnedMessage(message.channel_id, message);
-      } else if (payload.actionType === "unpin") {
+      } else if (type === "unpin") {
         removeChannelPinnedMessage(message.channel_id, message.id);
       }
     });
-  }, [workspaceBroadcaster]);
+  }, [broadcaster]);
 };

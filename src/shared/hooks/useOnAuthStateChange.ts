@@ -14,7 +14,12 @@ export const useOnAuthStateChange = () => {
     const { data, error } = (await getUserByIdRequest(user.id)) as any;
     if (error) throw error;
     // set display name, we have to read diplay name from auth store
-    const displayName = data?.display_name || data?.username || data?.email.split("@")[0] || user?.email?.split("@")[0];
+    const displayName =
+      data?.display_name ||
+      data?.username ||
+      data?.email.split("@")[0] ||
+      user?.email?.split("@")[0];
+
     useAuthStore.getState().setDisplayName(displayName);
     useAuthStore.getState().setProfile({ ...data, status: "ONLINE" });
     setLoading(false);
@@ -36,6 +41,7 @@ export const useOnAuthStateChange = () => {
       }
       if (event === "SIGNED_OUT") {
         useAuthStore.getState().setSession(null);
+        useAuthStore.getState().setProfile(null);
         router.push("/login");
         setLoading(false);
       }
