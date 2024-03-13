@@ -6,7 +6,9 @@ import { fetchMessagesPaginated } from "@/api";
 const PAGE_SIZE = 20;
 const START_PAGE = 2;
 
-export const useInfiniteLoadMessages = (messageContainerRef: MutableRefObject<HTMLElement | null>) => {
+export const useInfiniteLoadMessages = (
+  messageContainerRef: MutableRefObject<HTMLElement | null>,
+) => {
   const [currentPage, setCurrentPage] = useState<number>(START_PAGE);
   const [hasMoreMessages, setHasMoreMessages] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
@@ -41,7 +43,10 @@ export const useInfiniteLoadMessages = (messageContainerRef: MutableRefObject<HT
     if (pageMessages?.messages && pageMessages?.messages?.length > 0) {
       // Convert pageMessages.messages to a Map
       const newMessagesMap: any = new Map(
-        groupedMessages(pageMessages.messages.reverse()).map((message: any) => [message.id, message]),
+        groupedMessages(pageMessages.messages.reverse()).map((message: any) => [
+          message.id,
+          message,
+        ]),
       );
 
       // Merge the new messages with the existing ones

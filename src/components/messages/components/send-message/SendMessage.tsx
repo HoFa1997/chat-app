@@ -1,7 +1,6 @@
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import { EditorToolbar } from "./EditorToolbar";
 import { ReplayMessageIndicator } from "./ReplayMessageIndicator";
-import { useReplayMessageInfo, setReplayMessage, useEditeMessageInfo, setEditeMessage } from "@/shared/hooks";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { twx, cn } from "@utils/index";
 import { ImAttachment } from "react-icons/im";
@@ -28,15 +27,21 @@ const IconButton = twx.button<BtnIcon>((prop) =>
 
 export default function SendMessage() {
   const [showEditorToolbar, setShowEditorToolbar] = useState(false);
+  const setEditeMessageMemory = useStore((state) => state.setEditeMessageMemory);
+  const setReplayMessageMemory = useStore((state) => state.setReplayMessageMemory);
 
   const user = useAuthStore((state: any) => state.profile);
-  const { channelId } = useStore((state: any) => state.workspaceSettings);
+  const { channelId, replayMessageMemory, editeMessageMemory } = useStore(
+    (state: any) => state.workspaceSettings,
+  );
   const setOrUpdateUserPresence = useStore((state: any) => state.setOrUpdateUserPresence);
   const usersPresence = useStore((state: any) => state.usersPresence);
-  const replayedMessage = useReplayMessageInfo();
-  const editeMessage = useEditeMessageInfo();
   const { request: postRequestMessage, loading: postMsgLoading } = useApi(sendMessage, null, false);
-  const { request: editeRequestMessage, loading: editMsgLoading } = useApi(updateMessage, null, false);
+  const { request: editeRequestMessage, loading: editMsgLoading } = useApi(
+    updateMessage,
+    null,
+    false,
+  );
 
   const loading = useMemo(() => {
     return postMsgLoading || editMsgLoading;
@@ -49,36 +54,36 @@ export default function SendMessage() {
 
     editor
       .chain()
-      .insertContent(editeMessage?.html || editeMessage?.content || "", {
+      .insertContent(editeMessageMemory?.html || editeMessageMemory?.content || "", {
         parseOptions: {
           preserveWhitespace: false,
         },
       })
       .focus("end")
       .run();
-  }, [editor, editeMessage]);
+  }, [editor, editeMessageMemory]);
 
   const submit = useCallback(async () => {
     if (!html || !text || loading) return;
     const { htmlChunks, textChunks } = chunkHtmlContent(html, 3000);
 
-    if (replayedMessage?.id) {
-      const user = replayedMessage.user_details;
+    if (replayMessageMemory?.id) {
+      const user = replayMessageMemory.user_details;
       if (!usersPresence.has(user.id)) setOrUpdateUserPresence(user.id, user);
     }
 
-    if (editeMessage?.id) {
-      const user = editeMessage.user_details;
+    if (editeMessageMemory?.id) {
+      const user = editeMessageMemory.user_details;
       if (!usersPresence.has(user.id)) setOrUpdateUserPresence(user.id, user);
     }
 
-    const messageId = editeMessage?.id || replayedMessage?.id || null;
+    const messageId = editeMessageMemory?.id || replayMessageMemory?.id || null;
 
     try {
       editor?.commands.clearContent(true);
 
       if (htmlChunks.length === 0) {
-        if (editeMessage) {
+        if (editeMessageMemory) {
           editeRequestMessage(text, html, messageId);
         } else {
           postRequestMessage(text, channelId, user.id, html, messageId);
@@ -89,7 +94,7 @@ export default function SendMessage() {
       // INFO: order to send message is important
       for (const [index, htmlChunk] of htmlChunks.entries()) {
         const textChunk = textChunks[index];
-        if (editeMessage) {
+        if (editeMessageMemory) {
           editeRequestMessage(textChunk, htmlChunk, messageId);
         } else {
           postRequestMessage(textChunk, channelId, user.id, htmlChunk, messageId);
@@ -101,8 +106,8 @@ export default function SendMessage() {
       // clear the editor
       document.dispatchEvent(new CustomEvent("messages:container:scroll:down"));
       // if it has reply or forward message, clear it
-      if (replayedMessage) setReplayMessage(null);
-      if (editeMessage) setEditeMessage(null);
+      if (replayMessageMemory) setReplayMessageMemory(null);
+      if (editeMessageMemory) setEditeMessageMemory(null);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,14 +124,14 @@ export default function SendMessage() {
   const handleEsc = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        if (replayedMessage) setReplayMessage(null);
-        if (editeMessage) {
-          setEditeMessage(null);
+        if (replayMessageMemory) setReplayMessageMemory(null);
+        if (editeMessageMemory) {
+          setEditeMessageMemory(null);
           editor?.commands.clearContent(true);
         }
       }
     },
-    [replayedMessage, editeMessage],
+    [replayMessageMemory, editeMessageMemory],
   );
 
   useEffect(() => {
@@ -143,7 +148,11 @@ export default function SendMessage() {
     <div className="flex w-full flex-col bg-base-200 p-1 px-2 pb-0 ">
       <ReplayMessageIndicator />
       <EditeMessageIndicator />
-      <EditorToolbar editor={editor} className=" px-2" style={{ display: showEditorToolbar ? "flex" : "none" }} />
+      <EditorToolbar
+        editor={editor}
+        className=" px-2"
+        style={{ display: showEditorToolbar ? "flex" : "none" }}
+      />
 
       <div
         className={`my-2 mt-1 w-full px-2${showEditorToolbar ? 0 : 2}`}
@@ -165,7 +174,12 @@ export default function SendMessage() {
               <BsFillEmojiSmileFill size={22} />
             </IconButton>
 
-            <IconButton $size={8} onClick={submit} type="submit" disabled={loading || editor.isEmpty}>
+            <IconButton
+              $size={8}
+              onClick={submit}
+              type="submit"
+              disabled={loading || editor.isEmpty}
+            >
               <IoSend size={22} />
             </IconButton>
           </div>

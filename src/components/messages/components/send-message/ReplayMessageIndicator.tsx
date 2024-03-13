@@ -1,7 +1,7 @@
-import { setReplayMessage, useReplayMessageInfo } from "@/shared/hooks";
 import { FaReply } from "react-icons/fa";
 import { twx, cn } from "@utils/index";
 import { IoCloseOutline } from "react-icons/io5";
+import { useStore } from "@stores/index";
 
 type BtnIcon = React.ComponentProps<"button"> & { $active?: boolean; $size?: number };
 
@@ -14,15 +14,19 @@ const IconButton = twx.button<BtnIcon>((props) =>
 );
 
 export const ReplayMessageIndicator = () => {
-  const replayedMessage = useReplayMessageInfo();
+  const setReplayMessageMemory = useStore((state) => state.setReplayMessageMemory);
+  const { replayMessageMemory } = useStore((state) => state.workspaceSettings);
 
   const handleCloseReplayMessage = () => {
-    setReplayMessage(null);
+    setReplayMessageMemory(null);
   };
 
-  const replyToUser = replayedMessage?.user_details?.fullname || replayedMessage?.user_details?.username || "";
+  const replyToUser =
+    replayMessageMemory?.user_details?.fullname ||
+    replayMessageMemory?.user_details?.username ||
+    "";
 
-  if (!replayedMessage) return null;
+  if (!replayMessageMemory) return null;
 
   return (
     <div className="flex w-full  items-center justify-between px-4 py-2 text-base-content">
@@ -32,7 +36,7 @@ export const ReplayMessageIndicator = () => {
           Reply to
           <span className=" ml-1 font-normal">{replyToUser}</span>
         </span>
-        <span className="text-sm">{replayedMessage?.content}</span>
+        <span className="text-sm">{replayMessageMemory?.content}</span>
       </div>
       <IconButton onClick={handleCloseReplayMessage}>
         <IoCloseOutline size={22} />

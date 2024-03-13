@@ -32,11 +32,26 @@ export default function MessageContainer({}: any) {
   const { initialMessagesLoading, msgLength } = useChannelInitialData(setError);
 
   const { initialSubscribeLoading } = useMessageSubscription();
-  const { loading, messagesEndRef } = useScrollAndLoad(initialMessagesLoading, messageContainerRef, msgLength);
-  const { isEmojiBoxOpen, closeEmojiPicker, emojiPickerPosition, selectedEmoji, handleEmojiSelect, toggleEmojiPicker } =
-    useEmojiBoxHandler(emojiPickerRef, messageContainerRef);
+  const { loading, messagesEndRef } = useScrollAndLoad(
+    initialMessagesLoading,
+    messageContainerRef,
+    msgLength,
+  );
+  const {
+    isEmojiBoxOpen,
+    closeEmojiPicker,
+    emojiPickerPosition,
+    selectedEmoji,
+    handleEmojiSelect,
+    toggleEmojiPicker,
+  } = useEmojiBoxHandler(emojiPickerRef, messageContainerRef);
 
-  useCustomEventHandler(channelUsersPresence, setChannelUsersPresence, messageContainerRef, messagesEndRef);
+  useCustomEventHandler(
+    channelUsersPresence,
+    setChannelUsersPresence,
+    messageContainerRef,
+    messagesEndRef,
+  );
   const { isLoadingMore } = useInfiniteLoadMessages(messageContainerRef);
 
   if (error) {

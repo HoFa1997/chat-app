@@ -1,7 +1,12 @@
 import React, { forwardRef, useMemo } from "react";
 import { deleteMessage, pinMessage } from "@/api";
-import { setReplayMessage, setEditeMessage } from "@/shared/hooks";
-import { BsReplyFill, BsForwardFill, BsFillPinFill, BsFillTrashFill, BsFillPinAngleFill } from "react-icons/bs";
+import {
+  BsReplyFill,
+  BsForwardFill,
+  BsFillPinFill,
+  BsFillTrashFill,
+  BsFillPinAngleFill,
+} from "react-icons/bs";
 import { RiPencilFill } from "react-icons/ri";
 import { useForwardMessageModalStore } from "@/components/messages/components/ForwardMessageModal";
 import toast from "react-hot-toast";
@@ -15,13 +20,17 @@ export const MessageContextMenu = forwardRef<
   const openModal = useForwardMessageModalStore((state: any) => state.openModal);
   const addChannelPinnedMessage = useStore((state) => state.addChannelPinnedMessage);
   const removeChannelPinnedMessage = useStore((state) => state.removeChannelPinnedMessage);
-  const { channelId, workspaceBroadcaster } = useStore((state) => state.workspaceSettings);
+  const { channelId, workspaceBroadcaster, editeMessageMemory } = useStore(
+    (state) => state.workspaceSettings,
+  );
+  const setEditeMessageMemory = useStore((state) => state.setEditeMessageMemory);
+  const setReplayMessageMemory = useStore((state) => state.setReplayMessageMemory);
 
   if (!channelId) return null;
 
   const handleReplayMessage = () => {
     if (messageData) {
-      setReplayMessage(messageData);
+      setReplayMessageMemory(messageData);
       // call editor focus
       const event = new CustomEvent("editor:focus");
       document.dispatchEvent(event);
@@ -64,7 +73,7 @@ export const MessageContextMenu = forwardRef<
 
   const handelEdite = () => {
     if (!messageData) return;
-    setEditeMessage(messageData);
+    setEditeMessageMemory(messageData);
   };
 
   const isPinned = useMemo(() => {
@@ -84,7 +93,11 @@ export const MessageContextMenu = forwardRef<
       onClickFn: () => handlePinMessage(),
     },
     { title: "Edit", icon: <RiPencilFill size={20} />, onClickFn: () => handelEdite() },
-    { title: "Delete", icon: <BsFillTrashFill size={20} />, onClickFn: () => handelDeleteMessage() },
+    {
+      title: "Delete",
+      icon: <BsFillTrashFill size={20} />,
+      onClickFn: () => handelDeleteMessage(),
+    },
   ];
 
   return (

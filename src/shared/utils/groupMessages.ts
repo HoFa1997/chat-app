@@ -19,15 +19,15 @@ export const groupedMessages = (messages: Message[]) =>
 
     const isGroupStart =
       index === 0 ||
-      message.user_id !== prevMessage?.user_id ||
+      message?.user_id !== prevMessage?.user_id ||
       isDifferentDay(message.created_at, prevMessage?.created_at);
 
     const isGroupEnd =
       index === array.length - 1 ||
-      message.user_id !== nextMessage?.user_id ||
+      message?.user_id !== nextMessage?.user_id ||
       isDifferentDay(message.created_at, nextMessage?.created_at);
 
-    const isNewGroupById = message.user_id !== prevMessage?.user_id;
+    const isNewGroupById = message?.user_id !== prevMessage?.user_id;
 
     return {
       ...message,

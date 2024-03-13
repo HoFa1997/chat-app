@@ -3,7 +3,6 @@ import { useStore } from "@stores/index";
 import { getChannels } from "@/api";
 import MainLayout from "@/components/layouts/MainLayout";
 import { createPagesServerClient } from "@supabase/auth-helpers-nextjs";
-import { setReplayMessage, setEditeMessage } from "@/shared/hooks";
 import MessageContainer from "@/components/messages/MessageContainer";
 import { UserProfileModal } from "@/components/messages/components/UserProfileModal";
 import ForwardMessageModal from "@/components/messages/components/ForwardMessageModal";
@@ -17,6 +16,9 @@ type TWorkspacePageProp = {
 export default function WorkspacesPage({ workspaceId, channelId, channels }: TWorkspacePageProp) {
   const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
   const clearAndInitialChannels = useStore((state) => state.clearAndInitialChannels);
+  const setReplayMessageMemory = useStore((state) => state.setReplayMessageMemory);
+  const setEditeMessageMemory = useStore((state) => state.setEditeMessageMemory);
+  const setForwardMessageMemory = useStore((state) => state.setForwardMessageMemory);
 
   useEffect(() => {
     if (!workspaceId) return;
@@ -31,22 +33,17 @@ export default function WorkspacesPage({ workspaceId, channelId, channels }: TWo
   // clear replay message and edite message state when channel change
   useEffect(() => {
     if (!channelId) return;
-    setReplayMessage(null);
-    setEditeMessage(null);
+    setReplayMessageMemory(null);
+    setEditeMessageMemory(null);
+    setForwardMessageMemory(null);
     setWorkspaceSetting("channelId", channelId);
   }, [channelId]);
 
   return (
     <MainLayout showChannelList={true}>
-      {channelId ? (
-        <>
-          <MessageContainer />
-          <UserProfileModal />
-          <ForwardMessageModal />
-        </>
-      ) : (
-        <span></span>
-      )}
+      {channelId ? <MessageContainer /> : <span></span>}
+      <UserProfileModal />
+      <ForwardMessageModal />
     </MainLayout>
   );
 }

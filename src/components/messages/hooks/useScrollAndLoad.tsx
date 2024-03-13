@@ -4,7 +4,11 @@ import { useStore } from "@stores/index";
 const SCROLL_TIMEOUT_DELAY = 100;
 
 // If the type of messages is different, adjust the Map type accordingly.
-export const useScrollAndLoad = (initialMessagesLoaded: boolean, messageContainerRef: any, msgLength: number) => {
+export const useScrollAndLoad = (
+  initialMessagesLoaded: boolean,
+  messageContainerRef: any,
+  msgLength: number,
+) => {
   const [loading, setLoading] = useState<boolean>(msgLength === 0 ? false : true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -17,7 +21,11 @@ export const useScrollAndLoad = (initialMessagesLoaded: boolean, messageContaine
       if (userPickingEmoji) return;
       if (messagesEndRef.current) {
         if (options.behavior === "smooth") {
-          messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "end" });
+          messagesEndRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+            inline: "end",
+          });
         } else {
           messagesEndRef.current.scrollIntoView(false);
         }
@@ -85,7 +93,13 @@ export const useScrollAndLoad = (initialMessagesLoaded: boolean, messageContaine
 
       container.addEventListener("scroll", checkIfScrolledToBottom);
 
-      if (scrollTop === 0 && scrollHeight === clientHeight) {
+      // If the user is scrolled to the top of the container, load more messages.
+      if (
+        scrollTop === 0 &&
+        scrollHeight >= clientHeight - 20 &&
+        scrollHeight <= clientHeight + 20 &&
+        !initialMessagesLoaded
+      ) {
         setLoading(false);
       }
     };

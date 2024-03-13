@@ -11,8 +11,8 @@ import { useAuthStore } from "@stores/index";
 import MessageFooter from "./MessageFooter";
 import MessageHeader from "./MessageHeader";
 import MessageContent from "./MessageContent";
-import { setReplayMessage } from "@/shared/hooks";
 import { isOnlyEmoji } from "@/shared";
+import { useStore } from "@stores/index";
 
 type TMessageCardProps = {
   data: TMessageWithUser;
@@ -22,6 +22,7 @@ type TMessageCardProps = {
 
 function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardProps, ref: any) {
   const user = useAuthStore.use.profile();
+  const setReplayMessageMemory = useStore((state) => state.setReplayMessageMemory);
   const openModal = useUserProfileModalStore((state) => state.openModal);
   const modalOpen = useUserProfileModalStore((state) => state.modalOpen);
   const closeModal = useUserProfileModalStore((state) => state.closeModal);
@@ -40,7 +41,7 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
   };
 
   const handleDoubleClick = useCallback(() => {
-    setReplayMessage(data);
+    setReplayMessageMemory(data);
     // Triggering editor focus if needed
     const event = new CustomEvent("editor:focus");
     document.dispatchEvent(event);
@@ -98,7 +99,11 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
         </div>
       )}
 
-      <MessageReaction message={data} selectedEmoji={selectedEmoji} toggleEmojiPicker={toggleEmojiPicker} />
+      <MessageReaction
+        message={data}
+        selectedEmoji={selectedEmoji}
+        toggleEmojiPicker={toggleEmojiPicker}
+      />
 
       <MessageContextMenu
         parrentRef={cardRef}
