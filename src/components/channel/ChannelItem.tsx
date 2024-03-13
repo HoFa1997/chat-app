@@ -6,7 +6,8 @@ import { useRouter } from "next/router";
 
 export const ChannelItem = ({ data, ...props }: { data: TChannel }) => {
   const { push, query } = useRouter();
-  const { channelId, workspaceId } = query;
+  const workspaceId = query?.workspaceId?.at(0) || null;
+  const channelId = query?.workspaceId?.at(1) || null;
 
   const lastTimUpdated = new Date(data?.last_activity_at).toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -26,7 +27,11 @@ export const ChannelItem = ({ data, ...props }: { data: TChannel }) => {
     >
       <div className={`m-0 p-2 ${channelId === data.id && "active"}`}>
         <div className="mr-2 h-10 w-10">
-          <Avatar className="m-0 rounded-full ring-2 ring-base-300 ring-offset-2" id={data.id} collection="shapes" />
+          <Avatar
+            className="m-0 rounded-full ring-2 ring-base-300 ring-offset-2"
+            id={data.id}
+            collection="shapes"
+          />
         </div>
         <div className="min-w-0 grow">
           <div className="flex items-center ">

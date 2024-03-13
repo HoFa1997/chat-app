@@ -3,13 +3,18 @@ import { useStore } from "@stores/index";
 import { getChannels } from "@/api";
 import MainLayout from "@/components/layouts/MainLayout";
 import { createPagesServerClient } from "@supabase/auth-helpers-nextjs";
+import { setReplayMessage, setEditeMessage } from "@/shared/hooks";
+import MessageContainer from "@/components/messages/MessageContainer";
+import { UserProfileModal } from "@/components/messages/components/UserProfileModal";
+import ForwardMessageModal from "@/components/messages/components/ForwardMessageModal";
 
 type TWorkspacePageProp = {
   workspaceId: string;
+  channelId: string;
   channels: any;
 };
 
-export default function WorkspacesPage({ workspaceId, channels }: TWorkspacePageProp) {
+export default function WorkspacesPage({ workspaceId, channelId, channels }: TWorkspacePageProp) {
   const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
   const clearAndInitialChannels = useStore((state) => state.clearAndInitialChannels);
 
@@ -23,9 +28,25 @@ export default function WorkspacesPage({ workspaceId, channels }: TWorkspacePage
     clearAndInitialChannels(channels);
   }, [channels]);
 
+  // clear replay message and edite message state when channel change
+  useEffect(() => {
+    if (!channelId) return;
+    setReplayMessage(null);
+    setEditeMessage(null);
+    setWorkspaceSetting("channelId", channelId);
+  }, [channelId]);
+
   return (
     <MainLayout showChannelList={true}>
-      <span></span>
+      {channelId ? (
+        <>
+          <MessageContainer />
+          <UserProfileModal />
+          <ForwardMessageModal />
+        </>
+      ) : (
+        <span></span>
+      )}
     </MainLayout>
   );
 }
@@ -33,7 +54,9 @@ export default function WorkspacesPage({ workspaceId, channels }: TWorkspacePage
 // TODO: check the workspace and channels in here! for improve perfomance and better UX
 
 export async function getServerSideProps(context: any) {
-  const { workspaceId } = context.params;
+  const workspaceId = context.params?.workspaceId.at(0);
+  const channelId = context.params?.workspaceId.at(1) || null;
+
   const supabase = createPagesServerClient(context);
   let channels;
 
@@ -47,6 +70,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         workspaceId,
+        channelId,
         channels: channels.data,
       },
     };
