@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 import { UserProfileModal } from "@/components/messages/components/UserProfileModal";
 import { useStore } from "@stores/index";
 import { getChannels } from "@/api";
-import { useApi } from "@/shared/hooks/useApi";
 import MainLayout from "@/components/layouts/MainLayout";
 import ForwardMessageModal from "@/components/messages/components/ForwardMessageModal";
 import { setReplayMessage, setEditeMessage } from "@/shared/hooks";
@@ -18,7 +17,6 @@ type TRoomProps = {
 export default function ChatRoomContainer({ workspaceId, channelId, channels }: TRoomProps) {
   const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
   const clearAndInitialChannels = useStore((state) => state.clearAndInitialChannels);
-  const { loading, data, request } = useApi(getChannels, workspaceId, false);
 
   useEffect(() => {
     if (!workspaceId) return;
@@ -37,7 +35,7 @@ export default function ChatRoomContainer({ workspaceId, channelId, channels }: 
   }, [channelId]);
 
   return (
-    <MainLayout showChannelList={true} loading={loading}>
+    <MainLayout showChannelList={true}>
       <MessageContainer />
       <UserProfileModal />
       <ForwardMessageModal />
