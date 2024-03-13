@@ -1,4 +1,4 @@
-import { supabaseClient } from "../supabase";
+import { supabaseClient } from "@shared/utils";
 import { Database } from "@/types/supabase";
 
 type TAgChannelDataArg = Database["public"]["Functions"]["get_channel_aggregate_data"]["Args"];

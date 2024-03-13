@@ -1,4 +1,4 @@
-import { supabaseClient } from "../supabase";
+import { supabaseClient } from "@shared/utils";
 
 export const deleteMessage = async (channelId: string, messageId: string) =>
   await supabaseClient

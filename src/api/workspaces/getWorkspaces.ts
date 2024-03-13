@@ -1,5 +1,5 @@
 import { Database } from "@/types/supabase";
-import { supabaseClient } from "../supabase";
+import { supabaseClient } from "@shared/utils";
 import { PostgrestResponse } from "@supabase/postgrest-js";
 type TWorkspace = Database["public"]["Tables"]["workspaces"]["Row"];
 

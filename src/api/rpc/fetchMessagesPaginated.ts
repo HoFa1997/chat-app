@@ -1,4 +1,4 @@
-import { supabaseClient } from "../supabase";
+import { supabaseClient } from "@shared/utils";
 import { Database } from "@/types/supabase";
 import { PostgrestResponse } from "@supabase/postgrest-js";
 

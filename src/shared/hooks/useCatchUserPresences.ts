@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useStore } from "@stores/index";
-import { supabaseClient } from "@/api/supabase";
+import { supabaseClient } from "@shared/utils";
 import { useAuthStore } from "@stores/index";
 export const useCatchUserPresences = () => {
   const profile = useAuthStore((state) => state.profile);

@@ -1,4 +1,4 @@
-import { supabaseClient } from "@/api/supabase";
+import { supabaseClient } from "@shared/utils";
 import { useEffect, useState, useCallback } from "react";
 import { useStore, useAuthStore } from "@stores/index";
 import { join2Channel } from "@/api";

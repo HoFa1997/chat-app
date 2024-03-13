@@ -1,4 +1,4 @@
-import { supabaseClient } from "../supabase";
+import { supabaseClient } from "@shared/utils";
 
 export const pinMessage = async (channelId: string, messageId: string, actionType: string) => {
   const {

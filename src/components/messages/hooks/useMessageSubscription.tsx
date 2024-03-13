@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabaseClient } from "@/api/supabase";
+import { supabaseClient } from "@shared/utils";
 import { useStore } from "@stores/index";
 import { useAuthStore } from "@stores/index";
 import { dbMessagesListener, dbChannelsListner } from "./listner";

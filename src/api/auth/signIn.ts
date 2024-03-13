@@ -1,4 +1,4 @@
-import { supabaseClient } from "../supabase";
+import { supabaseClient } from "@shared/utils";
 import { AuthError, SignInWithPasswordCredentials, SignInWithOAuthCredentials } from "@supabase/supabase-js";
 
 // Refactored signInWithPassword function

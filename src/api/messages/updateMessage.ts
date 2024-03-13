@@ -1,4 +1,4 @@
-import { supabaseClient } from "../supabase";
+import { supabaseClient } from "@shared/utils";
 import { Database } from "@/types/supabase";
 
 type TMessage = Database["public"]["Tables"]["messages"]["Row"];

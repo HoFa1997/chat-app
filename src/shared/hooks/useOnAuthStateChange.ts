@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import { useAuthStore } from "@stores/index";
-import { supabaseClient } from "@/api/supabase";
+import { supabaseClient } from "@shared/utils";
 import { getUserById } from "@/api";
 import { useApi } from "./useApi";
 

@@ -1,4 +1,4 @@
-import { supabaseClient } from "../supabase";
+import { supabaseClient } from "@shared/utils";
 import { useAuthStore } from "@stores/index";
 
 export const emojiReaction = async (message: any, newReaction: string) => {

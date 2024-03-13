@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from "react";
-import { supabaseClient } from "@/api/supabase";
+import { supabaseClient } from "@shared/utils";
 import { signInWithPassword } from "@/api/auth";
 import { useRouter } from "next/router";
 import { useSupabase } from "@/shared";

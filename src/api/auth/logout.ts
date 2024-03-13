@@ -1,4 +1,4 @@
-import { supabaseClient } from "../supabase";
+import { supabaseClient } from "@shared/utils";
 import { AuthError } from "@supabase/supabase-js";
 
 // Refactored logout function

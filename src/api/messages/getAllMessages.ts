@@ -1,5 +1,5 @@
 import { Database } from "@/types/supabase";
-import { supabaseClient } from "../supabase";
+import { supabaseClient } from "@shared/utils";
 
 export type TMessage = Database["public"]["Tables"]["messages"]["Row"];
 
