@@ -7,7 +7,7 @@ const FilterBar = ({ onFilterChange }: any) => {
   const containerRef = useRef(null);
 
   const channelTypes = [
-    { type: "PUBLIC", icon: <MdOutlinePublic siz={24} /> },
+    { type: "PUBLIC", icon: <MdOutlinePublic size={24} /> },
     { type: "DIRECT", icon: <FaUserGroup /> },
     { type: "GROUP", icon: <MdGroups size={20} /> },
     { type: "BROADCAST", icon: <MdCampaign /> },

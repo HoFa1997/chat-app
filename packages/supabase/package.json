@@ -1,0 +1,18 @@
+{
+  "name": "supabase_back",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "dotenv -- supabase start",
+    "stop": "dotenv -- supabase stop"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "dotenv-cli": "^7.4.1",
+    "supabase": "^1.148.6"
+  }
+}
