@@ -1,13 +1,13 @@
+.PHONY: install back-start back-stop front-dev local supabase-status supabase-reset supabase-seed prepare-seed
+
 install:
-	echo "" > packages/supabase/seed.sql
-	cat packages/supabase/scripts/*.sql >> packages/supabase/seed.sql
 	pnpm install
 
 back-start:
-	 cd packages/supabase && pnpm start
+	cd packages/supabase && pnpm start
 
 back-stop:
-	 cd packages/supabase && pnpm stop
+	cd packages/supabase && pnpm stop
 
 front-dev:
 	cd packages/web && pnpm dev
@@ -20,12 +20,22 @@ supabase-status:
 
 # Resets the local database to a clean state.
 supabase-reset:
-	@read -p "Are you sure you want to reset the database? [y/N]: " confirm && \
-		[ $$confirm = y ] && \
-		echo "" > packages/supabase/seed.sql && \
-		cd packages/supabase && pnpm db:reset
+	@echo "Resetting the database..."
+	@read -p "Are you sure you want to reset the database? [y/N]: " confirm; \
+	if [ "$$confirm" = "y" ]; then \
+		make prepare-seed && \
+		cd packages/supabase && pnpm db:reset; \
+	else \
+		echo "Database reset canceled."; \
+	fi
 
-supabase-seed:
+# Prepare seed.sql by clearing its contents
+prepare-seed:
+	@echo "Preparing seed file..."
 	echo "" > packages/supabase/seed.sql
+
+# Seed the database
+supabase-seed:
+	make prepare-seed
 	cat packages/supabase/scripts/*.sql >> packages/supabase/seed.sql
 	psql -h 127.0.0.1 -p 54322 -d postgres -U postgres -f packages/supabase/seed.sql
