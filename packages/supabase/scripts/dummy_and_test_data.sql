@@ -484,17 +484,17 @@ WHERE id = 'de4b69f5-a304-4afa-80cc-89882d612d20';
 
 -- Expected queries to validate the test case:
 -- 1. Verify the soft deletion of the message.
-SELECT * FROM public.messages WHERE id = 'de4b69f5-a304-4afa-80cc-89882d612d20';
+-- SELECT * FROM public.messages WHERE id = 'de4b69f5-a304-4afa-80cc-89882d612d20';
 
 -- 2. Confirm removal of the message from pinned messages.
-SELECT * FROM public.pinned_messages WHERE message_id = 'de4b69f5-a304-4afa-80cc-89882d612d20';
+-- SELECT * FROM public.pinned_messages WHERE message_id = 'de4b69f5-a304-4afa-80cc-89882d612d20';
 
 -- 3. Check the status of replies and forwards related to the soft-deleted message.
-SELECT * FROM public.messages WHERE reply_to_message_id = 'de4b69f5-a304-4afa-80cc-89882d612d20'
-   OR origin_message_id = 'de4b69f5-a304-4afa-80cc-89882d612d20';
+-- SELECT * FROM public.messages WHERE reply_to_message_id = 'de4b69f5-a304-4afa-80cc-89882d612d20'
+--    OR origin_message_id = 'de4b69f5-a304-4afa-80cc-89882d612d20';
 
 -- 4. Validate the updated unread_message_count for channel members.
-SELECT * FROM public.channel_members WHERE channel_id = '4d582754-4d72-48f8-9e72-f6aa63dacada';
+-- SELECT * FROM public.channel_members WHERE channel_id = '4d582754-4d72-48f8-9e72-f6aa63dacada';
 
 
 /*

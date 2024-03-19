@@ -6,7 +6,11 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    devDependencies:
+      dotenv-cli:
+        specifier: ^7.4.1
+        version: 7.4.1
 
   packages/supabase:
     devDependencies:

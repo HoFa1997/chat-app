@@ -132,8 +132,7 @@ url = ""
 enabled = true
 client_id = "env(GOOGLE_CLIENT_ID)"
 secret = "env(GOOGLE_SECRET)"
-redirect_uri = ""                   # Overrides the default auth redirectUrl.
-url = ""
+redirect_uri = "http://localhost:54321/auth/v1/callback"
 
 
 [analytics]
