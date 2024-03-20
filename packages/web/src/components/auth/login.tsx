@@ -13,7 +13,7 @@ export default function LoginForm() {
       await request({
         provider,
         options: {
-          redirectTo: process.env.NEXT_PUBLIC_AUTH_REDIRECT_TO,
+          // redirectTo: process.env.NEXT_PUBLIC_AUTH_REDIRECT_TO,
         },
       });
       // set loading true untile the redirect to login
@@ -29,7 +29,11 @@ export default function LoginForm() {
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body items-center text-center">
           <h2 className="card-title my-2 mb-4">Sign in to your account</h2>
-          <button className="btn w-full" onClick={() => handleOAuthSignIn("google")} disabled={loading}>
+          <button
+            className="btn w-full"
+            onClick={() => handleOAuthSignIn("google")}
+            disabled={loading}
+          >
             <FcGoogle size={26} /> Sign in with Google
             {loading && <span className="loading loading-spinner ml-auto"></span>}
           </button>

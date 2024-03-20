@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuthStore } from "@stores/index";
 import { supabaseClient } from "@shared/utils";
@@ -14,8 +14,7 @@ export const useOnAuthStateChange = () => {
     const { data, error } = (await getUserByIdRequest(user.id)) as any;
     if (error) throw error;
     // set display name, we have to read diplay name from auth store
-    const displayName =
-      data?.display_name ||
+    const displayName = data?.display_name ||
       data?.username ||
       data?.email.split("@")[0] ||
       user?.email?.split("@")[0];
@@ -33,11 +32,19 @@ export const useOnAuthStateChange = () => {
         if (!session?.user) router.push("/login");
       }
 
-      if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "USER_UPDATED") {
+      if (
+        event === "SIGNED_IN" || event === "INITIAL_SESSION" ||
+        event === "USER_UPDATED"
+      ) {
         if (!session?.user) return;
-        useAuthStore.getState().setSession(session?.user || null);
-        if (session?.user) getUserProfile(session?.user);
-        setLoading(false);
+        const user = useAuthStore.getState().session?.user;
+        if (user?.id !== session?.user?.id) {
+          useAuthStore.getState().setSession(session?.user || null);
+          if (session?.user) getUserProfile(session?.user);
+          setLoading(false);
+        }
+        // if user is in login page, redirect to home page
+        if (location.pathname === "/login") router.push("/");
       }
       if (event === "SIGNED_OUT") {
         useAuthStore.getState().setSession(null);

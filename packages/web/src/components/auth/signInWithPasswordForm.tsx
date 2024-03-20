@@ -1,28 +1,12 @@
-import { useState, useEffect, FormEvent } from "react";
-import { supabaseClient } from "@shared/utils";
+import { useState, FormEvent } from "react";
 import { signInWithPassword } from "@/api/auth";
-import { useRouter } from "next/router";
 import { useSupabase } from "@/shared";
 import toast from "react-hot-toast";
 
 const SignInWithPasswordForm = () => {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { loading, setLoading, request } = useSupabase(signInWithPassword, null, false);
-
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session?.user) {
-        router.push("/");
-      }
-    });
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabaseClient]);
 
   // Handle email/password authentication
   const handleEmailSignIn = async (e: FormEvent) => {
@@ -31,6 +15,7 @@ const SignInWithPasswordForm = () => {
       const { error } = await request({ email, password });
       if (error) {
         toast.error(error.message);
+        setLoading(false);
       }
       setLoading(true);
     } catch (error) {
@@ -63,7 +48,8 @@ const SignInWithPasswordForm = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
       </label>
-      <button className="btn btn-block mt-6" type="submit" disabled={loading}>
+      <button className="btn flex btn-block mt-6" type="submit" disabled={loading}>
+        {loading && <span className="loading loading-spinner mr-auto"></span>}
         Login
       </button>
     </form>
