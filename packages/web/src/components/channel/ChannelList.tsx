@@ -6,6 +6,7 @@ import { useAuthStore } from "@stores/index";
 import WorkspaceCard from "./WorkspaceCard";
 import { useResizeChannelList } from "./useResizeChannelList";
 import { useChannelFilter } from "./useChannelFilter";
+import { useTypingIndicator } from "./useTypingIndicator";
 
 export default function ChannelList({ loading = false }) {
   const user = useAuthStore((state) => state.profile);
@@ -13,11 +14,15 @@ export default function ChannelList({ loading = false }) {
 
   const { onMouseDown } = useResizeChannelList({ panelRef });
   const { filteredChannels, handleFilterChange, channels } = useChannelFilter();
+  useTypingIndicator();
 
   if (!user) return null;
 
   return (
-    <div ref={panelRef} className="relative flex h-dvh w-3/12 flex-col bg-base-200 p-4 text-base-content">
+    <div
+      ref={panelRef}
+      className="relative flex h-dvh w-3/12 flex-col bg-base-200 p-4 text-base-content"
+    >
       <WorkspaceCard />
       {channels.size > 0 && (
         <>
@@ -40,9 +45,10 @@ export default function ChannelList({ loading = false }) {
               <NewChannelModal />
             </div>
           )}
-          <ul className="menu m-0 h-auto rounded-box bg-base-200 p-0">
+          <ul className="menu m-0 h-auto rounded-box bg-base-200 p-0 channleList">
             {filteredChannels?.map(
-              (item: any, index: number) => item && <ChannelItem key={item.id + index} data={item} />,
+              (item: any, index: number) =>
+                item && <ChannelItem key={item.id + index} data={item} />,
             )}
           </ul>
         </div>

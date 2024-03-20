@@ -12,6 +12,7 @@ type WorkspaceSettings = {
   replayMessageMemory?: any;
   editeMessageMemory?: any;
   forwardMessageMemory?: any;
+  typingIndicators?: any;
 };
 
 export interface IWorkspaceSettingsStore {
@@ -21,6 +22,8 @@ export interface IWorkspaceSettingsStore {
   setReplayMessageMemory: (message: any) => void;
   setEditeMessageMemory: (message: any) => void;
   setForwardMessageMemory: (message: any) => void;
+  setTypingIndicator: (channelId: string, user: any) => void;
+  removeTypingIndicator: (channelId: string, user: any) => void;
 }
 
 const useWorkspaceSettingsStore = immer<IWorkspaceSettingsStore>((set) => ({
@@ -35,6 +38,7 @@ const useWorkspaceSettingsStore = immer<IWorkspaceSettingsStore>((set) => ({
     replayMessageMemory: null,
     editeMessageMemory: null,
     forwardMessageMemory: null,
+    typingIndicators: {},
   },
 
   // Update a single setting
@@ -54,22 +58,55 @@ const useWorkspaceSettingsStore = immer<IWorkspaceSettingsStore>((set) => ({
   // Set the replay message memory
   setReplayMessageMemory: (message) => {
     return set((state) => ({
-      workspaceSettings: { ...state.workspaceSettings, replayMessageMemory: message },
+      workspaceSettings: {
+        ...state.workspaceSettings,
+        replayMessageMemory: message,
+      },
     }));
   },
 
   // Set the edit message memory
   setEditeMessageMemory: (message) => {
     return set((state) => ({
-      workspaceSettings: { ...state.workspaceSettings, editeMessageMemory: message },
+      workspaceSettings: {
+        ...state.workspaceSettings,
+        editeMessageMemory: message,
+      },
     }));
   },
 
   // Set the forward message memory
   setForwardMessageMemory: (message) => {
     return set((state) => ({
-      workspaceSettings: { ...state.workspaceSettings, forwardMessageMemory: message },
+      workspaceSettings: {
+        ...state.workspaceSettings,
+        forwardMessageMemory: message,
+      },
     }));
+  },
+
+  // Set the typing indicator
+  setTypingIndicator: (channelId, user) => {
+    return set((state) => {
+      let typingIndicators = state.workspaceSettings.typingIndicators;
+
+      if (!typingIndicators[channelId]) {
+        typingIndicators[channelId] = new Map();
+      }
+
+      typingIndicators[channelId].set(user.id, user);
+    });
+  },
+
+  // Remove the typing indicator
+  removeTypingIndicator: (channelId, user) => {
+    return set((state) => {
+      let typingIndicators = state.workspaceSettings.typingIndicators;
+
+      if (typingIndicators[channelId]) {
+        typingIndicators[channelId].delete(user.id);
+      }
+    });
   },
 }));
 

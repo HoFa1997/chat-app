@@ -43,7 +43,9 @@ export const ChannelItem = ({ data, ...props }: { data: TChannel }) => {
             </span>
             <span className=" ml-auto w-20 text-right ">{lastTimUpdated}</span>
           </div>
-          <p className="truncate">{data.last_message_preview ?? "No message"}</p>
+          <p className="truncate msgIndicator" data-msg={data.last_message_preview ?? "No message"}>
+            {data.last_message_preview ?? "No message"}
+          </p>
         </div>
       </div>
     </li>

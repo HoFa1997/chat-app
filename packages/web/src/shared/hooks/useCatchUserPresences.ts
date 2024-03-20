@@ -6,8 +6,9 @@ import { useAuthStore } from "@stores/index";
 export const useCatchUserPresences = () => {
   const profile = useAuthStore((state) => state.profile);
   const { workspaceId } = useStore((state) => state.workspaceSettings);
-  const setOrUpdateUserPresence = useStore((state) => state.setOrUpdateUserPresence);
-  const usersPresence = useStore((state) => state.usersPresence);
+  const setOrUpdateUserPresence = useStore((state) =>
+    state.setOrUpdateUserPresence
+  );
   const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
   const removeUserPresence = useStore((state) => state.removeUserPresence);
 

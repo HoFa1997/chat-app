@@ -156,7 +156,7 @@ export default function SendMessage() {
 
       <div
         className={`my-2 mt-1 w-full px-2${showEditorToolbar ? 0 : 2}`}
-        onKeyDown={(e) => e.key === "Enter" && (e.metaKey || e.ctrlKey) && submit()}
+        onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && submit()}
       >
         <div className="flex w-full flex-col  rounded-md bg-base-300 px-3">
           <div className="flex items-end py-2 text-base">

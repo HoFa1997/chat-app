@@ -70,7 +70,7 @@ export default function MessageContainer({}: any) {
     );
 
   return (
-    <MessageWrapper className="flex-col  justify-start">
+    <MessageWrapper className="flex-col justify-start">
       <MessageHeader />
       <PinnedMessagesDisplay loading={loading} />
       <LoadingOverlay loading={loading} />

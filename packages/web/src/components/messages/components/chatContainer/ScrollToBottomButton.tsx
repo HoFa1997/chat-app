@@ -1,18 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FaChevronDown } from "react-icons/fa6";
-
-// Debounce function to limit the rate at which a function can fire.
-const debounce = (func: (...args: any[]) => void, delay: number): ((...args: any[]) => void) => {
-  let timer: any;
-  return function (...args: any[]) {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      func.apply(this, args);
-    }, delay);
-  };
-};
+import { debounce } from "@/shared/utils/debounce";
 
 const ScrollToBottomButton = ({ messagesContainer }: any) => {
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -39,12 +27,12 @@ const ScrollToBottomButton = ({ messagesContainer }: any) => {
     const currentRef = messagesContainer.current;
     if (!currentRef) return;
 
-    currentRef.addEventListener("scroll", debouncedHandleScroll);
+    currentRef.addEventListener("scroll", debouncedHandleScroll.debouncedFunction);
 
     return () => {
-      currentRef.removeEventListener("scroll", debouncedHandleScroll);
+      currentRef.removeEventListener("scroll", debouncedHandleScroll.debouncedFunction);
     };
-  }, [debouncedHandleScroll, messagesContainer]);
+  }, [debouncedHandleScroll.debouncedFunction, messagesContainer]);
 
   // Handler to scroll to the bottom of the messages container.
   const scrollToBottomHandler = useCallback(() => {
@@ -58,7 +46,10 @@ const ScrollToBottomButton = ({ messagesContainer }: any) => {
   if (!showScrollButton) return null;
 
   return (
-    <button onClick={scrollToBottomHandler} className="btn btn-circle btn-primary fixed bottom-[160px] right-[30px]">
+    <button
+      onClick={scrollToBottomHandler}
+      className="btn btn-circle btn-primary fixed bottom-[160px] right-[30px]"
+    >
       <FaChevronDown size={23} color="#fff" />
     </button>
   );
