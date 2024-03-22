@@ -11,7 +11,7 @@ import { RiPencilFill } from "react-icons/ri";
 import { useForwardMessageModalStore } from "@/components/messages/components/ForwardMessageModal";
 import toast from "react-hot-toast";
 import { ContextMenu, MenuItem } from "@ui/ContextMenu";
-import { useStore } from "@stores/index";
+import { useStore, useAuthStore } from "@stores/index";
 
 export const MessageContextMenu = forwardRef<
   HTMLUListElement,
@@ -25,6 +25,7 @@ export const MessageContextMenu = forwardRef<
   );
   const setEditeMessageMemory = useStore((state) => state.setEditeMessageMemory);
   const setReplayMessageMemory = useStore((state) => state.setReplayMessageMemory);
+  const user = useAuthStore((state) => state.profile);
 
   if (!channelId) return null;
 
@@ -99,6 +100,11 @@ export const MessageContextMenu = forwardRef<
       onClickFn: () => handelDeleteMessage(),
     },
   ];
+
+  if (user && messageData.user_id !== user.id) {
+    delete messageButtonList[3];
+    delete messageButtonList[4];
+  }
 
   return (
     <ContextMenu className={className} parrentRef={parrentRef} ref={ref}>
