@@ -55,7 +55,7 @@ export default function ChannelList({ loading = false }) {
       )}
 
       <div
-        className="absolute right-0 top-0 h-full w-1 cursor-ew-resize select-none bg-base-300"
+        className="absolute right-0 top-0 h-full hover:bg-base-100 transition-all w-1 cursor-ew-resize select-none bg-base-300"
         onMouseDown={onMouseDown}
       />
     </div>
