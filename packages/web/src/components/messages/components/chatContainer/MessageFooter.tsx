@@ -38,14 +38,16 @@ const PinIndicator = ({ isPinned }: { isPinned?: boolean }) =>
 const EditedIndicator = ({ isEdited }: { isEdited?: boolean }) =>
   isEdited ? <span className="text-xs text-gray-300 text-opacity-50">edited</span> : null;
 
-const Timestamp = ({ time }: { time: string }) => <time className="whitespace-nowrap text-xs opacity-50">{time}</time>;
+const Timestamp = ({ time }: { time: string }) => (
+  <time className="whitespace-nowrap text-xs opacity-50">{time}</time>
+);
 
 const MessageFooter: React.FC<MessageFooterProps> = ({ data }) => {
   const countRepliedMessages = data.metadata?.replied?.length;
   const createdAt = formatDate(data.created_at);
 
   return (
-    <div className="chat-footer mt-1 flex items-center justify-end">
+    <div className="chat-footer mt-1 flex items-center justify-end gap-2">
       {data.reactions && <ReactionsCard reactions={data.reactions} message={data} />}
 
       <div className="flex shrink items-center gap-2">
