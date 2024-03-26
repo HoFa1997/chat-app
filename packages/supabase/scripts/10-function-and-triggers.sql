@@ -104,12 +104,12 @@ DECLARE
 BEGIN
     -- Iterate through each member of the channel, excluding the sender
     FOR channel_member IN
-        SELECT cm.member_id, cm.last_read_update 
+        SELECT cm.member_id, cm.last_read_update_at
         FROM public.channel_members cm 
         WHERE cm.channel_id = NEW.channel_id AND cm.member_id != NEW.user_id
     LOOP
         -- Increment unread message count if the new message was sent after the last read update
-        IF NEW.created_at > channel_member.last_read_update THEN
+        IF NEW.created_at > channel_member.last_read_update_at THEN
             UPDATE public.channel_members
             SET unread_message_count = unread_message_count + 1
             WHERE channel_id = NEW.channel_id AND member_id = channel_member.member_id;
@@ -815,7 +815,8 @@ RETURNS TABLE(
     pinned_messages JSONB,
     user_profile JSONB,
     is_user_channel_member BOOLEAN,
-    channel_member_info JSONB
+    channel_member_info JSONB,
+    total_messages_since_last_read INT
 ) AS $$
 DECLARE
     channel_result JSONB;
@@ -825,7 +826,34 @@ DECLARE
     user_data_result JSONB;
     is_member_result BOOLEAN;
     channel_member_info_result JSONB;
+    last_read_message_id VARCHAR(36);
+    last_read_message_timestamp TIMESTAMP WITH TIME ZONE;
 BEGIN
+
+ 
+-- Get the last_read_message_id for the current user in the channel
+    SELECT cm.last_read_message_id INTO last_read_message_id
+    FROM public.channel_members cm
+    WHERE cm.channel_id = input_channel_id AND cm.member_id = auth.uid();
+
+    -- Get the timestamp of the last read message
+    SELECT created_at INTO last_read_message_timestamp
+    FROM public.messages
+    WHERE id = last_read_message_id;
+
+
+    -- Count messages since the last read message and adjust message_limit
+    SELECT COUNT(*) INTO total_messages_since_last_read
+    FROM public.messages 
+    WHERE channel_id = input_channel_id 
+        AND created_at > COALESCE(last_read_message_timestamp, 'epoch')
+        AND deleted_at IS NULL;
+
+   IF total_messages_since_last_read >= message_limit THEN
+        message_limit := total_messages_since_last_read;
+    END IF;
+
+    
 
     -- Query for channel information
     SELECT json_build_object(
@@ -874,11 +902,23 @@ BEGIN
             END AS replied_message_details
         FROM public.messages m
         LEFT JOIN public.users u ON m.user_id = u.id
-        WHERE m.channel_id = input_channel_id AND m.deleted_at IS NULL
-        ORDER BY m.created_at DESC 
+        WHERE m.channel_id = input_channel_id
+            AND m.deleted_at IS NULL
+            AND (
+                CASE
+                    WHEN total_messages_since_last_read < 20 THEN TRUE
+                    ELSE m.created_at > COALESCE(last_read_message_timestamp, 'epoch')
+                END
+            )
+        ORDER BY m.created_at DESC
         LIMIT message_limit
     ) t;
 
+    IF total_messages_since_last_read <= 0 THEN
+            total_messages_since_last_read := message_limit;
+    END IF;
+        
+        
     -- Query for the count of channel members
     SELECT COUNT(*) INTO members_result
     FROM public.channel_members 
@@ -907,7 +947,7 @@ BEGIN
     -- Attempt to get channel member details
     SELECT json_build_object(
             'last_read_message_id', cm.last_read_message_id,
-            'last_read_update', cm.last_read_update,
+            'last_read_update_at', cm.last_read_update_at,
             'joined_at', cm.joined_at,
             'left_at', cm.left_at,
             'mute_in_app_notifications', cm.mute_in_app_notifications,
@@ -922,7 +962,7 @@ BEGIN
     is_member_result := (channel_member_info_result IS NOT NULL);
 
     -- Return the results including the user data
-    RETURN QUERY SELECT channel_result, messages_result, members_result, pinned_result, user_data_result, is_member_result, channel_member_info_result;
+    RETURN QUERY SELECT channel_result, messages_result, members_result, pinned_result, user_data_result, is_member_result, channel_member_info_result, total_messages_since_last_read;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1105,3 +1145,56 @@ AFTER UPDATE OF name ON public.channels
 FOR EACH ROW
 WHEN (OLD.name IS DISTINCT FROM NEW.name)
 EXECUTE FUNCTION public.notify_channel_name_change();
+
+
+CREATE OR REPLACE FUNCTION update_last_read_status()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Check if it's a message insert or delete operation
+    IF TG_OP = 'INSERT' THEN
+        -- Update last_read_message_id and last_read_update only for the user who sent the message
+        UPDATE public.channel_members
+        SET last_read_message_id = NEW.id,
+            last_read_update_at = timezone('utc', now())
+        WHERE channel_id = NEW.channel_id AND member_id = NEW.user_id;
+    ELSIF TG_OP = 'UPDATE' AND NEW.deleted_at IS NOT NULL THEN
+        -- If the message is soft-deleted, set last_read_message_id to null for this message
+        UPDATE public.channel_members
+        SET last_read_message_id = NULL
+        WHERE last_read_message_id = NEW.id;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Trigger for new message insertion
+CREATE TRIGGER trigger_update_on_new_message
+AFTER INSERT ON public.messages
+FOR EACH ROW
+EXECUTE FUNCTION update_last_read_status();
+
+-- Trigger for message update (soft deletion)
+CREATE TRIGGER trigger_update_on_message_delete
+AFTER UPDATE OF deleted_at ON public.messages
+FOR EACH ROW
+WHEN (OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL)
+EXECUTE FUNCTION update_last_read_status();
+
+
+
+CREATE OR REPLACE FUNCTION update_last_read_time()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD.last_read_message_id IS DISTINCT FROM NEW.last_read_message_id THEN
+        NEW.last_read_update_at := timezone('utc', now());
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_last_read_time
+BEFORE UPDATE ON public.channel_members
+FOR EACH ROW
+EXECUTE FUNCTION update_last_read_time();

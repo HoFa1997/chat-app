@@ -5,7 +5,7 @@ CREATE TABLE public.channel_members (
     channel_id            VARCHAR(36) NOT NULL REFERENCES public.channels ON DELETE CASCADE, -- The ID of the channel. If the channel is deleted, associated member records are also deleted.
     member_id             UUID NOT NULL REFERENCES public.users ON DELETE CASCADE, -- The ID of the channel member (user). If the user is deleted, their membership records are also deleted.
     last_read_message_id  VARCHAR(36) REFERENCES public.messages, -- The ID of the last message read by the user in the channel. Helps in tracking read status.
-    last_read_update      TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()), -- Timestamp when the user's last read status was updated.
+    last_read_update_at   TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()), -- Timestamp when the user's last read status was updated.
     joined_at             TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL, -- Timestamp when the user joined the channel.
     left_at               TIMESTAMP WITH TIME ZONE, -- Timestamp when the user left the channel.
     mute_in_app_notifications BOOLEAN DEFAULT false, -- Indicates if notifications are muted for the channel.
