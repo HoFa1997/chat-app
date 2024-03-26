@@ -2,9 +2,20 @@ import { useState, useEffect, MutableRefObject } from "react";
 import { groupedMessages } from "@utils/index";
 import { useStore } from "@stores/index";
 import { fetchMessagesPaginated } from "@/api";
+import { useFirstMsgCardObserver } from "./";
 
 const PAGE_SIZE = 20;
 const START_PAGE = 2;
+
+const adjustScrollPositionAfterLoadingMessages = (
+  messageContainerRef: MutableRefObject<HTMLElement | null>,
+  markedElement: HTMLElement | null,
+) => {
+  if (!messageContainerRef.current || !markedElement) return;
+
+  const newOffsetTop = markedElement.offsetTop;
+  messageContainerRef.current.scrollTop += newOffsetTop;
+};
 
 export const useInfiniteLoadMessages = (
   messageContainerRef: MutableRefObject<HTMLElement | null>,
@@ -24,9 +35,7 @@ export const useInfiniteLoadMessages = (
     if (!hasMoreMessages || !msgContainer) return;
     setIsLoadingMore(true);
 
-    // select first ".MessageCard" from msgContainer
-    const firstVisibleMessage = msgContainer.childNodes[1] as HTMLElement | null;
-    const prevTop = firstVisibleMessage ? firstVisibleMessage?.offsetTop : 0;
+    const currentTopElement = messageContainerRef.current?.firstChild;
 
     const pageMessages = await fetchMessagesPaginated({
       input_channel_id: channelId,
@@ -55,42 +64,23 @@ export const useInfiniteLoadMessages = (
       replaceMessages(channelId, updatedMessages);
       setCurrentPage(currentPage + 1);
 
-      // Adjust the scroll position
-      requestAnimationFrame(() => {
-        if (msgContainer && firstVisibleMessage) {
-          // stop scrolling
-          const date_chip = msgContainer.querySelector(".date_chip") as HTMLElement;
-          const currentTop = firstVisibleMessage.offsetTop + date_chip.offsetHeight;
-          msgContainer.scrollTop += currentTop - prevTop;
-
-          setIsLoadingMore(false);
-        }
-      });
+      adjustScrollPositionAfterLoadingMessages(messageContainerRef, currentTopElement);
+      setIsLoadingMore(false);
     } else {
       setHasMoreMessages(false);
     }
   };
 
+  const isVisible = useFirstMsgCardObserver(messageContainerRef, {
+    root: messageContainerRef.current,
+    rootMargin: "60px",
+    threshold: 1.0,
+  });
+
   useEffect(() => {
-    const currentRef = messageContainerRef.current;
-
-    const handleScroll = () => {
-      const current = messageContainerRef.current;
-
-      if (current) {
-        const isAtTop = current.scrollTop == 0;
-        if (isAtTop && current) {
-          loadMoreMessages();
-        }
-      }
-    };
-
-    currentRef?.addEventListener("scroll", handleScroll);
-
-    return () => {
-      currentRef?.removeEventListener("scroll", handleScroll);
-    };
-  }, [messageContainerRef.current, messages]);
+    if (!messageContainerRef) return;
+    if (isVisible) loadMoreMessages();
+  }, [isVisible, messageContainerRef]);
 
   return { isLoadingMore };
 };
