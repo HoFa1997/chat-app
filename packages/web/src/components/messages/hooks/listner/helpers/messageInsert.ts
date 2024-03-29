@@ -9,6 +9,7 @@ const getChannelMessages = (channelId: string): any => {
 export const messageInsert = (payload: any) => {
   const { channelId } = useStore.getState().workspaceSettings;
   const setOrUpdateMessage = useStore.getState().setOrUpdateMessage;
+  const setLastMessage = useStore.getState().setLastMessage;
   const usersPresence = useStore.getState().usersPresence;
 
   if (!channelId) return;
@@ -30,7 +31,10 @@ export const messageInsert = (payload: any) => {
   };
 
   // if there is no messages, just add the message
-  if (!messages) return setOrUpdateMessage(channelId, payload.new.id, newMessage);
+  if (!messages) {
+    setLastMessage(channelId, newMessage);
+    return setOrUpdateMessage(channelId, payload.new.id, newMessage);
+  }
 
   const msgs = [...getChannelMessages(channelId)?.values()];
 
@@ -39,7 +43,13 @@ export const messageInsert = (payload: any) => {
   const lastMessage1 = msgs.pop();
 
   // if the last message is from the same user, we need to group the messages
-  const newInstanceOfMessages = groupedMessages([lastMessage1, lastMessage0, newMessage]);
+  const newInstanceOfMessages = groupedMessages([
+    lastMessage1,
+    lastMessage0,
+    newMessage,
+  ]);
+
+  setLastMessage(channelId, newInstanceOfMessages.at(-1));
 
   setOrUpdateMessage(channelId, lastMessage0.id, newInstanceOfMessages.at(1));
   setOrUpdateMessage(channelId, newMessage.id, newInstanceOfMessages.at(2));
