@@ -1,20 +1,20 @@
 export function debounce<F extends (...args: any[]) => void>(
   func: F,
   waitFor: number,
-) {
-  let timeout: ReturnType<typeof setTimeout> | null = null;
+): { debouncedFunction: (...args: Parameters<F>) => void; cancel: () => void } {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
 
   const debouncedFunction = (...args: Parameters<F>) => {
-    if (timeout !== null) {
+    if (timeout !== undefined) {
       clearTimeout(timeout);
     }
     timeout = setTimeout(() => func(...args), waitFor);
   };
 
   const cancel = () => {
-    if (timeout !== null) {
+    if (timeout !== undefined) {
       clearTimeout(timeout);
-      timeout = null;
+      timeout = undefined;
     }
   };
 

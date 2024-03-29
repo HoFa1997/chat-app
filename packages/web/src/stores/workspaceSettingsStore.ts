@@ -1,8 +1,8 @@
 import { immer } from "zustand/middleware/immer";
 
 type WorkspaceSettings = {
-  workspaceId?: string | null | undefined;
-  channelId?: string | null | undefined;
+  workspaceId?: string | null;
+  channelId?: string | null;
   channelInfo?: any;
   isUserChannelMember?: boolean;
   isUserChannelOwner?: boolean;
@@ -13,6 +13,9 @@ type WorkspaceSettings = {
   editeMessageMemory?: any;
   forwardMessageMemory?: any;
   typingIndicators?: any;
+  unreadMessage?: boolean;
+  scrollPage?: number;
+  scrollPageOffset?: number;
 };
 
 export interface IWorkspaceSettingsStore {
@@ -39,6 +42,9 @@ const useWorkspaceSettingsStore = immer<IWorkspaceSettingsStore>((set) => ({
     editeMessageMemory: null,
     forwardMessageMemory: null,
     typingIndicators: {},
+    unreadMessage: false,
+    scrollPage: 2,
+    scrollPageOffset: 0,
   },
 
   // Update a single setting

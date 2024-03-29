@@ -12,26 +12,33 @@ export const useScrollAndLoad = (
   const [loading, setLoading] = useState<boolean>(msgLength === 0 ? false : true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const { channelId, userPickingEmoji } = useStore((state) => state.workspaceSettings);
+  const { channelId, userPickingEmoji, unreadMessage } = useStore(
+    (state) => state.workspaceSettings,
+  );
   const messagesByChannel = useStore((state: any) => state.messagesByChannel);
   const messages = messagesByChannel.get(channelId);
 
   const scrollToBottom = useCallback(
     (options: ScrollIntoViewOptions = {}) => {
       if (userPickingEmoji) return;
+
+      // If there is an unread message, no need to scroll to the bottom.
+      if (unreadMessage) {
+        setLoading(false);
+        return;
+      }
+
       if (messagesEndRef.current) {
         if (options.behavior === "smooth") {
           messagesEndRef.current.scrollIntoView({
             behavior: "smooth",
-            block: "end",
-            inline: "end",
           });
         } else {
           messagesEndRef.current.scrollIntoView(false);
         }
       }
     },
-    [messagesEndRef],
+    [messagesEndRef, unreadMessage],
   );
 
   const checkIfScrolledToBottom = () => {
@@ -72,12 +79,12 @@ export const useScrollAndLoad = (
         scrollToBottom();
       } else if (isUserCloseToBottom()) {
         // If not loading and user is close to the bottom, scroll smoothly.
-        scrollToBottom({ behavior: "smooth", block: "end", inline: "end" });
+        scrollToBottom({ behavior: "smooth" });
       }
     };
 
     // Use a timer to defer scrolling until the new messages are rendered.
-    const timer = setTimeout(handleScrollToBottom, 100);
+    const timer = setTimeout(handleScrollToBottom, 300);
 
     return () => clearTimeout(timer);
   }, [messages, initialMessagesLoaded, loading, channelId]);

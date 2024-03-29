@@ -1,7 +1,9 @@
 import { immer } from "zustand/middleware/immer";
 import { Database } from "@/types/supabase";
 
-export type TChannel = Database["public"]["Tables"]["channels"]["Row"] & { member_count: number | null };
+export type TChannel = Database["public"]["Tables"]["channels"]["Row"] & {
+  member_count: number | null;
+};
 
 export interface IChannelStore {
   channels: Map<string, TChannel>;

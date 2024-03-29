@@ -13,12 +13,13 @@ export const useChannelInitialData = (setError: (error: any) => void): UseChanne
   const [msgLength, setMsgLength] = useState<number>(0);
 
   const bulkSetChannelPinnedMessages = useStore((state: any) => state.bulkSetChannelPinnedMessages);
-  const bulkSetMessages = useStore((state: any) => state.bulkSetMessages);
-  const { channelId } = useStore((state: any) => state.workspaceSettings);
-  const setWorkspaceSetting = useStore((state: any) => state.setWorkspaceSetting);
-  const setOrUpdateChannel = useStore((state: any) => state.setOrUpdateChannel);
-  const currentChannel = useStore((state: any) => state.channels.get(channelId));
-  const bulkSetChannelMembers = useStore((state: any) => state.bulkSetChannelMembers);
+  const bulkSetMessages = useStore((state) => state.bulkSetMessages);
+  const channelId = useStore((state) => state.workspaceSettings.channelId as string);
+  const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
+  const setLastMessage = useStore((state) => state.setLastMessage);
+  const setOrUpdateChannel = useStore((state) => state.setOrUpdateChannel);
+  const currentChannel = useStore((state) => state.channels.get(channelId));
+  const addChannelMember = useStore((state) => state.addChannelMember);
 
   const processChannelData = async (channelId: string) => {
     const { data: channelData, error: channelError } = await fetchChannelInitialData({
@@ -27,6 +28,12 @@ export const useChannelInitialData = (setError: (error: any) => void): UseChanne
     });
 
     if (channelError) throw new Error(channelError.message);
+
+    // @ts-ignore
+    setWorkspaceSetting("scrollPageOffset", channelData?.total_messages_since_last_read);
+
+    // @ts-ignore
+    setWorkspaceSetting("unreadMessage", channelData?.unread_message);
 
     updateChannelState(channelData);
   };
@@ -51,10 +58,16 @@ export const useChannelInitialData = (setError: (error: any) => void): UseChanne
 
   const updateChannelState = (channelData: any) => {
     if (channelData.member_count) {
+      // @ts-ignore
       setOrUpdateChannel(channelId, { ...currentChannel, member_count: channelData.member_count });
     }
 
-    bulkSetChannelMembers(channelId, channelData.channel_members || []);
+    if (channelData.channel_member_info) {
+      addChannelMember(channelId, {
+        ...channelData.channel_member_info,
+        id: channelData.user_profile.id,
+      });
+    }
 
     if (channelData.is_user_channel_member) {
       setWorkspaceSetting("isUserChannelMember", channelData.is_user_channel_member);
@@ -70,6 +83,8 @@ export const useChannelInitialData = (setError: (error: any) => void): UseChanne
 
     if (channelData.last_messages) {
       const newMessages = groupedMessages(channelData.last_messages.reverse());
+      const lastMessage = newMessages.at(-1);
+      setLastMessage(channelId, lastMessage);
       bulkSetMessages(channelId, newMessages);
       setMsgLength(newMessages.length);
     } else {

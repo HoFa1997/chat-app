@@ -2,10 +2,8 @@ import { useState, useEffect, MutableRefObject } from "react";
 import { groupedMessages } from "@utils/index";
 import { useStore } from "@stores/index";
 import { fetchMessagesPaginated } from "@/api";
-import { useFirstMsgCardObserver } from "./";
 
 const PAGE_SIZE = 20;
-const START_PAGE = 2;
 
 const adjustScrollPositionAfterLoadingMessages = (
   messageContainerRef: MutableRefObject<HTMLElement | null>,
@@ -20,12 +18,15 @@ const adjustScrollPositionAfterLoadingMessages = (
 export const useInfiniteLoadMessages = (
   messageContainerRef: MutableRefObject<HTMLElement | null>,
 ) => {
-  const [currentPage, setCurrentPage] = useState<number>(START_PAGE);
   const [hasMoreMessages, setHasMoreMessages] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
-  const { channelId } = useStore((state: any) => state.workspaceSettings);
-
+  const {
+    channelId,
+    scrollPage: currentPage,
+    scrollPageOffset,
+  } = useStore((state: any) => state.workspaceSettings);
+  const setWorkspaceSetting = useStore((state: any) => state.setWorkspaceSetting);
   const replaceMessages = useStore((state: any) => state.replaceMessages);
   const messagesByChannel = useStore((state: any) => state.messagesByChannel);
   const messages = messagesByChannel.get(channelId);
@@ -35,12 +36,12 @@ export const useInfiniteLoadMessages = (
     if (!hasMoreMessages || !msgContainer) return;
     setIsLoadingMore(true);
 
-    const currentTopElement = messageContainerRef.current?.firstChild;
+    const currentTopElement = messageContainerRef.current?.firstChild as HTMLElement;
 
     const pageMessages = await fetchMessagesPaginated({
       input_channel_id: channelId,
       page: currentPage,
-      page_size: PAGE_SIZE,
+      page_size: scrollPageOffset,
     });
 
     // If there are no messages, stop loading more
@@ -62,7 +63,8 @@ export const useInfiniteLoadMessages = (
       const updatedMessages: Map<string, any> = new Map([...newMessagesMap, ...messages]);
 
       replaceMessages(channelId, updatedMessages);
-      setCurrentPage(currentPage + 1);
+      setWorkspaceSetting("scrollPage", currentPage + 1);
+      setWorkspaceSetting("scrollPageOffset", scrollPageOffset + PAGE_SIZE);
 
       adjustScrollPositionAfterLoadingMessages(messageContainerRef, currentTopElement);
       setIsLoadingMore(false);
@@ -71,16 +73,26 @@ export const useInfiniteLoadMessages = (
     }
   };
 
-  const isVisible = useFirstMsgCardObserver(messageContainerRef, {
-    root: messageContainerRef.current,
-    rootMargin: "60px",
-    threshold: 1.0,
-  });
-
   useEffect(() => {
-    if (!messageContainerRef) return;
-    if (isVisible) loadMoreMessages();
-  }, [isVisible, messageContainerRef]);
+    const currentRef = messageContainerRef.current;
+
+    const handleScroll = () => {
+      const current = messageContainerRef.current;
+
+      if (current) {
+        const isAtTop = current.scrollTop == 0;
+        if (isAtTop && current) {
+          loadMoreMessages();
+        }
+      }
+    };
+
+    currentRef?.addEventListener("scroll", handleScroll);
+
+    return () => {
+      currentRef?.removeEventListener("scroll", handleScroll);
+    };
+  }, [messageContainerRef.current, messages]);
 
   return { isLoadingMore };
 };

@@ -29,8 +29,15 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
   const cardRef = useRef(null);
 
   useEffect(() => {
-    if (ref) ref.current = cardRef.current;
-  }, [ref]);
+    if (ref) {
+      ref.current = cardRef.current;
+    }
+    // Attach the data.id to the cardRef directly
+    if (cardRef.current) {
+      cardRef.current.msgId = data.id;
+      cardRef.current.readedAt = data.readed_at;
+    }
+  }, [ref, data]);
 
   const handleAvatarClick = () => {
     // Assuming data contains user information

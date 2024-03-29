@@ -14,6 +14,10 @@ export default function LoginForm() {
         provider,
         options: {
           // redirectTo: process.env.NEXT_PUBLIC_AUTH_REDIRECT_TO,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
         },
       });
       // set loading true untile the redirect to login

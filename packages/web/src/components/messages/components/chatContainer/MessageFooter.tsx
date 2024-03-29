@@ -2,6 +2,9 @@ import React from "react";
 import { CgMailReply } from "react-icons/cg";
 import { TbPinnedFilled } from "react-icons/tb";
 import ReactionsCard from "./ReactionsCard";
+import { IoCheckmarkSharp } from "react-icons/io5";
+import { IoCheckmarkDoneSharp } from "react-icons/io5";
+import { useAuthStore } from "@/stores";
 
 interface MessageFooterProps {
   data: {
@@ -38,9 +41,19 @@ const PinIndicator = ({ isPinned }: { isPinned?: boolean }) =>
 const EditedIndicator = ({ isEdited }: { isEdited?: boolean }) =>
   isEdited ? <span className="text-xs text-gray-300 text-opacity-50">edited</span> : null;
 
-const Timestamp = ({ time }: { time: string }) => (
-  <time className="whitespace-nowrap text-xs opacity-50">{time}</time>
-);
+const Timestamp = ({ time, readed_at }: { time: string; readed_at: Date }) => {
+  const user = useAuthStore.getState().profile;
+
+  return (
+    <div className="bg-base-100 flex space-x-1 bg-opacity-10 px-1 rounded">
+      <time className="whitespace-nowrap text-xs opacity-50">{time}</time>
+      <div>
+        {!readed_at ? <IoCheckmarkSharp className="h-4 w-4 text-gray-300" /> : null}
+        {readed_at ? <IoCheckmarkDoneSharp className="h-4 w-4 text-gray-300" /> : null}
+      </div>
+    </div>
+  );
+};
 
 const MessageFooter: React.FC<MessageFooterProps> = ({ data }) => {
   const countRepliedMessages = data.metadata?.replied?.length;
@@ -54,7 +67,7 @@ const MessageFooter: React.FC<MessageFooterProps> = ({ data }) => {
         <ReplyIndicator count={countRepliedMessages} />
         <PinIndicator isPinned={data.metadata?.pinned} />
         <EditedIndicator isEdited={!!data.edited_at} />
-        <Timestamp time={createdAt} />
+        <Timestamp time={createdAt} readed_at={data.readed_at} />
       </div>
     </div>
   );

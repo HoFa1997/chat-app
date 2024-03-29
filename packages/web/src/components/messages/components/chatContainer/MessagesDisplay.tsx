@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import MessageCard from "./MessageCard";
 import { format, isSameDay, parseISO } from "date-fns";
 import { useStore } from "@stores/index";
+import { useCheckReadMessage } from "../../hooks";
 
 interface MessagesDisplayProps {
   messageContainerRef: React.RefObject<HTMLDivElement>;
@@ -50,10 +51,28 @@ const generateMessageElements = (
   selectedEmoji: string,
 ) => {
   const messagesArray = Array.from(messages.values());
+  const unreadMessage = useStore.getState().workspaceSettings.unreadMessage;
+  const scrollPage = useStore.getState().workspaceSettings.scrollPage;
+
   return messagesArray.flatMap((message, index, array) => {
     const elements = [];
+
+    if (unreadMessage && index === 0 && scrollPage === 2) {
+      elements.push(
+        <div key={index + "1"} className="divider my-2 w-full p-4">
+          Unread messages
+        </div>,
+      );
+    }
+
     if (index === 0 || isNewDay(message.created_at, array[index - 1]?.created_at)) {
-      elements.push(<DateChip key={message.created_at} date={message.created_at} isScrollingUp={isScrollingUp} />);
+      elements.push(
+        <DateChip
+          key={message.created_at}
+          date={message.created_at}
+          isScrollingUp={isScrollingUp}
+        />,
+      );
     }
 
     if (message.type === "notification") {
@@ -84,30 +103,28 @@ export const MessagesDisplay: React.FC<MessagesDisplayProps> = ({
   const [isScrollingUp, setIsScrollingUp] = useState(false);
   const lastScrollTop = useRef(0);
   const { channelId } = useStore((state: any) => state.workspaceSettings);
-  const messagesByChannel = useStore((state: any) => state.messagesByChannel);
-  const messages = messagesByChannel.get(channelId) as Map<string, any>;
+  const messages = useStore((state: any) => state.messagesByChannel.get(channelId));
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollTop = messageContainerRef.current?.scrollTop || 0;
-      setIsScrollingUp(currentScrollTop < lastScrollTop.current);
-      lastScrollTop.current = currentScrollTop;
-    };
-
-    const currentRef = messageContainerRef.current;
-    currentRef?.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => currentRef?.removeEventListener("scroll", handleScroll);
-  }, [messageContainerRef]);
+  // mark as read message
+  useCheckReadMessage({ messageContainerRef, channelId, messages });
 
   if (!messages || messages.size === 0) {
     return <NoMessagesDisplay />;
   }
 
   return (
-    <div className="relative flex w-full grow flex-col overflow-y-auto px-10 pt-1" ref={messageContainerRef}>
+    <div
+      className="relative msg_wrapper flex w-full grow flex-col overflow-y-auto px-10 pt-1"
+      ref={messageContainerRef}
+    >
       {isLoadingMore && <LoadingSpinner />}
-      {generateMessageElements(messages, isScrollingUp, messagesEndRef, toggleEmojiPicker, selectedEmoji)}
+      {generateMessageElements(
+        messages,
+        isScrollingUp,
+        messagesEndRef,
+        toggleEmojiPicker,
+        selectedEmoji,
+      )}
     </div>
   );
 };

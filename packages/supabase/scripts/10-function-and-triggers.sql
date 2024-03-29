@@ -806,7 +806,7 @@ FOR EACH ROW EXECUTE FUNCTION update_message_metadata_on_unpin();
 
 CREATE OR REPLACE FUNCTION get_channel_aggregate_data(
     input_channel_id VARCHAR(36),
-    message_limit INT DEFAULT 20 -- New parameter with default value
+    message_limit INT DEFAULT 20
 )
 RETURNS TABLE(
     channel_info JSONB,
@@ -816,7 +816,8 @@ RETURNS TABLE(
     user_profile JSONB,
     is_user_channel_member BOOLEAN,
     channel_member_info JSONB,
-    total_messages_since_last_read INT
+    total_messages_since_last_read INT,
+    unread_message BOOLEAN
 ) AS $$
 DECLARE
     channel_result JSONB;
@@ -828,8 +829,8 @@ DECLARE
     channel_member_info_result JSONB;
     last_read_message_id VARCHAR(36);
     last_read_message_timestamp TIMESTAMP WITH TIME ZONE;
+    unread_message BOOLEAN := FALSE;
 BEGIN
-
  
 -- Get the last_read_message_id for the current user in the channel
     SELECT cm.last_read_message_id INTO last_read_message_id
@@ -841,7 +842,6 @@ BEGIN
     FROM public.messages
     WHERE id = last_read_message_id;
 
-
     -- Count messages since the last read message and adjust message_limit
     SELECT COUNT(*) INTO total_messages_since_last_read
     FROM public.messages 
@@ -851,9 +851,8 @@ BEGIN
 
    IF total_messages_since_last_read >= message_limit THEN
         message_limit := total_messages_since_last_read;
+        unread_message := TRUE;
     END IF;
-
-    
 
     -- Query for channel information
     SELECT json_build_object(
@@ -915,9 +914,8 @@ BEGIN
     ) t;
 
     IF total_messages_since_last_read <= 0 THEN
-            total_messages_since_last_read := message_limit;
+        total_messages_since_last_read := message_limit;
     END IF;
-        
         
     -- Query for the count of channel members
     SELECT COUNT(*) INTO members_result
@@ -962,7 +960,7 @@ BEGIN
     is_member_result := (channel_member_info_result IS NOT NULL);
 
     -- Return the results including the user data
-    RETURN QUERY SELECT channel_result, messages_result, members_result, pinned_result, user_data_result, is_member_result, channel_member_info_result, total_messages_since_last_read;
+    RETURN QUERY SELECT channel_result, messages_result, members_result, pinned_result, user_data_result, is_member_result, channel_member_info_result, total_messages_since_last_read, unread_message;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1198,3 +1196,87 @@ CREATE TRIGGER trigger_update_last_read_time
 BEFORE UPDATE ON public.channel_members
 FOR EACH ROW
 EXECUTE FUNCTION update_last_read_time();
+
+-- p_message_id =: is the last message inserted in the channel
+CREATE OR REPLACE FUNCTION mark_messages_as_read(p_channel_id VARCHAR(36), p_message_id VARCHAR(36))
+RETURNS VOID AS $$
+DECLARE
+    target_timestamp TIMESTAMP WITH TIME ZONE;
+BEGIN
+    -- Get the timestamp of the specified message
+    SELECT created_at INTO target_timestamp
+    FROM public.messages
+    WHERE id = p_message_id;
+
+    -- Check if the target_timestamp is valid (non-NULL)
+    IF target_timestamp IS NOT NULL THEN
+        -- Update readed_at for messages in the channel not sent by the current user
+        UPDATE public.messages
+        SET readed_at = now()
+        WHERE channel_id = p_channel_id
+          AND user_id != auth.uid()
+          AND created_at <= target_timestamp
+          AND readed_at IS NULL;
+
+        -- Update the last_read_message_id for the current user in the channel_members table
+        UPDATE public.channel_members
+        SET last_read_message_id = p_message_id, last_read_update_at = now()
+        WHERE channel_id = p_channel_id
+          AND member_id = auth.uid();
+    END IF;
+END;
+$$ LANGUAGE plpgsql VOLATILE SECURITY DEFINER;
+
+
+-- TODO: Revise
+-- CREATE OR REPLACE FUNCTION update_message_reads(last_message_id VARCHAR(36), channel_id VARCHAR(36))
+-- RETURNS VOID AS $$
+-- DECLARE
+--     current_user_id VARCHAR(36) := auth.uid(); -- Get current user's ID
+--     last_read_timestamp TIMESTAMP WITH TIME ZONE;
+--     last_message_timestamp TIMESTAMP WITH TIME ZONE;
+--     messages_to_read VARCHAR(36)[]; -- Array to hold message IDs for batch insertion
+-- BEGIN
+--     -- Retrieve the timestamp of the last read message for the current user in the specified channel
+--     SELECT created_at INTO last_read_timestamp
+--     FROM public.messages
+--     WHERE id = (SELECT last_read_message_id
+--                 FROM public.channel_members
+--                 WHERE channel_id = channel_id AND member_id = current_user_id);
+
+--     -- Retrieve the timestamp of the last_message_id
+--     SELECT created_at INTO last_message_timestamp
+--     FROM public.messages
+--     WHERE id = last_message_id;
+
+--     -- Check if both timestamps are valid (non-NULL)
+--     IF last_read_timestamp IS NOT NULL AND last_message_timestamp IS NOT NULL THEN
+--         -- Collect message IDs for messages sent after the last read message and up to the last_message_id
+--         SELECT array_agg(id) INTO messages_to_read
+--         FROM public.messages
+--         WHERE channel_id = channel_id
+--           AND user_id != current_user_id
+--           AND created_at > last_read_timestamp
+--           AND created_at <= last_message_timestamp
+--         ORDER BY created_at;
+
+--         -- Perform batch insertion into message_reads table
+--         INSERT INTO public.message_reads (channel_id, message_id, reader_id, read_at)
+--         SELECT channel_id, unnest(messages_to_read), current_user_id, now()
+--         FROM unnest(messages_to_read)
+--         ON CONFLICT (channel_id, message_id, reader_id) DO NOTHING; -- Avoid duplicates
+--     END IF;
+-- END;
+-- $$ LANGUAGE plpgsql VOLATILE SECURITY DEFINER;
+
+
+-- TODO: Revise
+-- CREATE TABLE public.message_reads (
+--     channel_id           VARCHAR(36) NOT NULL REFERENCES public.channels ON DELETE CASCADE,
+--     message_id           VARCHAR(36) NOT NULL REFERENCES public.messages ON DELETE CASCADE,
+--     reader_id            UUID NOT NULL REFERENCES public.users ON DELETE CASCADE,
+--     read_at              TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL,
+--     PRIMARY KEY (channel_id, message_id, reader_id)
+-- );
+
+-- CREATE INDEX idx_message_reads_channel_id_message_id ON public.message_reads (channel_id, message_id);

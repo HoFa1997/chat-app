@@ -1,8 +1,10 @@
 import { supabaseClient } from "@shared/utils";
 import { Database } from "@/types/supabase";
 
-type TAgChannelDataArg = Database["public"]["Functions"]["get_channel_aggregate_data"]["Args"];
-type TAgChannelDataReturn = Database["public"]["Functions"]["get_channel_aggregate_data"]["Returns"][0];
+type TAgChannelDataArg =
+  Database["public"]["Functions"]["get_channel_aggregate_data"]["Args"];
+type TAgChannelDataReturn =
+  Database["public"]["Functions"]["get_channel_aggregate_data"]["Returns"][0];
 
 export const fetchChannelInitialData = (arg: TAgChannelDataArg) =>
   supabaseClient
@@ -11,4 +13,7 @@ export const fetchChannelInitialData = (arg: TAgChannelDataArg) =>
       message_limit: arg.message_limit || 20,
     })
     .single()
-    .then((res) => ({ data: res.data as TAgChannelDataReturn, error: res.error }));
+    .then((res) => ({
+      data: res.data as TAgChannelDataReturn,
+      error: res.error,
+    }));
