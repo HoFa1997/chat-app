@@ -15,6 +15,7 @@ interface MessageFooterProps {
     edited_at?: string;
     created_at: string;
     reactions?: any;
+    readed_at: Date;
   };
 }
 

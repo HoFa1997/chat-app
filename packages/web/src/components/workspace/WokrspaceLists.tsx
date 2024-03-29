@@ -48,7 +48,7 @@ const WorkspaceLists = () => {
 
   useEffect(() => {
     if (reqResponse) {
-      bulkSetWorkspaces(reqResponse);
+      bulkSetWorkspaces(reqResponse as any);
     }
   }, [reqResponse]);
 

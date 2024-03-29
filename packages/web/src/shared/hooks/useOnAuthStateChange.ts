@@ -37,7 +37,7 @@ export const useOnAuthStateChange = () => {
         event === "USER_UPDATED"
       ) {
         if (!session?.user) return;
-        const user = useAuthStore.getState().session?.user;
+        const user = useAuthStore.getState().profile;
         if (user?.id !== session?.user?.id) {
           useAuthStore.getState().setSession(session?.user || null);
           if (session?.user) getUserProfile(session?.user);

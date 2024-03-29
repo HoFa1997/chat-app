@@ -1,5 +1,5 @@
 import { supabaseClient } from "@shared/utils";
-import { PostgrestResponse } from "@supabase/postgrest-js";
+import { PostgrestResponse } from "@supabase/supabase-js";
 import { Database } from "@/types/supabase";
 
 export type TMessageInsert = Database["public"]["Tables"]["messages"]["Insert"];

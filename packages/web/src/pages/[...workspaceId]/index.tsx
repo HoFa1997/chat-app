@@ -55,20 +55,21 @@ export async function getServerSideProps(context: any) {
   const channelId = context.params?.workspaceId.at(1) || null;
 
   const supabase = createPagesServerClient(context);
-  let channels;
+  let channels = [];
 
   try {
     const { data, error } = await supabase.auth.getSession();
     if (error) throw error;
     if (data.session?.user) {
-      channels = await getChannels(workspaceId);
+      const { data } = await getChannels(workspaceId);
+      channels = data || [];
     }
 
     return {
       props: {
         workspaceId,
         channelId,
-        channels: channels.data,
+        channels,
       },
     };
   } catch (error: any) {

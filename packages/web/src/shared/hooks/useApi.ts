@@ -1,8 +1,14 @@
-import { useState, useCallback, useEffect } from "react";
-import { PostgrestResponse, PostgrestError, PostgrestSingleResponse } from "@supabase/postgrest-js";
+import { useCallback, useEffect, useState } from "react";
+import {
+  PostgrestError,
+  PostgrestResponse,
+  PostgrestSingleResponse,
+} from "@supabase/supabase-js";
 
 // Define a generic type for the API function
-type ApiFunction<TData> = (...args: any) => Promise<PostgrestResponse<TData> | PostgrestSingleResponse<TData>>;
+type ApiFunction<TData> = (
+  ...args: any
+) => Promise<PostgrestResponse<TData> | PostgrestSingleResponse<TData>>;
 
 // Use generic types to make the hook flexible for different data and error types
 export const useApi = <TData = unknown, TError = PostgrestError>(

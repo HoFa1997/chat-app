@@ -1,11 +1,13 @@
 import { supabaseClient } from "@shared/utils";
 import { Database } from "@/types/supabase";
-import { PostgrestResponse } from "@supabase/postgrest-js";
+import { PostgrestResponse } from "@supabase/supabase-js";
 
 export type TChannel = Database["public"]["Tables"]["channels"]["Row"];
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getChannels = async (workspaceId: string): Promise<PostgrestResponse<any>> => {
+export const getChannels = async (
+  workspaceId: string,
+): Promise<PostgrestResponse<any>> => {
   return supabaseClient
     .from("channels")
     .select("*")
@@ -16,7 +18,10 @@ export const getChannels = async (workspaceId: string): Promise<PostgrestRespons
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getChannelById = async (channelId: string, workspaceId: string): Promise<PostgrestResponse<any>> => {
+export const getChannelById = async (
+  channelId: string,
+  workspaceId: string,
+): Promise<PostgrestResponse<any>> => {
   return (
     supabaseClient
       .from("channels")
