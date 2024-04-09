@@ -8,6 +8,6 @@ SELECT cron.schedule(
     $$ 
     UPDATE public.users
     SET status = 'OFFLINE'
-    WHERE last_seen_at < NOW() - INTERVAL '5 minutes' AND status = 'ONLINE';
+    WHERE online_at < NOW() - INTERVAL '5 minutes' AND status = 'ONLINE';
     $$ 
 );

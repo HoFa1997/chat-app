@@ -16,7 +16,7 @@ CREATE TABLE public.users (
     company     TEXT NULL,
     about       TEXT,               -- Brief description or bio of the user.
     CONSTRAINT username_length CHECK (char_length(username) >= 3), -- Ensures that usernames are at least 3 characters long.
-    last_seen_at TIMESTAMP WITH TIME ZONE  -- Timestamp of the last time the user was seen online.
+    online_at TIMESTAMP WITH TIME ZONE  -- Timestamp of the last time the user was seen online.
 );
 
 COMMENT ON TABLE public.users IS 'Profile data for each user, including identification, personal info, and system timestamps.';
