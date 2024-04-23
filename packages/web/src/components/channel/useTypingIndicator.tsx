@@ -15,6 +15,7 @@ const getDisplayText = (users: any, dataMsg: string) => {
 
 const updateIndicator = (channelId: string, typingIndicator: Map<string, any>) => {
   const users = Array.from(typingIndicator.values());
+  // this way is better than to render, better performance
   const elIndicator = document?.querySelector(`ul.channleList [id="${channelId}"] .msgIndicator`);
   const dataMsg = elIndicator?.getAttribute("data-msg") || "";
 

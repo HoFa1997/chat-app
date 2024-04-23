@@ -4,7 +4,18 @@ import { useEffect } from "react";
 
 const useServiceWorker = () => {
   useEffect(() => {
-    if (typeof window !== "undefined" && "serviceWorker" in navigator && window.workbox !== undefined) {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .then((registration) => console.log("scope is: ", registration.scope));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" && "serviceWorker" in navigator &&
+      window.workbox !== undefined
+    ) {
       const wb = window.workbox;
 
       // Add event listeners

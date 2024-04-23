@@ -1,3 +1,4 @@
+import { data } from "@emoji-mart/data/sets/14/native.json";
 import { immer } from "zustand/middleware/immer";
 
 type WorkspaceSettings = {
@@ -16,11 +17,14 @@ type WorkspaceSettings = {
   unreadMessage?: boolean;
   scrollPage?: number;
   scrollPageOffset?: number;
+  lastReadMessageId?: string | null;
+  lastReadMessageTimestamp: data;
+  totalMsgSincLastRead?: number;
 };
 
 export interface IWorkspaceSettingsStore {
   workspaceSettings: WorkspaceSettings;
-  setWorkspaceSetting: (key: string, value: any) => void;
+  setWorkspaceSetting: (key: keyof WorkspaceSettings, value: any) => void;
   setWorkspaceSettings: (settings: WorkspaceSettings) => void;
   setReplayMessageMemory: (message: any) => void;
   setEditeMessageMemory: (message: any) => void;
@@ -45,6 +49,9 @@ const useWorkspaceSettingsStore = immer<IWorkspaceSettingsStore>((set) => ({
     unreadMessage: false,
     scrollPage: 2,
     scrollPageOffset: 0,
+    lastReadMessageId: null,
+    lastReadMessageTimestamp: null,
+    totalMsgSincLastRead: 0,
   },
 
   // Update a single setting

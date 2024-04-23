@@ -5,18 +5,24 @@ import ReactionsCard from "./ReactionsCard";
 import { IoCheckmarkSharp } from "react-icons/io5";
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import { useAuthStore } from "@/stores";
+import { BiSolidMessageDetail } from "react-icons/bi";
 
 interface MessageFooterProps {
   data: {
     metadata?: {
       replied?: string[];
       pinned?: boolean;
+      thread?: {
+        message_count: number;
+      };
     };
+    is_thread_root: boolean;
     edited_at?: string;
     created_at: string;
     reactions?: any;
     readed_at: Date;
   };
+  inThread: boolean;
 }
 
 // Helper function to format date
@@ -56,7 +62,17 @@ const Timestamp = ({ time, readed_at }: { time: string; readed_at: Date }) => {
   );
 };
 
-const MessageFooter: React.FC<MessageFooterProps> = ({ data }) => {
+const ThreadIndicator = ({ count }: { count: number | null }) => {
+  if (!count) return;
+  return (
+    <div className="flex items-center bg-base-100 bg-opacity-10 px-1 rounded space-x-1 justify-between">
+      <BiSolidMessageDetail className="h-4 w-4 text-gray-300" />
+      {count && <span className="whitespace-nowrap text-xs opacity-100 pb-[3px]">{count}</span>}
+    </div>
+  );
+};
+
+const MessageFooter: React.FC<MessageFooterProps> = ({ data, inThread }) => {
   const countRepliedMessages = data.metadata?.replied?.length;
   const createdAt = formatDate(data.created_at);
 
@@ -70,6 +86,9 @@ const MessageFooter: React.FC<MessageFooterProps> = ({ data }) => {
         <EditedIndicator isEdited={!!data.edited_at} />
         <Timestamp time={createdAt} readed_at={data.readed_at} />
       </div>
+      {data.is_thread_root && (
+        <ThreadIndicator count={data.metadata?.thread?.message_count ?? null} />
+      )}
     </div>
   );
 };

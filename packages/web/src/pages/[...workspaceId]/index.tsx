@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import { useStore } from "@stores/index";
-import { getChannels } from "@/api";
+import { getChannels, getChannelsByWorkspaceAndUserids } from "@/api";
 import MainLayout from "@/components/layouts/MainLayout";
 import { createPagesServerClient } from "@supabase/auth-helpers-nextjs";
 import MessageContainer from "@/components/messages/MessageContainer";
 import { UserProfileModal } from "@/components/messages/components/UserProfileModal";
 import ForwardMessageModal from "@/components/messages/components/ForwardMessageModal";
+import { supabaseClient } from "@shared/utils";
 
 type TWorkspacePageProp = {
   workspaceId: string;
@@ -16,9 +17,6 @@ type TWorkspacePageProp = {
 export default function WorkspacesPage({ workspaceId, channelId, channels }: TWorkspacePageProp) {
   const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
   const clearAndInitialChannels = useStore((state) => state.clearAndInitialChannels);
-  const setReplayMessageMemory = useStore((state) => state.setReplayMessageMemory);
-  const setEditeMessageMemory = useStore((state) => state.setEditeMessageMemory);
-  const setForwardMessageMemory = useStore((state) => state.setForwardMessageMemory);
 
   useEffect(() => {
     if (!workspaceId) return;
@@ -33,9 +31,9 @@ export default function WorkspacesPage({ workspaceId, channelId, channels }: TWo
   // clear replay message and edite message state when channel change
   useEffect(() => {
     if (!channelId) return;
-    setReplayMessageMemory(null);
-    setEditeMessageMemory(null);
-    setForwardMessageMemory(null);
+    useStore.getState().setForwardMessageMemory(null);
+    useStore.getState().setEditeMessageMemory(null);
+    useStore.getState().setReplayMessageMemory(null);
     setWorkspaceSetting("channelId", channelId);
   }, [channelId]);
 
@@ -58,11 +56,20 @@ export async function getServerSideProps(context: any) {
   let channels = [];
 
   try {
-    const { data, error } = await supabase.auth.getSession();
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+
     if (error) throw error;
-    if (data.session?.user) {
-      const { data } = await getChannels(workspaceId);
-      channels = data || [];
+    if (session?.user) {
+      const workspaceChannels = await getChannelsByWorkspaceAndUserids(
+        workspaceId,
+        session.user.id,
+      );
+
+      //@ts-ignore
+      channels = workspaceChannels.data.map((x) => ({ ...x, ...x.workspace })) || []; //data || [];
     }
 
     return {

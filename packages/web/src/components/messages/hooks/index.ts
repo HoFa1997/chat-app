@@ -6,3 +6,4 @@ export * from "./useCustomEventHandler";
 export * from "./useInfiniteLoadMessages";
 export * from "./useViewportObserver";
 export * from "./useCheckReadMessage";
+export * from "./useChatContainerResizeHandler";

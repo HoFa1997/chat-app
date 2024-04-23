@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FaChevronDown } from "react-icons/fa6";
-import { debounce } from "@/shared/utils/debounce";
+import debounce from "lodash/debounce";
 
 const ScrollToBottomButton = ({ messagesContainer }: any) => {
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -27,12 +27,12 @@ const ScrollToBottomButton = ({ messagesContainer }: any) => {
     const currentRef = messagesContainer.current;
     if (!currentRef) return;
 
-    currentRef.addEventListener("scroll", debouncedHandleScroll.debouncedFunction);
+    currentRef.addEventListener("scroll", debouncedHandleScroll);
 
     return () => {
-      currentRef.removeEventListener("scroll", debouncedHandleScroll.debouncedFunction);
+      currentRef.removeEventListener("scroll", debouncedHandleScroll);
     };
-  }, [debouncedHandleScroll.debouncedFunction, messagesContainer]);
+  }, [debouncedHandleScroll, messagesContainer]);
 
   // Handler to scroll to the bottom of the messages container.
   const scrollToBottomHandler = useCallback(() => {

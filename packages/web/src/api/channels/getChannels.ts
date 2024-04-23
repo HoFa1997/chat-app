@@ -2,7 +2,9 @@ import { supabaseClient } from "@shared/utils";
 import { Database } from "@/types/supabase";
 import { PostgrestResponse } from "@supabase/supabase-js";
 
-export type TChannel = Database["public"]["Tables"]["channels"]["Row"];
+export type TChannel = Database["public"]["Tables"]["channels"]["Row"] & {
+  unread_message_count: number;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getChannels = async (
@@ -13,6 +15,19 @@ export const getChannels = async (
     .select("*")
     .eq("workspace_id", workspaceId)
     .order("last_activity_at", { ascending: false })
+    .returns<TChannel[]>()
+    .throwOnError();
+};
+
+export const getChannelsByWorkspaceAndUserids = async (
+  workspaceId: string,
+  userId: string,
+): Promise<PostgrestResponse<any>> => {
+  return supabaseClient
+    .from("channel_members")
+    .select("*, workspace:channel_id(*)")
+    .eq("channel_id.workspace_id", workspaceId)
+    .eq("member_id", userId)
     .returns<TChannel[]>()
     .throwOnError();
 };

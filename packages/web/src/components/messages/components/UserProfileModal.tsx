@@ -5,6 +5,9 @@ import { useEffect, useRef } from "react";
 import { IoCloseOutline } from "react-icons/io5";
 import { FaRegUser } from "react-icons/fa";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
+import { useAuthStore, useStore } from "@/stores";
+import { creatDirectMessageChannel } from "@/api";
+import { useRouter } from "next/router";
 
 export const useUserProfileModalStore = create((set) => ({
   modalOpen: false,
@@ -15,8 +18,11 @@ export const useUserProfileModalStore = create((set) => ({
 }));
 
 export const UserProfileModal = () => {
+  const Router = useRouter();
   const { modalOpen, modalData, closeModal }: any = useUserProfileModalStore();
   const triggerRef = useRef<HTMLInputElement | null>(null);
+  const profile = useAuthStore((state) => state.profile);
+  const { workspaceId } = useStore((state) => state.workspaceSettings);
 
   useEffect(() => {
     // check the checkbox
@@ -31,6 +37,22 @@ export const UserProfileModal = () => {
     // closeModal()
   };
 
+  const handelSendDirectMessage = () => {
+    creatDirectMessageChannel({
+      workspace_uid: workspaceId || "",
+      user_id: modalData.id,
+    }).then((res) => {
+      if (res.data) {
+        const newChannel = res.data;
+        useStore.getState().setOrUpdateChannel(newChannel.id, newChannel);
+
+        Router.push(`/${workspaceId}/${newChannel.id}`);
+        closeModal();
+      }
+      if (res.error) console.error(res.error);
+    });
+  };
+
   if (!modalOpen) {
     return null;
   }
@@ -40,7 +62,11 @@ export const UserProfileModal = () => {
 
   return (
     <>
-      <ModalContainer id="display_user_card" triggerRef={triggerRef} onCheckboxChange={handleCheckboxChange}>
+      <ModalContainer
+        id="display_user_card"
+        triggerRef={triggerRef}
+        onCheckboxChange={handleCheckboxChange}
+      >
         <div className="mb-4 flex justify-center">
           <div>
             <span>
@@ -94,10 +120,18 @@ export const UserProfileModal = () => {
             </div>
           </div>
         </div>
-        <div className="divider"></div>
-        <div>
-          <button className="btn btn-block">Send Message</button>
-        </div>
+        {profile?.id == modalData.id ? (
+          ""
+        ) : (
+          <>
+            <div className="divider"></div>
+            <div>
+              <button className="btn btn-block" onClick={handelSendDirectMessage}>
+                Send Message
+              </button>
+            </div>
+          </>
+        )}
       </ModalContainer>
     </>
   );

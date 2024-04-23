@@ -24,16 +24,21 @@ import { dbMessagesListener, dbChannelsListner } from "./listner";
 export const useMessageSubscription = () => {
   const [initialSubscribeLoading, setInitialSubscribeLoading] = useState(true);
   const { channelId, workspaceId } = useStore((state: any) => state.workspaceSettings);
-
+  const user = useAuthStore((state) => state.profile);
   useEffect(() => {
     if (!channelId || !workspaceId) return;
 
     const messageSubscription = supabaseClient
       .channel(`channel:${channelId}`)
-
+      // todo: move to worksapce channel
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "channels", filter: `workspace_id=eq.${workspaceId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "channels",
+          filter: `workspace_id=eq.${workspaceId}`,
+        },
         dbChannelsListner,
       )
 
@@ -42,7 +47,6 @@ export const useMessageSubscription = () => {
         { event: "*", schema: "public", table: "messages", filter: `channel_id=eq.${channelId}` },
         dbMessagesListener,
       )
-
       .subscribe(async (status) => {
         if (status !== "SUBSCRIBED") return;
         setInitialSubscribeLoading(false);
@@ -51,7 +55,7 @@ export const useMessageSubscription = () => {
     return () => {
       messageSubscription.unsubscribe();
     };
-  }, [channelId, workspaceId]);
+  }, [channelId, workspaceId, user]);
 
   return { initialSubscribeLoading };
 };

@@ -8,6 +8,7 @@ import {
   useEmojiBoxHandler,
   useCustomEventHandler,
   useInfiniteLoadMessages,
+  useChatContainerResizeHandler,
 } from "./hooks";
 import {
   ActionBar,
@@ -17,14 +18,21 @@ import {
   PinnedMessagesDisplay,
 } from "./components/chatContainer";
 import { twx } from "@utils/index";
+import { ThreadHeader } from "./components/threads/ThreadHeader";
+import { useStore } from "@stores/index";
+import ThreadMessageCard from "./components/chatContainer/ThreadMessageCard";
+const MessageWrapper = twx.div`relative flex h-dvh w-full items-center justify-center bg-base-300`;
 
-const MessageWrapper = twx.div`relative flex h-dvh w-full max-w-full max-w-full items-center justify-center bg-base-300`;
+import { useResizeChannelList } from "@/components/channel/useResizeChannelList";
+
+import { ThreadContainer } from "./ThreadContainer";
 
 export default function MessageContainer({}: any) {
   const [channelUsersPresence, setChannelUsersPresence] = useState(new Map());
   const [error, setError] = useState(null);
   const emojiPickerRef = useRef<HTMLDivElement | null>(null);
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
+  const startThreadMessage = useStore((state) => state.startThreadMessage);
 
   // get user session and profile
   // get channel initial data, includes pinned messages, last messages and channel members count
@@ -53,6 +61,7 @@ export default function MessageContainer({}: any) {
     messagesEndRef,
   );
   const { isLoadingMore } = useInfiniteLoadMessages(messageContainerRef);
+  const { onMouseDown, leftWidth, panelRef } = useChatContainerResizeHandler();
 
   if (error) {
     return (
@@ -70,26 +79,34 @@ export default function MessageContainer({}: any) {
     );
 
   return (
-    <MessageWrapper className="flex-col justify-start">
-      <MessageHeader />
-      <PinnedMessagesDisplay loading={loading} />
-      <LoadingOverlay loading={loading} />
-      <MessagesDisplay
-        messageContainerRef={messageContainerRef}
-        messagesEndRef={messagesEndRef}
-        toggleEmojiPicker={toggleEmojiPicker}
-        selectedEmoji={selectedEmoji}
-        isLoadingMore={isLoadingMore}
-      />
-      <EmojiPickerWrapper
-        isEmojiBoxOpen={isEmojiBoxOpen}
-        emojiPickerPosition={emojiPickerPosition}
-        closeEmojiPicker={closeEmojiPicker}
-        handleEmojiSelect={handleEmojiSelect}
-        ref={emojiPickerRef}
-      />
-      <ActionBar />
-      <ScrollToBottomButton messagesContainer={messageContainerRef} />
-    </MessageWrapper>
+    <div className="w-full flex" ref={panelRef}>
+      <MessageWrapper style={{ width: `${leftWidth}%` }} className="flex-col justify-start">
+        <MessageHeader />
+        <PinnedMessagesDisplay loading={loading} />
+        <LoadingOverlay loading={loading} />
+        <MessagesDisplay
+          messageContainerRef={messageContainerRef}
+          messagesEndRef={messagesEndRef}
+          toggleEmojiPicker={toggleEmojiPicker}
+          selectedEmoji={selectedEmoji}
+          isLoadingMore={isLoadingMore}
+        />
+        <EmojiPickerWrapper
+          isEmojiBoxOpen={isEmojiBoxOpen}
+          emojiPickerPosition={emojiPickerPosition}
+          closeEmojiPicker={closeEmojiPicker}
+          handleEmojiSelect={handleEmojiSelect}
+          ref={emojiPickerRef}
+        />
+        <ActionBar />
+        <ScrollToBottomButton messagesContainer={messageContainerRef} />
+        <div
+          className="absolute right-0 top-0 h-full hover:bg-base-100 transition-all w-1 cursor-ew-resize select-none bg-base-300"
+          onMouseDown={onMouseDown}
+          data-limit
+        />
+      </MessageWrapper>
+      <ThreadContainer leftWidth={leftWidth} />
+    </div>
   );
 }

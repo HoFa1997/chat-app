@@ -50,6 +50,13 @@ export const useInfiniteLoadMessages = (
       return;
     }
 
+    console.log({
+      pageMessages,
+      input_channel_id: channelId,
+      page: currentPage,
+      page_size: scrollPageOffset,
+    });
+
     if (pageMessages?.messages && pageMessages?.messages?.length > 0) {
       // Convert pageMessages.messages to a Map
       const newMessagesMap: any = new Map(

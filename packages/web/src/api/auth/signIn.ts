@@ -1,5 +1,9 @@
 import { supabaseClient } from "@shared/utils";
-import { AuthError, SignInWithPasswordCredentials, SignInWithOAuthCredentials } from "@supabase/supabase-js";
+import {
+  AuthError,
+  SignInWithOAuthCredentials,
+  SignInWithPasswordCredentials,
+} from "@supabase/supabase-js";
 
 // Refactored signInWithPassword function
 export const signInWithPassword = async (

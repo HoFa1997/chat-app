@@ -1,6 +1,6 @@
 import { IoSettingsOutline } from "react-icons/io5";
 import { Avatar } from "@/components/ui/Avatar";
-import ThemChanger from "./ThemChanger";
+import ThemeChanger from "./ThemeChanger";
 import { Popover, PopoverTrigger, PopoverContent } from "@ui/Popover";
 import { logout } from "@/api";
 import { useRouter } from "next/router";
@@ -41,7 +41,7 @@ const WorkspaceSidebar = () => {
       <div className="my-auto max-h-[60%] overflow-hidden overflow-y-auto px-1 ">
         <WorkspaceLists />
       </div>
-      <ThemChanger />
+      <ThemeChanger />
       <div className="my-2">
         <button className="btn btn-ghost btn-sm rounded-btn">
           <IoSettingsOutline size={22} />

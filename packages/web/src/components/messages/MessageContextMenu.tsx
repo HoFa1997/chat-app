@@ -1,5 +1,5 @@
 import React, { forwardRef, useMemo } from "react";
-import { deleteMessage, pinMessage } from "@/api";
+import { deleteMessage, pinMessage, openMessageThread } from "@/api";
 import {
   BsReplyFill,
   BsForwardFill,
@@ -12,6 +12,7 @@ import { useForwardMessageModalStore } from "@/components/messages/components/Fo
 import toast from "react-hot-toast";
 import { ContextMenu, MenuItem } from "@ui/ContextMenu";
 import { useStore, useAuthStore } from "@stores/index";
+import { BiSolidMessageDetail } from "react-icons/bi";
 
 export const MessageContextMenu = forwardRef<
   HTMLUListElement,
@@ -77,6 +78,16 @@ export const MessageContextMenu = forwardRef<
     setEditeMessageMemory(messageData);
   };
 
+  const handelThread = () => {
+    console.log("thread", messageData);
+    if (!messageData) return;
+    useStore.getState().setStartThreadMessage(messageData);
+
+    // openMessageThread({ message_id: messageData.id }).then((res) => {
+    //   console.log("thread", res);
+    // });
+  };
+
   const isPinned = useMemo(() => {
     return messageData?.metadata?.pinned;
   }, [messageData]);
@@ -108,6 +119,14 @@ export const MessageContextMenu = forwardRef<
 
   return (
     <ContextMenu className={className} parrentRef={parrentRef} ref={ref}>
+      <MenuItem onClick={handelThread}>
+        <a href="#" className="no-underline">
+          <BiSolidMessageDetail size={20} />
+          Reply in Thread
+        </a>
+      </MenuItem>
+
+      <hr />
       {messageButtonList.map((item) => (
         <MenuItem key={item.title} onClick={item.onClickFn}>
           <a href="#" className="no-underline">

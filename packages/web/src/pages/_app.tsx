@@ -7,7 +7,7 @@ import { useBroadcastListner } from "@/shared/hooks/useBroadcastListner";
 import "@/styles/globals.scss";
 import data from "@emoji-mart/data/sets/14/native.json";
 import { init } from "emoji-mart";
-
+import { useHandleUserStatus } from "@/shared/hooks";
 init({ data });
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
@@ -15,6 +15,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   useOnAuthStateChange();
   useCatchUserPresences();
   useBroadcastListner();
+  useHandleUserStatus();
 
   init({ data });
 

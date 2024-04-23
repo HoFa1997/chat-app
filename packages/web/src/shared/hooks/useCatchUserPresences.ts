@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useStore } from "@stores/index";
 import { supabaseClient } from "@shared/utils";
 import { useAuthStore } from "@stores/index";
+import { platform } from "os";
 
 export const useCatchUserPresences = () => {
   const profile = useAuthStore((state) => state.profile);
@@ -11,6 +12,21 @@ export const useCatchUserPresences = () => {
   );
   const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
   const removeUserPresence = useStore((state) => state.removeUserPresence);
+  const updateChannelRow = useStore((state) => state.updateChannelRow);
+
+  const channelMemebrs = (payload: any) => {
+    console.log({
+      // payload,
+      table: payload.table,
+      type: payload.eventType,
+      new: payload.new,
+    });
+
+    if (payload.table === "channel_members") {
+      updateChannelRow(payload.new.channel_id, payload.new);
+    }
+    // useAuthStore.getState().setChannelMembers(newChannelMember);
+  };
 
   useEffect(() => {
     if (!workspaceId || !profile) return;
@@ -21,6 +37,26 @@ export const useCatchUserPresences = () => {
           broadcast: { self: true },
         },
       })
+      // .on(
+      //   "postgres_changes",
+      //   {
+      //     event: "*",
+      //     schema: "public",
+      //     table: "notifications",
+      //     filter: `receiver_user_id=eq.${profile.id}`,
+      //   },
+      //   channelMemebrs,
+      // )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "channel_members",
+          filter: `member_id=eq.${profile.id}`,
+        },
+        channelMemebrs,
+      )
       .on("presence", { event: "sync" }, () => {
         // const newState = messageSubscription.presenceState();
         // console.log("sync", newState);
@@ -36,7 +72,6 @@ export const useCatchUserPresences = () => {
         // if (usersPresence.has(newPresences.at(0)?.id)) return;
         const newUser: any = {
           ...newPresences.at(0),
-          status: "ONLINE",
         };
         setOrUpdateUserPresence(newPresences.at(0)?.id, newUser);
       })
@@ -48,7 +83,6 @@ export const useCatchUserPresences = () => {
         // if (!usersPresence.has(leftPresences.at(0)?.id)) return;
         const newUser: any = {
           ...leftPresences.at(0),
-          status: "OFFLINE",
         };
         setOrUpdateUserPresence(leftPresences.at(0)?.id, newUser);
       })

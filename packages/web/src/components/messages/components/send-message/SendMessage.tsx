@@ -8,7 +8,7 @@ import { IoSend } from "react-icons/io5";
 import { MdFormatColorText } from "react-icons/md";
 import { BsFillEmojiSmileFill } from "react-icons/bs";
 import { useStore, useAuthStore } from "@stores/index";
-import { sendMessage, updateMessage } from "@/api";
+import { sendMessage, updateMessage, sendThreadMessage, createThreadMessage } from "@/api";
 import { useApi } from "@/shared/hooks/useApi";
 import toast from "react-hot-toast";
 import { EditeMessageIndicator } from "./EditeMessageIndicator";
@@ -25,10 +25,11 @@ const IconButton = twx.button<BtnIcon>((prop) =>
   ),
 );
 
-export default function SendMessage() {
+export default function SendMessage({ thread }: any) {
   const [showEditorToolbar, setShowEditorToolbar] = useState(false);
   const setEditeMessageMemory = useStore((state) => state.setEditeMessageMemory);
   const setReplayMessageMemory = useStore((state) => state.setReplayMessageMemory);
+  const startThreadMessage = useStore((state) => state.startThreadMessage);
 
   const user = useAuthStore((state: any) => state.profile);
   const { channelId, replayMessageMemory, editeMessageMemory } = useStore(
@@ -43,9 +44,15 @@ export default function SendMessage() {
     false,
   );
 
+  const { request: postRequestThreadMessage, loading: postThreadMsgLoading } = useApi(
+    createThreadMessage,
+    null,
+    false,
+  );
+
   const loading = useMemo(() => {
-    return postMsgLoading || editMsgLoading;
-  }, [postMsgLoading, editMsgLoading]);
+    return postMsgLoading || editMsgLoading || postThreadMsgLoading;
+  }, [postMsgLoading, editMsgLoading, postThreadMsgLoading]);
 
   const { editor, text, html } = useTiptapEditor({ loading });
 
@@ -83,7 +90,16 @@ export default function SendMessage() {
       editor?.commands.clearContent(true);
 
       if (htmlChunks.length === 0) {
-        if (editeMessageMemory) {
+        if (thread && startThreadMessage) {
+          const threadId = startThreadMessage.id;
+          postRequestThreadMessage({
+            p_content: text,
+            p_channel_id: channelId,
+            p_user_id: user.id,
+            p_html: html,
+            p_thread_id: threadId,
+          });
+        } else if (editeMessageMemory) {
           editeRequestMessage(text, html, messageId);
         } else {
           postRequestMessage(text, channelId, user.id, html, messageId);

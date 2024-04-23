@@ -1,4 +1,4 @@
-import { debounce } from "@/shared/utils/debounce";
+import debounce from "lodash/debounce";
 import { useStore, useAuthStore } from "@/stores";
 
 // Enum to represent the different states of typing indicator.
@@ -35,11 +35,10 @@ const displayTypingIndicator = (type: TypingIndicatorType) => {
 };
 
 // Debounce function to limit the frequency of stop typing indicator broadcasts.
-const { debouncedFunction: debouncedStopTypingIndicator, cancel: cancelDebouncedStopTyping } =
-  debounce(() => {
-    displayTypingIndicator(TypingIndicatorType.StopTyping);
-    hasStartedTyping = false; // Resetting typing start flag.
-  }, 1000); // Waiting for 1 second of inactivity before stopping the typing indicator.
+const debouncedStopTypingIndicator = debounce(() => {
+  displayTypingIndicator(TypingIndicatorType.StopTyping);
+  hasStartedTyping = false; // Resetting typing start flag.
+}, 1000); // Waiting for 1 second of inactivity before stopping the typing indicator.
 
 // Main function to handle typing indicator based on the event type.
 export const handleTypingIndicator = (type: TypingIndicatorType) => {
@@ -55,7 +54,7 @@ export const handleTypingIndicator = (type: TypingIndicatorType) => {
     debouncedStopTypingIndicator(); // Debounce stopping the indicator.
   } else if (type === TypingIndicatorType.SentMsg) {
     // When user sends a message.
-    cancelDebouncedStopTyping(); // Cancel any pending debounced stop calls.
+    debouncedStopTypingIndicator.cancel(); // Cancel any pending debounced stop calls.
     displayTypingIndicator(TypingIndicatorType.StopTyping); // Immediately stop typing indicator.
     hasStartedTyping = false;
   }

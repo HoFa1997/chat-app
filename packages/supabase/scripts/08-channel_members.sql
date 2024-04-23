@@ -13,6 +13,7 @@ CREATE TABLE public.channel_members (
     unread_message_count  INT DEFAULT 0, -- The number of unread messages for the user in the channel.
     created_at            TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL, -- Timestamp when the membership record was created.
     updated_at            TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()), -- Timestamp when the membership record was last updated.
+    member_count INT DEFAULT 0 NOT NULL, -- The number of members in the channel.
     PRIMARY KEY (channel_id, member_id) -- Composite primary key to ensure unique membership records for each channel.
 );
 

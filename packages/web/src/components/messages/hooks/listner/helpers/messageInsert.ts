@@ -11,6 +11,7 @@ export const messageInsert = (payload: any) => {
   const setOrUpdateMessage = useStore.getState().setOrUpdateMessage;
   const setLastMessage = useStore.getState().setLastMessage;
   const usersPresence = useStore.getState().usersPresence;
+  const setOrUpdateThreadMessage = useStore.getState().setOrUpdateThreadMessage;
 
   if (!channelId) return;
 
@@ -29,6 +30,10 @@ export const messageInsert = (payload: any) => {
       user: reply_to_message_id?.user_details,
     },
   };
+
+  console.log({
+    newMessage,
+  });
 
   // if there is no messages, just add the message
   if (!messages) {
@@ -49,6 +54,21 @@ export const messageInsert = (payload: any) => {
     newMessage,
   ]);
 
+  if (newMessage.thread_id) {
+    setOrUpdateThreadMessage(
+      newMessage.thread_id,
+      lastMessage0.id,
+      newInstanceOfMessages.at(1),
+    );
+    setOrUpdateThreadMessage(
+      newMessage.thread_id,
+      newMessage.id,
+      newInstanceOfMessages.at(2),
+    );
+    return;
+  }
+
+  // TODO: do we need anymore this?!/!
   setLastMessage(channelId, newInstanceOfMessages.at(-1));
 
   setOrUpdateMessage(channelId, lastMessage0.id, newInstanceOfMessages.at(1));

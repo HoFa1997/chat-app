@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { twx, cn } from "@utils/index";
 import { MdOutlineAddReaction } from "react-icons/md";
-import { useAuthStore } from "@/stores";
+import { useAuthStore, useStore } from "@/stores";
 
 type BtnIcon = React.ComponentProps<"button"> & { $active?: boolean; $size?: number };
 
@@ -15,6 +15,10 @@ const IconButton = twx.button<BtnIcon>((prop) =>
 
 export default function MessageReaction({ message }: any) {
   const user = useAuthStore.use.profile();
+  const member = useStore((state) => state.channelMembers.get(message.channel_id));
+
+  // Allow users who are members of the channel to react to the message.
+  if (user && !member?.get(user?.id)) return null;
 
   const openEmojiPicker = useCallback(
     (clickEvent: any) => {

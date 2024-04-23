@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { IoColorPaletteOutline } from "react-icons/io5";
 
 const themes = [
@@ -34,10 +35,29 @@ const themes = [
   "nord",
   "sunset",
 ];
-const ThemChanger = () => {
+
+const ThemeChanger = () => {
+  // State to hold the selected theme
+  const [selectedTheme, setSelectedTheme] = useState("default");
+
+  useEffect(() => {
+    // Apply the saved theme on load
+    const savedTheme = localStorage.getItem("selectedTheme");
+    if (savedTheme) {
+      setSelectedTheme(savedTheme);
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    }
+  }, []);
+
+  const handleThemeChange = (theme: string) => {
+    setSelectedTheme(theme);
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("selectedTheme", theme);
+  };
+
   return (
     <div className="dropdown dropdown-top">
-      <div className="tooltip  tooltip-right" data-tip="Theme">
+      <div className="tooltip tooltip-right" data-tip="Theme">
         <div tabIndex={0} role="button" className="btn btn-sm m-1">
           <IoColorPaletteOutline size={22} />
         </div>
@@ -53,6 +73,8 @@ const ThemChanger = () => {
             className="theme-controller btn btn-ghost btn-sm btn-block justify-start"
             aria-label="Default"
             value="default"
+            checked={selectedTheme === "default"}
+            onChange={() => handleThemeChange("default")}
           />
         </li>
         {themes.map((theme) => (
@@ -63,6 +85,8 @@ const ThemChanger = () => {
               className="theme-controller btn btn-ghost btn-sm btn-block justify-start capitalize"
               aria-label={theme}
               value={theme}
+              checked={selectedTheme === theme}
+              onChange={() => handleThemeChange(theme)}
             />
           </li>
         ))}
@@ -71,4 +95,4 @@ const ThemChanger = () => {
   );
 };
 
-export default ThemChanger;
+export default ThemeChanger;

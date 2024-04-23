@@ -327,7 +327,7 @@ VALUES(
 /*
     -----------------------------------------
     9. Mention @user in Messages
-       Expectation: Jack should receive a notification from Philip in the game-boy channel.
+       Expectation: Jack should receive a mention notification from Philip in the game-boy channel.
     -----------------------------------------
 */
 
@@ -336,6 +336,23 @@ values
 (
     '61db563c-a4fa-4ec1-bff5-543e620c9ec2', -- ID
     'Hey, @jack would you please call me?',
+    '7ea75977-9bc0-4008-b5b8-13c56d16a588', -- chanel: game-boy
+    '35477c6b-f9a0-4bad-af0b-545c99b33fae' -- user: philip
+);
+
+/*
+    -----------------------------------------
+    9. Mention multiple @user in Messages
+       Expectation: Jack and Emma should receive a mention notifications from Philip in the game.
+                    and also they must receive a message notification from Philip.
+    -----------------------------------------
+*/
+
+insert into public.messages (id, content, channel_id, user_id)
+values
+(
+    'd329a926-fd5a-400f-880f-e3678eee5758', -- ID
+    'Hey, @jack would you please call me? @emma and I need your help.',
     '7ea75977-9bc0-4008-b5b8-13c56d16a588', -- chanel: game-boy
     '35477c6b-f9a0-4bad-af0b-545c99b33fae' -- user: philip
 );
@@ -560,7 +577,7 @@ values
 UPDATE public.messages
 SET 
     thread_id = '5fb62876-c099-4284-8295-f3e898ad88e0',
-    thread_owner_user_id = 'c2e3e9e7-d0e8-4960-9b05-d263deb2722f'
+    thread_owner_id = 'c2e3e9e7-d0e8-4960-9b05-d263deb2722f'
 WHERE id = '5fb62876-c099-4284-8295-f3e898ad88e0';
 
 

@@ -84,7 +84,7 @@ BEGIN
     -- Update unread notification preview
     UPDATE public.notifications
     SET message_preview = truncated_content
-    WHERE message_id = NEW.id AND read_at IS NULL;
+    WHERE message_id = NEW.id AND readed_at IS NULL;
 
     -- Update previews for messages that are replies to the edited message
     UPDATE public.messages
@@ -122,11 +122,6 @@ WHEN (OLD.content IS DISTINCT FROM NEW.content)
 EXECUTE FUNCTION update_message_preview_on_edit();
 
 
-
-
-
-
-
 -----------------------------------------
 
 CREATE OR REPLACE FUNCTION update_edited_at() RETURNS TRIGGER AS $$
@@ -150,43 +145,39 @@ EXECUTE FUNCTION update_edited_at();
 ----------------------------------------------------------------------------------
 
 
-CREATE OR REPLACE FUNCTION update_last_read_status()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Check if it's a message insert or delete operation
-    IF TG_OP = 'INSERT' THEN
-        -- Update last_read_message_id and last_read_update only for the user who sent the message
-        UPDATE public.channel_members
-        SET last_read_message_id = NEW.id,
-            last_read_update_at = timezone('utc', now())
-        WHERE channel_id = NEW.channel_id AND member_id = NEW.user_id;
-    ELSIF TG_OP = 'UPDATE' AND NEW.deleted_at IS NOT NULL THEN
-        -- If the message is soft-deleted, set last_read_message_id to null for this message
-        UPDATE public.channel_members
-        SET last_read_message_id = NULL
-        WHERE last_read_message_id = NEW.id;
-    END IF;
+-- CREATE OR REPLACE FUNCTION update_last_read_status()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+--     -- Check if it's a message insert or delete operation
+--     IF TG_OP = 'INSERT' THEN
+--         -- Update last_read_message_id and last_read_update only for the user who sent the message
+--         UPDATE public.channel_members
+--         SET last_read_message_id = NEW.id,
+--             last_read_update_at = timezone('utc', now())
+--         WHERE channel_id = NEW.channel_id AND member_id = NEW.user_id;
+--     ELSIF TG_OP = 'UPDATE' AND NEW.deleted_at IS NOT NULL THEN
+--         -- If the message is soft-deleted, set last_read_message_id to null for this message
+--         UPDATE public.channel_members
+--         SET last_read_message_id = NULL
+--         WHERE last_read_message_id = NEW.id;
+--     END IF;
 
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
+-- -- Trigger for new message insertion
+-- CREATE TRIGGER trigger_update_on_new_message
+-- AFTER INSERT ON public.messages
+-- FOR EACH ROW
+-- EXECUTE FUNCTION update_last_read_status();
 
--- Trigger for new message insertion
-CREATE TRIGGER trigger_update_on_new_message
-AFTER INSERT ON public.messages
-FOR EACH ROW
-EXECUTE FUNCTION update_last_read_status();
-
--- Trigger for message update (soft deletion)
-CREATE TRIGGER trigger_update_on_message_delete
-AFTER UPDATE OF deleted_at ON public.messages
-FOR EACH ROW
-WHEN (OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL)
-EXECUTE FUNCTION update_last_read_status();
-
-
-
+-- -- Trigger for message update (soft deletion)
+-- CREATE TRIGGER trigger_update_on_message_delete
+-- AFTER UPDATE OF deleted_at ON public.messages
+-- FOR EACH ROW
+-- WHEN (OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL)
+-- EXECUTE FUNCTION update_last_read_status();
 
 
 -- TODO: Revise

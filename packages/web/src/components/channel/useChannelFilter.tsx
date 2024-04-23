@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useStore, useAuthStore } from "@stores/index";
 import { TChannel } from "@stores/index";
+import { getChannels } from "@/api";
 
 const sortChannelsByLastActivity = (channels: TChannel[]) => {
   return channels.sort((a, b) => {
@@ -18,6 +19,7 @@ export const useChannelFilter = () => {
   const [filteredChannels, setFilteredChannels] = useState<any>([]);
   const channels = useStore((state) => state.channels);
   const channelId = router.query.channelId as string;
+  const [activeType, setActiveType] = useState("all");
 
   useEffect(() => {
     if (!user || !channels) return;
@@ -34,6 +36,7 @@ export const useChannelFilter = () => {
 
   // set and sort channels
   useEffect(() => {
+    if (activeType === "global") return;
     if (channels && channels.size > 0) {
       const sortedChannels = sortChannelsByLastActivity(Array.from(channels.values()));
       setFilteredChannels(sortedChannels);
@@ -42,11 +45,21 @@ export const useChannelFilter = () => {
     }
   }, [channels]);
 
-  const handleFilterChange = (filterType: string) => {
-    if (filterType === "all") {
+  const handleFilterChange = async (filterType: string) => {
+    setActiveType(filterType);
+    if (filterType === "global") {
+      // Fetch all channels that the current user is not a member of,
+      // including the private ones, for demonstration purposes.
+      const workspaceId = useStore.getState().workspaceSettings.workspaceId as string;
+      const { data } = await getChannels(workspaceId);
+
+      setFilteredChannels(data);
+    } else if (filterType === "all") {
       setFilteredChannels(Array.from(channels.values())); // Show all channels
     } else {
-      setFilteredChannels([...channels.values()].filter((channel: any) => channel.type === filterType));
+      setFilteredChannels(
+        [...channels.values()].filter((channel: any) => channel.type === filterType),
+      );
     }
   };
 

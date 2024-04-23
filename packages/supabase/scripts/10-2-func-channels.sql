@@ -66,20 +66,21 @@ EXECUTE FUNCTION public.notify_new_channel_creation();
 ----------------------------------------------------------------------------------
 
 
-CREATE OR REPLACE FUNCTION update_last_read_time()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF OLD.last_read_message_id IS DISTINCT FROM NEW.last_read_message_id THEN
-        NEW.last_read_update_at := timezone('utc', now());
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE FUNCTION update_last_read_time()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+--     -- Update the last_read_update_at if there's a change in last_read_message_id
+--     IF OLD.last_read_message_id IS DISTINCT FROM NEW.last_read_message_id THEN
+--         NEW.last_read_update_at := timezone('utc', now());
+--     END IF;
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_update_last_read_time
-BEFORE UPDATE ON public.channel_members
-FOR EACH ROW
-EXECUTE FUNCTION update_last_read_time();
+-- CREATE TRIGGER trigger_update_last_read_time
+-- BEFORE UPDATE ON public.channel_members
+-- FOR EACH ROW
+-- EXECUTE FUNCTION update_last_read_time();
 
 ----------------------------------------------------------------------------------
 
@@ -187,3 +188,42 @@ CREATE TRIGGER trigger_user_leave_channel
 AFTER DELETE ON public.channel_members
 FOR EACH ROW
 EXECUTE FUNCTION public.notify_user_leave_channel();
+
+
+
+
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+-- In case transactions involving member addition or removal are rolled back,
+-- the triggers will automatically handle the increment and decrement operations as the INSERT and DELETE on channel_members will be rolled back as well.
+----------------------------------------------------------------------------------
+-- Since your member records are deleted when a user is deleted (due to the ON DELETE CASCADE),
+-- the delete trigger on channel_members will also handle decrementing the member_count when a user is deleted.
+
+CREATE OR REPLACE FUNCTION increment_member_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE public.channels SET member_count = member_count + 1
+    WHERE id = NEW.channel_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION decrement_member_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE public.channels SET member_count = member_count - 1
+    WHERE id = OLD.channel_id;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_increment_member_count
+AFTER INSERT ON public.channel_members
+FOR EACH ROW
+EXECUTE FUNCTION increment_member_count();
+
+CREATE TRIGGER trg_decrement_member_count
+AFTER DELETE ON public.channel_members
+FOR EACH ROW
+EXECUTE FUNCTION decrement_member_count();

@@ -20,7 +20,7 @@ export const useOnAuthStateChange = () => {
       user?.email?.split("@")[0];
 
     useAuthStore.getState().setDisplayName(displayName);
-    useAuthStore.getState().setProfile({ ...data, status: "ONLINE" });
+    useAuthStore.getState().setProfile({ ...data });
     setLoading(false);
   }, []);
 

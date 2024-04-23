@@ -11,3 +11,17 @@ SELECT cron.schedule(
     WHERE online_at < NOW() - INTERVAL '5 minutes' AND status = 'ONLINE';
     $$ 
 );
+
+
+-- Cron Job: delete-read-notifications
+-- Schedule: Runs daily at midnight (0 0 * * *)
+-- Purpose: This job deletes all notifications from the 'public.notifications' table where the 'readed_at' field is not null.
+-- This cleanup helps maintain the efficiency of the notifications table by removing entries that are no longer needed.
+-- SELECT cron.schedule(
+--     'delete-read-notifications',
+--     '0 0 * * *',
+--     $$
+--     DELETE FROM public.notifications
+--     WHERE readed_at IS NOT NULL;
+--     $$
+-- );

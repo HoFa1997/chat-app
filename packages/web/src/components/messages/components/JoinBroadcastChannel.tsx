@@ -24,10 +24,17 @@ export default function JoinBroadcastChannel() {
   const joinUserToChannel = useCallback(async () => {
     if (!channel) return;
     try {
-      const { error, data } = await request2JoinChannel({ channel_id: channelId, member_id: user?.id });
+      const { error, data } = await request2JoinChannel({
+        channel_id: channelId,
+        member_id: user?.id,
+      });
       if (error) console.error(error);
+
       setWorkspaceSetting("isUserChannelMember", true);
-      setOrUpdateChannel(channelId, { ...channel, member_count: (channel?.member_count ?? 0) + 1 });
+      setOrUpdateChannel(channelId, {
+        ...data.channel,
+        member_count: (channel?.member_count ?? 0) + 1,
+      });
     } catch (error) {
       console.error(error);
     }
@@ -39,7 +46,7 @@ export default function JoinBroadcastChannel() {
       setMute(muteOrUnmute);
 
       try {
-        const { error } = await supabaseClient
+        const { error, data } = await supabaseClient
           .from("channel_members")
           .update({
             mute_in_app_notifications: muteOrUnmute,

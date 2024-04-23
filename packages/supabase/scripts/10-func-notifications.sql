@@ -1,114 +1,250 @@
--- TODO: what if in the reply we have @mention, @everyone, or reactions?
 
-CREATE OR REPLACE FUNCTION create_notifications_for_new_message() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION create_notifications_for_mentions()
+RETURNS TRIGGER AS $$
 DECLARE
     mentioned_user_id UUID;
-    channel_member RECORD;
-    pattern TEXT;
-    mention_found BOOLEAN := FALSE;
     is_channel_muted BOOLEAN;
     truncated_content TEXT;
-
 BEGIN
     -- Check if notifications are muted for the channel
-    SELECT mute_in_app_notifications INTO is_channel_muted FROM public.channels WHERE id = NEW.channel_id;
+    SELECT mute_in_app_notifications INTO is_channel_muted
+    FROM public.channels
+    WHERE id = NEW.channel_id;
+
     IF is_channel_muted THEN
         RETURN NEW; -- Exit if notifications are muted for the channel
     END IF;
 
     truncated_content := truncate_content(NEW.content);
 
-    -- Handle '@username' mention
-    pattern := '@([a-zA-Z0-9_]+)';
+    -- Find all mentioned usernames in the message
     FOR mentioned_user_id IN
-        SELECT u.id FROM public.users u
-        WHERE u.username = substring(NEW.content FROM pattern)
+        SELECT u.id
+        FROM public.users u
+        WHERE NEW.content LIKE '%@' || u.username || ' %'
+           OR NEW.content LIKE '%@' || u.username || '%'
     LOOP
-        mention_found := TRUE;
         -- Check if the mentioned user has muted notifications
-        IF (SELECT mute_in_app_notifications FROM public.channel_members WHERE channel_id = NEW.channel_id AND member_id = mentioned_user_id) = FALSE THEN
-            INSERT INTO public.notifications (receiver_user_id, sender_user_id, type, message_id, channel_id, message_preview, created_at)
-            VALUES (mentioned_user_id, NEW.user_id, 'mention', NEW.id, NEW.channel_id, truncated_content, NOW());
+        IF NOT (SELECT mute_in_app_notifications
+                FROM public.channel_members
+                WHERE channel_id = NEW.channel_id
+                  AND member_id = mentioned_user_id) THEN
+            INSERT INTO public.notifications (
+                receiver_user_id,
+                sender_user_id,
+                type,
+                message_id,
+                channel_id,
+                message_preview,
+                created_at
+            )
+            VALUES (
+                mentioned_user_id,
+                NEW.user_id,
+                'mention',
+                NEW.id,
+                NEW.channel_id,
+                truncated_content,
+                NOW()
+            );
         END IF;
     END LOOP;
 
-    -- Handle '@everyone' mention, but exclude the sender
-    IF NEW.content LIKE '%@everyone%' THEN
-        mention_found := TRUE;
-        FOR channel_member IN SELECT cm.member_id FROM public.channel_members cm WHERE cm.channel_id = NEW.channel_id AND cm.member_id != NEW.user_id LOOP
-            -- Check if the channel member has muted notifications
-            IF (SELECT mute_in_app_notifications FROM public.channel_members WHERE channel_id = NEW.channel_id AND member_id = channel_member.member_id) = FALSE THEN
-                INSERT INTO public.notifications (receiver_user_id, sender_user_id, type, message_id, channel_id, message_preview, created_at)
-                VALUES (channel_member.member_id, NEW.user_id, 'channel_event', NEW.id, NEW.channel_id, truncated_content, NOW());
-            END IF;
-        END LOOP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_on_new_message_for_mention_notifications
+AFTER INSERT ON public.messages
+FOR EACH ROW
+WHEN (NEW.content LIKE '%@%')
+EXECUTE FUNCTION create_notifications_for_mentions();
+
+
+--------------------------------------------------------
+--------------------------------------------------------
+--------------------------------------------------------
+
+-- Function to handle '@everyone' notifications
+CREATE OR REPLACE FUNCTION create_notifications_for_everyone()
+RETURNS TRIGGER AS $$
+DECLARE
+    channel_member_id UUID;
+    is_channel_muted BOOLEAN;
+    truncated_content TEXT;
+BEGIN
+    -- Check if notifications are muted for the channel
+    SELECT mute_in_app_notifications INTO is_channel_muted
+    FROM public.channels
+    WHERE id = NEW.channel_id;
+
+    IF is_channel_muted THEN
+        RETURN NEW; -- Exit if notifications are muted for the channel
     END IF;
 
+    truncated_content := truncate_content(NEW.content);
 
-    -- If no mentions (like '@username' or '@everyone') are found in the message,
-    -- then this block creates notifications for channel members. Two types of notifications are created:
-    -- 1. 'reply' type for the user who is the owner of the original message being replied to.
-    -- 2. 'message' type for all other channel members.
-    -- These notifications are only created for channel members who have not muted in-app notifications
-    -- and who are not the sender of the new message.
-    IF NOT mention_found THEN
-        INSERT INTO public.notifications (receiver_user_id, sender_user_id, type, message_id, channel_id, message_preview, created_at)
-        SELECT 
-            cm.member_id, 
-            NEW.user_id,
-            CASE 
-                WHEN NEW.thread_id IS NOT NULL THEN 'thread_message'::notification_category
-                WHEN NEW.reply_to_message_id IS NOT NULL AND m.user_id = cm.member_id THEN 'reply'::notification_category
-                ELSE 'message'::notification_category
-            END, 
-            NEW.id, 
-            NEW.channel_id, 
-            truncated_content, 
-            NOW()
-        FROM public.channel_members cm
-        LEFT JOIN public.messages m ON m.id = NEW.reply_to_message_id
-        WHERE cm.channel_id = NEW.channel_id AND cm.member_id != NEW.user_id AND cm.mute_in_app_notifications = FALSE;
+    -- Handle '@everyone' mention, but exclude the sender
+    IF NEW.content LIKE '%@everyone%' THEN
+        FOR channel_member_id IN
+            SELECT member_id
+            FROM public.channel_members
+            WHERE channel_id = NEW.channel_id
+              AND member_id != NEW.user_id
+        LOOP
+            -- Check if the channel member has muted notifications
+            IF NOT (SELECT mute_in_app_notifications
+                    FROM public.channel_members
+                    WHERE channel_id = NEW.channel_id
+                      AND member_id = channel_member_id) THEN
+                INSERT INTO public.notifications (
+                    receiver_user_id,
+                    sender_user_id,
+                    type,
+                    message_id,
+                    channel_id,
+                    message_preview,
+                    created_at
+                )
+                VALUES (
+                    channel_member_id,
+                    NEW.user_id,
+                    'channel_event',
+                    NEW.id,
+                    NEW.channel_id,
+                    truncated_content,
+                    NOW()
+                );
+            END IF;
+        END LOOP;
     END IF;
 
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_on_new_message_for_notifications
+--------------------------------------------------------
+--------------------------------------------------------
+--------------------------------------------------------
+
+CREATE TRIGGER trigger_on_new_message_for_everyone_notifications
 AFTER INSERT ON public.messages
 FOR EACH ROW
-EXECUTE FUNCTION create_notifications_for_new_message();
+WHEN (NEW.content LIKE '%@everyone%')
+EXECUTE FUNCTION create_notifications_for_everyone();
 
------------------------------------------
-
-CREATE OR REPLACE FUNCTION create_notifications_for_new_unique_reactions() RETURNS TRIGGER AS $$
+-- Function to handle regular message notifications
+-- Description: Creates a notification for each member of the channel, excluding the sender,
+--              only if the channel is not muted, the member has not muted notifications,
+--              and the member is not currently online.
+--              If the user is online, they do not need a notification for the current and other channels; 
+--              instead, they only need the unread count and mention notifications.
+CREATE OR REPLACE FUNCTION create_notifications_for_regular_messages()
+RETURNS TRIGGER AS $$
 DECLARE
-    reaction_key TEXT;
-    new_reaction_entry JSONB;
-    reaction_exists BOOLEAN;
+    is_channel_muted BOOLEAN;
+    truncated_content TEXT;
 BEGIN
-    -- Loop through each reaction type key in the updated reactions JSONB
-    FOR reaction_key IN SELECT jsonb_object_keys(NEW.reactions)
+
+    -- Check if notifications are muted for the channel
+    SELECT mute_in_app_notifications INTO is_channel_muted
+    FROM public.channels
+    WHERE id = NEW.channel_id;
+
+    IF is_channel_muted THEN
+        RETURN NEW; -- Exit if notifications are muted for the channel
+    END IF;
+
+    truncated_content := truncate_content(NEW.content);
+
+    -- Create notifications for channel members who have not muted notifications
+    INSERT INTO public.notifications (
+        receiver_user_id,
+        sender_user_id,
+        type,
+        message_id,
+        channel_id,
+        message_preview,
+        created_at
+    )
+    SELECT
+        cm.member_id,
+        NEW.user_id,
+        CASE
+            WHEN NEW.thread_id IS NOT NULL THEN 'thread_message'::notification_category
+            WHEN NEW.reply_to_message_id IS NOT NULL AND m.user_id = cm.member_id THEN 'reply'::notification_category
+            ELSE 'message'::notification_category
+        END,
+        NEW.id,
+        NEW.channel_id,
+        truncated_content,
+        NOW()
+    FROM public.channel_members cm
+    LEFT JOIN public.messages m ON m.id = NEW.reply_to_message_id
+    LEFT JOIN public.users u ON u.id = cm.member_id
+    WHERE cm.channel_id = NEW.channel_id
+      AND u.status != 'ONLINE'
+      AND cm.member_id != NEW.user_id
+      AND cm.mute_in_app_notifications = FALSE;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_on_new_message_for_regular_notifications
+AFTER INSERT ON public.messages
+FOR EACH ROW
+WHEN (NEW.content NOT LIKE '%@%' OR NEW.content NOT LIKE '%@everyone%')
+EXECUTE FUNCTION create_notifications_for_regular_messages();
+
+--------------------------------------------------------
+--------------------------------------------------------
+--------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION create_notifications_for_new_unique_reactions()
+RETURNS TRIGGER AS $$
+DECLARE
+    old_reactions JSONB;
+    new_reactions JSONB;
+    reaction_key TEXT;
+    new_reaction JSONB;
+BEGIN
+    -- Extract the old and new reactions into separate variables
+    old_reactions := OLD.reactions;
+    new_reactions := NEW.reactions;
+
+    -- Loop through each reaction type key in the new reactions JSONB
+    FOR reaction_key IN SELECT jsonb_object_keys(new_reactions)
     LOOP
-        -- Loop through each JSON object in the new reactions array for this key
-        FOR new_reaction_entry IN SELECT jsonb_array_elements(NEW.reactions -> reaction_key)
+        -- Loop through each new reaction for the current key
+        FOR new_reaction IN SELECT jsonb_array_elements(new_reactions -> reaction_key)
         LOOP
-            -- Assume the reaction is new until found in the old reactions
-            reaction_exists := FALSE;
-
-            -- Check if this reaction entry is already in the old reactions
-            IF OLD.reactions ? reaction_key THEN
-                reaction_exists := EXISTS (
-                    SELECT 1 
-                    FROM jsonb_array_elements(OLD.reactions -> reaction_key) AS old_entry
-                    WHERE (old_entry ->> 'user_id') = (new_reaction_entry ->> 'user_id')
+            -- Check if the new reaction exists in the old reactions
+            IF (old_reactions ? reaction_key) AND
+               (old_reactions -> reaction_key) @> jsonb_build_array(new_reaction)
+            THEN
+                -- Reaction already exists, skip
+                CONTINUE;
+            ELSE
+                -- Create a new notification
+                INSERT INTO public.notifications (
+                    receiver_user_id,
+                    sender_user_id,
+                    type,
+                    message_id,
+                    channel_id,
+                    message_preview,
+                    created_at
+                )
+                VALUES (
+                    OLD.user_id,
+                    (new_reaction ->> 'user_id')::UUID,
+                    'reaction',
+                    NEW.id,
+                    NEW.channel_id,
+                    COALESCE(truncate_content(NEW.content), ''),
+                    NOW()
                 );
-            END IF;
-
-            -- If the reaction is new, create a notification
-            IF NOT reaction_exists THEN
-                INSERT INTO public.notifications (receiver_user_id, sender_user_id, type, message_id, channel_id, message_preview, created_at)
-                VALUES (OLD.user_id, NEW.user_id, 'reaction', NEW.id, NEW.channel_id, truncate_content(NEW.content), NOW());
             END IF;
         END LOOP;
     END LOOP;
@@ -193,7 +329,7 @@ BEGIN
         -- Count the notifications associated with the message for this particular user
         SELECT COUNT(*) INTO notification_count 
         FROM public.notifications 
-        WHERE receiver_user_id = channel_member.member_id AND channel_id = channel_id_used AND read_at IS NULL;
+        WHERE receiver_user_id = channel_member.member_id AND channel_id = channel_id_used AND readed_at IS NULL;
 
         UPDATE public.channel_members
         SET unread_message_count = notification_count
@@ -215,3 +351,6 @@ CREATE TRIGGER decrement_unread_message_count_trigger_hard_delete
 AFTER DELETE ON public.messages
 FOR EACH ROW
 EXECUTE FUNCTION decrement_unread_message_count();
+
+--- in decrement unread message count, I have to listen to update channel_member table
+--- in order if the

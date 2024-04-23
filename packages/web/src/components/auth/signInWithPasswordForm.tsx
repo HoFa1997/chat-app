@@ -11,6 +11,7 @@ const SignInWithPasswordForm = () => {
   // Handle email/password authentication
   const handleEmailSignIn = async (e: FormEvent) => {
     e.preventDefault();
+    if (!email || !password) return toast.error("Please enter your email and password");
     try {
       const { error } = await request({ email, password });
       if (error) {

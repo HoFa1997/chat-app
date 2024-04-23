@@ -21,7 +21,7 @@ CREATE TABLE public.messages (
     thread_id              VARCHAR(36) REFERENCES public.messages(id) ON DELETE SET NULL, -- ID of the thread this message belongs to.
     thread_depth           INT DEFAULT 0, -- Depth of the message in the thread.
     is_thread_root         BOOLEAN DEFAULT false, -- Indicates if the message is the root of a thread.
-    thread_owner_user_id   UUID REFERENCES public.users ON DELETE SET NULL, -- ID of the user who owns/opens the thread.
+    thread_owner_id        UUID REFERENCES public.users ON DELETE SET NULL, -- ID of the user who owns/opens the thread.
     readed_at              TIMESTAMP WITH TIME ZONE, -- Timestamp for when the message was read by a user.
 );
 
@@ -33,7 +33,7 @@ COMMENT ON TABLE public.messages IS 'Contains individual messages sent by users,
 
 -- public.messages.reaction and .medias Jsonb can be look like this:
 
-
+-- TODO: forwardChain must be split into a separate table
 -- const metadata = {
 --   "replied": [
 --     "68d37413-e405-40e8-aec6-4a741be8982b"
@@ -50,7 +50,10 @@ COMMENT ON TABLE public.messages IS 'Contains individual messages sent by users,
 --       "username": "emma",
 --       "full_name": null
 --     }
---   ]
+--   ],
+--   "thread": {
+--     "count": 0,
+--   }
 -- }
 
 -- const medias = [

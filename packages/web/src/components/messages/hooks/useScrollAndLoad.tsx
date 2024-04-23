@@ -17,28 +17,43 @@ export const useScrollAndLoad = (
   );
   const messagesByChannel = useStore((state: any) => state.messagesByChannel);
   const messages = messagesByChannel.get(channelId);
+  const lastReadMessageId = useStore((state: any) => state.workspaceSettings.lastReadMessageId);
 
   const scrollToBottom = useCallback(
     (options: ScrollIntoViewOptions = {}) => {
       if (userPickingEmoji) return;
 
-      // If there is an unread message, no need to scroll to the bottom.
-      if (unreadMessage) {
-        setLoading(false);
-        return;
-      }
-
       if (messagesEndRef.current) {
         if (options.behavior === "smooth") {
           messagesEndRef.current.scrollIntoView({
             behavior: "smooth",
+            block: "end",
           });
         } else {
-          messagesEndRef.current.scrollIntoView(false);
+          let findLastMsg = true;
+          messageContainerRef?.current?.childNodes?.forEach((element: HTMLElement) => {
+            if ("msgId" in element && element.msgId === lastReadMessageId) {
+              element.scrollIntoView({
+                block: "center",
+              });
+              findLastMsg = false;
+              setLoading(false);
+              return;
+            }
+          });
+          if (findLastMsg) {
+            messageContainerRef?.current?.lastChild.scrollIntoView(false);
+            findLastMsg = false;
+          }
         }
+      } else {
+        messageContainerRef?.current?.lastChild.scrollIntoView(false);
+        console.log({
+          d: messageContainerRef?.current?.lastChild,
+        });
       }
     },
-    [messagesEndRef, unreadMessage],
+    [messageContainerRef, unreadMessage, lastReadMessageId],
   );
 
   const checkIfScrolledToBottom = () => {
@@ -69,11 +84,12 @@ export const useScrollAndLoad = (
       const distanceToBottom = scrollHeight - scrollTop - clientHeight;
 
       // Consider the user close to the bottom if they are within 100px of the bottom.
-      return distanceToBottom < 200;
+      return distanceToBottom < 100;
     };
 
     // Decide whether to scroll to the bottom based on loading state and user's position.
     const handleScrollToBottom = () => {
+      if (initialMessagesLoaded) return;
       if (loading) {
         // If still loading, just scroll to bottom without smooth behavior.
         scrollToBottom();
@@ -99,6 +115,7 @@ export const useScrollAndLoad = (
       const { scrollTop, scrollHeight, clientHeight } = container;
 
       container.addEventListener("scroll", checkIfScrolledToBottom);
+      checkIfScrolledToBottom();
 
       // If the user is scrolled to the top of the container, load more messages.
       if (

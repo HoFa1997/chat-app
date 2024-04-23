@@ -36,6 +36,7 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
     if (cardRef.current) {
       cardRef.current.msgId = data.id;
       cardRef.current.readedAt = data.readed_at;
+      cardRef.current.createdAt = data.created_at;
     }
   }, [ref, data]);
 
@@ -70,13 +71,13 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
     <div
       className={`group ${
         data?.user_details?.id === user?.id ? "chat-end ml-auto owner" : "chat-start mr-auto"
-      } chat msg_card relative w-auto min-w-[30%] max-w-[70%] ${isGroupEnd ? "chat_group-end !mb-2" : "chat_group-start"}`}
+      } chat msg_card relative  min-w-[30%] w-fit max-w-[90%] ${isGroupEnd ? "chat_group-end !mb-2" : "chat_group-start"}`}
       ref={cardRef}
       onDoubleClick={handleDoubleClick}
     >
       <Avatar
         src={data?.user_details?.avatar_url}
-        className="w-10 rounded-full chat-image avatar"
+        className="w-10 rounded-full cursor-pointer hover:scale-105 transition-all chat-image avatar"
         style={{
           width: 40,
           height: 40,
@@ -115,7 +116,7 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
       <MessageContextMenu
         parrentRef={cardRef}
         messageData={data}
-        className="m-0 z-20 menu p-2 outline-none shadow bg-base-100 rounded-lg w-40"
+        className="m-0 z-20 menu p-2 outline-none shadow bg-base-100 rounded-lg w-48"
       />
     </div>
   );

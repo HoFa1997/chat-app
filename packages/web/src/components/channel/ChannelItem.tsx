@@ -1,5 +1,5 @@
 import { TChannel } from "@/api";
-import React from "react";
+import React, { useEffect } from "react";
 import { ChannelTypeIcon } from "@ui/ChannelTypeIcon";
 import { Avatar } from "@ui/Avatar";
 import { useRouter } from "next/router";
@@ -43,9 +43,19 @@ export const ChannelItem = ({ data, ...props }: { data: TChannel }) => {
             </span>
             <span className=" ml-auto w-20 text-right ">{lastTimUpdated}</span>
           </div>
-          <p className="truncate msgIndicator" data-msg={data.last_message_preview ?? "No message"}>
-            {data.last_message_preview ?? "No message"}
-          </p>
+          <div className="flex justify-between">
+            <p
+              className="truncate msgIndicator"
+              data-msg={data.last_message_preview ?? "No message"}
+            >
+              {data.last_message_preview ?? "No message"}
+            </p>
+            {data?.unread_message_count > 0 ? (
+              <div className="badge">{data.unread_message_count}</div>
+            ) : (
+              ""
+            )}
+          </div>
         </div>
       </div>
     </li>

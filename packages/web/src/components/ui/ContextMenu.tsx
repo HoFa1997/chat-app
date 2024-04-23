@@ -1,4 +1,12 @@
-import { Children, cloneElement, forwardRef, isValidElement, useEffect, useRef, useState } from "react";
+import {
+  Children,
+  cloneElement,
+  forwardRef,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   useFloating,
   autoUpdate,
@@ -40,7 +48,9 @@ export const ContextMenu = forwardRef<HTMLUListElement, Props & React.HTMLProps<
 
     const listItemsRef = useRef<Array<HTMLUListElement | null>>([]);
     const listContentRef = useRef(
-      Children.map(children, (child) => (isValidElement(child) ? child.props.label : null)) as Array<string | null>,
+      Children.map(children, (child) =>
+        isValidElement(child) ? child.props.label : null,
+      ) as Array<string | null>,
     );
     const allowMouseUpCloseRef = useRef(false);
 
@@ -73,7 +83,12 @@ export const ContextMenu = forwardRef<HTMLUListElement, Props & React.HTMLProps<
       activeIndex,
     });
 
-    const { getFloatingProps, getItemProps } = useInteractions([role, dismiss, listNavigation, typeahead]);
+    const { getFloatingProps, getItemProps } = useInteractions([
+      role,
+      dismiss,
+      listNavigation,
+      typeahead,
+    ]);
 
     useEffect(() => {
       let timeout: number;
@@ -126,7 +141,12 @@ export const ContextMenu = forwardRef<HTMLUListElement, Props & React.HTMLProps<
       <FloatingPortal>
         <FloatingOverlay lockScroll>
           <FloatingFocusManager context={context} initialFocus={refs.floating}>
-            <ul className={className} ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
+            <ul
+              className={className}
+              ref={refs.setFloating}
+              style={floatingStyles}
+              {...getFloatingProps()}
+            >
               {Children.map(
                 children,
                 (child, index) =>

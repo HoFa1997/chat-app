@@ -9,11 +9,9 @@ CREATE TABLE public.notifications (
     channel_id          VARCHAR(36) REFERENCES public.channels ON DELETE CASCADE, -- ID of the associated channel, if the notification is channel-related.
     message_preview     TEXT, -- Preview of the content related to the notification (if applicable).
     created_at          TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL, -- Timestamp when the notification was created.
-    read_at             TIMESTAMP WITH TIME ZONE, -- Timestamp when the notification was marked as read by the user.
+    readed_at           TIMESTAMP WITH TIME ZONE, -- Timestamp when the notification was marked as read by the user.
     action_url          TEXT, -- URL or deep link to direct the user to a specific page or action in the application.
     sender_user_id      UUID REFERENCES public.users ON DELETE CASCADE -- ID of the user who sent the notification (if applicable).
 );
 
 COMMENT ON TABLE public.notifications IS 'Table to store and manage notifications for various user interactions and activities within the application.';
-
--- TODO: Notification for new emoji reaction

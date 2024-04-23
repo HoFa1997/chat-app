@@ -37,11 +37,26 @@ const LoadingSpinner = () => (
   </div>
 );
 
-const SystemNotifyChip: React.FC<{ message: string }> = ({ message }) => (
-  <div className="my-4 flex justify-center pb-1">
-    <div className="badge badge-secondary">{message}</div>
-  </div>
-);
+const SystemNotifyChip = ({ message }: any) => {
+  const cardRef = useRef(null);
+
+  useEffect(() => {
+    console.log(message);
+    // we need for check message readed or not
+    // Attach the message.id to the cardRef directly
+    if (cardRef.current) {
+      cardRef.current.msgId = message.id;
+      cardRef.current.readedAt = message.readed_at;
+      cardRef.current.createdAt = message.created_at;
+    }
+  }, [message]);
+
+  return (
+    <div className="chat msg_card my-4 flex justify-center pb-1" ref={cardRef}>
+      <div className="badge badge-secondary">{message.content}</div>
+    </div>
+  );
+};
 
 const generateMessageElements = (
   messages: Map<string, any>,
@@ -51,15 +66,15 @@ const generateMessageElements = (
   selectedEmoji: string,
 ) => {
   const messagesArray = Array.from(messages.values());
-  const unreadMessage = useStore.getState().workspaceSettings.unreadMessage;
-  const scrollPage = useStore.getState().workspaceSettings.scrollPage;
+  const lastReadMessageId = useStore.getState().workspaceSettings.lastReadMessageId;
+  const totalMsgSincLastRead = useStore.getState().workspaceSettings.totalMsgSincLastRead || 0;
 
   return messagesArray.flatMap((message, index, array) => {
     const elements = [];
 
-    if (unreadMessage && index === 0 && scrollPage === 2) {
+    if (lastReadMessageId === message.id && totalMsgSincLastRead >= 6) {
       elements.push(
-        <div key={index + "1"} className="divider my-2 w-full p-4">
+        <div key={index + "2"} className="divider my-2 w-full p-4">
           Unread messages
         </div>,
       );
@@ -76,7 +91,7 @@ const generateMessageElements = (
     }
 
     if (message.type === "notification") {
-      elements.push(<SystemNotifyChip key={message.id} message={message.content} />);
+      elements.push(<SystemNotifyChip key={message.id} message={message} />);
     } else {
       elements.push(
         <MessageCard
@@ -113,18 +128,20 @@ export const MessagesDisplay: React.FC<MessagesDisplayProps> = ({
   }
 
   return (
-    <div
-      className="relative msg_wrapper flex w-full grow flex-col overflow-y-auto px-10 pt-1"
-      ref={messageContainerRef}
-    >
-      {isLoadingMore && <LoadingSpinner />}
-      {generateMessageElements(
-        messages,
-        isScrollingUp,
-        messagesEndRef,
-        toggleEmojiPicker,
-        selectedEmoji,
-      )}
-    </div>
+    <>
+      <div
+        className="relative msg_wrapper flex w-full grow flex-col overflow-y-auto px-10 pt-1"
+        ref={messageContainerRef}
+      >
+        {isLoadingMore && <LoadingSpinner />}
+        {generateMessageElements(
+          messages,
+          isScrollingUp,
+          messagesEndRef,
+          toggleEmojiPicker,
+          selectedEmoji,
+        )}
+      </div>
+    </>
   );
 };

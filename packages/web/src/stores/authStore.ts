@@ -5,7 +5,7 @@ import { Database } from "@/types/supabase";
 type TProfile = Database["public"]["Tables"]["users"]["Row"];
 
 export interface IAuthStore {
-  session: object | null;
+  session: any | null;
   profile: TProfile | null;
   loading: boolean;
   displayName?: string | null;

@@ -13,7 +13,8 @@ const ReactionsCard: React.FC<ReactionsCardProps> = ({ reactions, message }) => 
 
   // Checks if the current user has reacted with a specific emoji
   const hasCurrentUserReacted = useCallback(
-    (reactionUsers: Array<{ user_id: string }>) => reactionUsers.some(({ user_id }) => user_id === currentUser?.id),
+    (reactionUsers: Array<{ user_id: string }>) =>
+      reactionUsers.some(({ user_id }) => user_id === currentUser?.id),
     [currentUser],
   );
 
@@ -29,11 +30,11 @@ const ReactionsCard: React.FC<ReactionsCardProps> = ({ reactions, message }) => 
   );
 
   return (
-    <div className="relative mr-auto flex w-full flex-row justify-start overflow-hidden overflow-x-auto">
+    <div className="relative gap-1 scroll-pl-6 mr-auto flex w-full flex-wrap flex-row justify-start overflow-hidden overflow-x-auto">
       {reactions &&
         Object.entries(reactions).map(([emoji, users]: any, index) => (
           <button
-            className={`btn btn-ghost btn-active btn-xs mx-1  flex h-8 min-w-8 items-center justify-center gap-2 p-0 text-xl  first-of-type:ml-0  ${
+            className={`btn scroll-ms-6 btn-ghost btn-active btn-xs flex h-8 min-w-8 items-center justify-center gap-2 p-0 text-xl  first-of-type:ml-0  ${
               hasCurrentUserReacted(users)
                 ? "!bg-secondary "
                 : "!bg-gray-200 !bg-opacity-20 !text-opacity-100 !opacity-100"
