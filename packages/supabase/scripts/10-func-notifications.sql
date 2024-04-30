@@ -269,28 +269,19 @@ EXECUTE FUNCTION create_notifications_for_new_unique_reactions();
 */
 
 CREATE OR REPLACE FUNCTION increment_unread_count_on_new_message() RETURNS TRIGGER AS $$
-DECLARE
-    channel_member RECORD;
 BEGIN
-    -- Iterate through each member of the channel, excluding the sender
-    FOR channel_member IN
-        SELECT cm.member_id, cm.last_read_update_at
-        FROM public.channel_members cm 
-        WHERE cm.channel_id = NEW.channel_id AND cm.member_id != NEW.user_id
-    LOOP
-        -- Increment unread message count if the new message was sent after the last read update
-        IF NEW.created_at > channel_member.last_read_update_at THEN
-            UPDATE public.channel_members
-            SET unread_message_count = unread_message_count + 1
-            WHERE channel_id = NEW.channel_id AND member_id = channel_member.member_id;
-        END IF;
-    END LOOP;
+    -- Increment unread message count for all channel members who have not read up to this new message
+    UPDATE public.channel_members
+    SET unread_message_count = unread_message_count + 1
+    WHERE channel_id = NEW.channel_id
+      AND member_id != NEW.user_id
+      AND last_read_update_at < NEW.created_at;
 
     RETURN NEW; -- Return the new message record
 END;
 $$ LANGUAGE plpgsql;
 
-COMMENT ON FUNCTION increment_unread_count_on_new_message() IS 'Function to increment unread message count for channel members upon the insertion of a new message, provided the message was posted after the member’s last read update.';
+COMMENT ON FUNCTION increment_unread_count_on_new_message() IS 'Function to increment unread message count for channel members upon the insertion of a new message, optimized to perform a single update for all eligible members.';
 
 /*
     --------------------------------------------------------
@@ -315,7 +306,7 @@ CREATE OR REPLACE FUNCTION decrement_unread_message_count() RETURNS TRIGGER AS $
 DECLARE
     channel_member RECORD;
     notification_count INT;
-    channel_id_used VARCHAR(36);
+    channel_id_used UUID;
 BEGIN
     -- Determine whether it's a soft delete (update) or hard delete
     IF TG_OP = 'DELETE' THEN

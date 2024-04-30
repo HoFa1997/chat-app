@@ -9,7 +9,7 @@ import { useAuthStore, useStore } from "@/stores";
 import { creatDirectMessageChannel } from "@/api";
 import { useRouter } from "next/router";
 
-export const useUserProfileModalStore = create((set) => ({
+export const useUserProfileModalStore = create((set: any) => ({
   modalOpen: false,
   modalId: "",
   modalData: null,
@@ -75,7 +75,7 @@ export const UserProfileModal = () => {
           </div>
           <div className="ml-auto">
             <button className="btn btn-circle  btn-sm" onClick={closeModal}>
-              <IoCloseOutline className="h-6 w-6" />
+              <IoCloseOutline className="size-6" />
             </button>
           </div>
         </div>

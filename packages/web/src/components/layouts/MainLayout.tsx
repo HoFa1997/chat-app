@@ -8,7 +8,11 @@ interface MainLayoutProps {
   loading?: boolean;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children, showChannelList = false, loading = false }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({
+  children,
+  showChannelList = false,
+  loading = false,
+}) => {
   return (
     <div className="flex h-dvh max-w-full flex-row bg-base-300">
       <WorkspaceSidebar />

@@ -25,11 +25,11 @@ const WorkspaceListItem = memo(({ workspace }: any) => {
                 id={workspace.name}
                 size={60}
                 collection="initials"
-                className={`h-10 w-10 rounded-full ring-2 ring-offset-2 ring-offset-base-100 hover:ring-secondary ${activeWorkspace}`}
+                className={`size-10 rounded-full ring-2 ring-offset-2 ring-offset-base-100 hover:ring-secondary ${activeWorkspace}`}
               />
             </button>
           </TooltipTrigger>
-          <TooltipContent className="z-10 daisy_tooltip bg-neutral text-neutral-content">
+          <TooltipContent className="daisy_tooltip z-10 bg-neutral text-neutral-content">
             {workspace.name}
           </TooltipContent>
         </Tooltip>

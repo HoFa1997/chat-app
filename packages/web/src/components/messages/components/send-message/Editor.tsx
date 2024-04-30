@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useEditor, EditorContent, Editor } from "@tiptap/react";
+import { useEditor, Editor } from "@tiptap/react";
 
 // Code and Syntax Highlighting
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";

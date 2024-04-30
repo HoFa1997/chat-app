@@ -1,5 +1,5 @@
 import { TChannel } from "@/api";
-import React, { useEffect } from "react";
+import React from "react";
 import { ChannelTypeIcon } from "@ui/ChannelTypeIcon";
 import { Avatar } from "@ui/Avatar";
 import { useRouter } from "next/router";
@@ -26,7 +26,7 @@ export const ChannelItem = ({ data, ...props }: { data: TChannel }) => {
       onClick={() => push(`/${workspaceId}/${data.id}`)}
     >
       <div className={`m-0 p-2 ${channelId === data.id && "active"}`}>
-        <div className="mr-2 h-10 w-10">
+        <div className="mr-2 size-10">
           <Avatar
             className="m-0 rounded-full ring-2 ring-base-300 ring-offset-2"
             id={data.id}
@@ -45,7 +45,7 @@ export const ChannelItem = ({ data, ...props }: { data: TChannel }) => {
           </div>
           <div className="flex justify-between">
             <p
-              className="truncate msgIndicator"
+              className="msgIndicator truncate"
               data-msg={data.last_message_preview ?? "No message"}
             >
               {data.last_message_preview ?? "No message"}

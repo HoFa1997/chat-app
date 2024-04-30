@@ -1,7 +1,7 @@
 -- Test
 -- SELECT * FROM get_channel_aggregate_data('99634205-5238-4ffc-90ec-c64be3ad25cf');
 CREATE OR REPLACE FUNCTION get_channel_aggregate_data(
-    input_channel_id VARCHAR(36),
+    input_channel_id UUID,
     message_limit INT DEFAULT 20
 )
 RETURNS TABLE(
@@ -12,7 +12,7 @@ RETURNS TABLE(
     channel_member_info JSONB,
     total_messages_since_last_read INT,
     unread_message BOOLEAN,
-    last_read_message_id VARCHAR(36),
+    last_read_message_id UUID,
     last_read_message_timestamp TIMESTAMP WITH TIME ZONE
 ) AS $$
 DECLARE
@@ -21,7 +21,7 @@ DECLARE
     pinned_result JSONB;
     is_member_result BOOLEAN;
     channel_member_info_result JSONB;
-    last_read_message_id VARCHAR(36);
+    last_read_message_id UUID;
     last_read_message_timestamp TIMESTAMP WITH TIME ZONE;
     unread_message BOOLEAN := FALSE;
 BEGIN
@@ -41,7 +41,6 @@ BEGIN
     FROM public.messages 
     WHERE channel_id = input_channel_id 
         AND created_at >= last_read_message_timestamp
-        AND thread_id IS NULL
         AND deleted_at IS NULL;
 
    IF total_messages_since_last_read >= message_limit THEN
@@ -98,7 +97,6 @@ BEGIN
         FROM public.messages m
         LEFT JOIN public.users u ON m.user_id = u.id
         WHERE m.channel_id = input_channel_id
-            AND m.thread_id IS NULL
             AND m.deleted_at IS NULL
             AND (
                 CASE
@@ -144,7 +142,10 @@ $$ LANGUAGE plpgsql;
 
 -------------------------------------------------
 -- p_message_id =: is the last message inserted in the channel
-CREATE OR REPLACE FUNCTION mark_messages_as_read(p_channel_id VARCHAR(36), p_message_id VARCHAR(36))
+CREATE OR REPLACE FUNCTION mark_messages_as_read(
+    p_channel_id UUID, 
+    p_message_id UUID
+)
 RETURNS VOID AS $$
 DECLARE
     current_utc_timestamp TIMESTAMP WITH TIME ZONE := timezone('utc', now());
@@ -208,7 +209,7 @@ $$ LANGUAGE plpgsql VOLATILE SECURITY DEFINER;
 --------------------------------------------------
 
 CREATE OR REPLACE FUNCTION get_channel_messages_paginated(
-    input_channel_id VARCHAR(36),
+    input_channel_id UUID,
     page INT,
     page_size INT DEFAULT 20 
 )
@@ -270,7 +271,7 @@ $$ LANGUAGE plpgsql;
 -------------------------------
 -------------------------------
 CREATE OR REPLACE FUNCTION create_direct_message_channel(
-    workspace_uid VARCHAR(36),
+    workspace_uid UUID,
     user_id UUID
 ) RETURNS JSONB AS $$
 DECLARE

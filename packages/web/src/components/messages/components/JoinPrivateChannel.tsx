@@ -1,8 +1,9 @@
-import { useStore } from "@stores/index";
 import { useAuthStore } from "@stores/index";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 export default function JoinPrivateChannel() {
-  const { channelId } = useStore((state: any) => state.workspaceSettings);
+  const { channelId } = useChannel();
+
   const user = useAuthStore((state) => state.profile);
 
   if (!user || !channelId) return null;
@@ -10,7 +11,7 @@ export default function JoinPrivateChannel() {
   return (
     <div className="flex w-full flex-col items-center justify-center p-2">
       <div className="btn btn-block">
-        It's a private channel, Users can join only by invitation or approval.
+        It&apos;s a private channel, Users can join only by invitation or approval.
       </div>
     </div>
   );

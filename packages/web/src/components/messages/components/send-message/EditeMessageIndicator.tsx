@@ -2,6 +2,7 @@ import { twx, cn } from "@utils/index";
 import { IoCloseOutline } from "react-icons/io5";
 import { RiPencilFill } from "react-icons/ri";
 import { useStore } from "@stores/index";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 type BtnIcon = React.ComponentProps<"button"> & { $active?: boolean; $size?: number };
 
@@ -14,17 +15,20 @@ const IconButton = twx.button<BtnIcon>((props) =>
 );
 
 export const EditeMessageIndicator = () => {
-  const setEditeMessageMemory = useStore((state) => state.setEditeMessageMemory);
-  const { editeMessageMemory } = useStore((state: any) => state.workspaceSettings);
+  const { channelId } = useChannel();
+  const setEditMessageMemory = useStore((state) => state.setEditMessageMemory);
+  const channelSettings = useStore((state: any) => state.workspaceSettings.channels.get(channelId));
+  const { editeMessageMemory } = channelSettings || {};
 
   const handleCloseEditeMessage = () => {
-    setEditeMessageMemory(null);
+    setEditMessageMemory(channelId, null);
   };
 
   const replyToUser =
     editeMessageMemory?.user_details?.fullname || editeMessageMemory?.user_details?.username || "";
 
   if (!editeMessageMemory) return null;
+  if (editeMessageMemory.channel_id !== channelId) return null;
 
   return (
     <div className="flex w-full  items-center justify-between px-4 py-2 text-base-content">

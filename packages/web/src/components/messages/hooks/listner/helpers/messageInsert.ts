@@ -7,11 +7,11 @@ const getChannelMessages = (channelId: string): any => {
 };
 
 export const messageInsert = (payload: any) => {
-  const { channelId } = useStore.getState().workspaceSettings;
+  const channelId = payload.new.channel_id;
+
   const setOrUpdateMessage = useStore.getState().setOrUpdateMessage;
   const setLastMessage = useStore.getState().setLastMessage;
   const usersPresence = useStore.getState().usersPresence;
-  const setOrUpdateThreadMessage = useStore.getState().setOrUpdateThreadMessage;
 
   if (!channelId) return;
 
@@ -31,10 +31,6 @@ export const messageInsert = (payload: any) => {
     },
   };
 
-  console.log({
-    newMessage,
-  });
-
   // if there is no messages, just add the message
   if (!messages) {
     setLastMessage(channelId, newMessage);
@@ -48,25 +44,7 @@ export const messageInsert = (payload: any) => {
   const lastMessage1 = msgs.pop();
 
   // if the last message is from the same user, we need to group the messages
-  const newInstanceOfMessages = groupedMessages([
-    lastMessage1,
-    lastMessage0,
-    newMessage,
-  ]);
-
-  if (newMessage.thread_id) {
-    setOrUpdateThreadMessage(
-      newMessage.thread_id,
-      lastMessage0.id,
-      newInstanceOfMessages.at(1),
-    );
-    setOrUpdateThreadMessage(
-      newMessage.thread_id,
-      newMessage.id,
-      newInstanceOfMessages.at(2),
-    );
-    return;
-  }
+  const newInstanceOfMessages = groupedMessages([lastMessage1, lastMessage0, newMessage]);
 
   // TODO: do we need anymore this?!/!
   setLastMessage(channelId, newInstanceOfMessages.at(-1));

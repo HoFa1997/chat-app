@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import {
-  PostgrestError,
-  PostgrestResponse,
-  PostgrestSingleResponse,
-} from "@supabase/supabase-js";
+import { PostgrestError, PostgrestResponse, PostgrestSingleResponse } from "@supabase/supabase-js";
 
 // Define a generic type for the API function
 type ApiFunction<TData> = (

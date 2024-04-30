@@ -64,7 +64,7 @@ const ThemeChanger = () => {
       </div>
       <ul
         tabIndex={0}
-        className="dropdown-content z-[1] h-52 w-52 overflow-auto rounded-box bg-base-300 p-2 shadow-2xl"
+        className="dropdown-content z-[1] size-52 overflow-auto rounded-box bg-base-300 p-2 shadow-2xl"
       >
         <li>
           <input

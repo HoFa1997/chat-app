@@ -1,4 +1,4 @@
-import { useEditor, EditorContent, Editor } from "@tiptap/react";
+import { EditorContent } from "@tiptap/react";
 import { EditorToolbar } from "./EditorToolbar";
 import { ReplayMessageIndicator } from "./ReplayMessageIndicator";
 import { useState, useCallback, useEffect, useMemo } from "react";
@@ -8,12 +8,13 @@ import { IoSend } from "react-icons/io5";
 import { MdFormatColorText } from "react-icons/md";
 import { BsFillEmojiSmileFill } from "react-icons/bs";
 import { useStore, useAuthStore } from "@stores/index";
-import { sendMessage, updateMessage, sendThreadMessage, createThreadMessage } from "@/api";
+import { sendMessage, updateMessage, create_thread_message } from "@/api";
 import { useApi } from "@/shared/hooks/useApi";
 import toast from "react-hot-toast";
 import { EditeMessageIndicator } from "./EditeMessageIndicator";
 import { useTiptapEditor } from "./Editor";
 import { chunkHtmlContent } from "@/shared/utils/chunkHtmlContent";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 type BtnIcon = React.ComponentProps<"button"> & { $active?: boolean; $size?: number };
 
@@ -25,16 +26,19 @@ const IconButton = twx.button<BtnIcon>((prop) =>
   ),
 );
 
-export default function SendMessage({ thread }: any) {
+export default function SendMessage() {
+  const { channelId } = useChannel();
+
   const [showEditorToolbar, setShowEditorToolbar] = useState(false);
-  const setEditeMessageMemory = useStore((state) => state.setEditeMessageMemory);
+  const setEditMessageMemory = useStore((state) => state.setEditMessageMemory);
   const setReplayMessageMemory = useStore((state) => state.setReplayMessageMemory);
   const startThreadMessage = useStore((state) => state.startThreadMessage);
 
   const user = useAuthStore((state: any) => state.profile);
-  const { channelId, replayMessageMemory, editeMessageMemory } = useStore(
-    (state: any) => state.workspaceSettings,
-  );
+  const { workspaceId } = useStore((state: any) => state.workspaceSettings);
+  const channelSettings = useStore((state: any) => state.workspaceSettings.channels.get(channelId));
+  const { replayMessageMemory, editeMessageMemory } = channelSettings || {};
+
   const setOrUpdateUserPresence = useStore((state: any) => state.setOrUpdateUserPresence);
   const usersPresence = useStore((state: any) => state.usersPresence);
   const { request: postRequestMessage, loading: postMsgLoading } = useApi(sendMessage, null, false);
@@ -45,7 +49,7 @@ export default function SendMessage({ thread }: any) {
   );
 
   const { request: postRequestThreadMessage, loading: postThreadMsgLoading } = useApi(
-    createThreadMessage,
+    create_thread_message,
     null,
     false,
   );
@@ -58,6 +62,7 @@ export default function SendMessage({ thread }: any) {
 
   useEffect(() => {
     if (!editor) return;
+    if (editeMessageMemory?.channel_id !== channelId) return;
 
     editor
       .chain()
@@ -90,14 +95,13 @@ export default function SendMessage({ thread }: any) {
       editor?.commands.clearContent(true);
 
       if (htmlChunks.length === 0) {
-        if (thread && startThreadMessage) {
+        if (!messageId && startThreadMessage && startThreadMessage.id === channelId) {
           const threadId = startThreadMessage.id;
           postRequestThreadMessage({
             p_content: text,
-            p_channel_id: channelId,
-            p_user_id: user.id,
             p_html: html,
             p_thread_id: threadId,
+            p_workspace_id: workspaceId,
           });
         } else if (editeMessageMemory) {
           editeRequestMessage(text, html, messageId);
@@ -122,8 +126,8 @@ export default function SendMessage({ thread }: any) {
       // clear the editor
       document.dispatchEvent(new CustomEvent("messages:container:scroll:down"));
       // if it has reply or forward message, clear it
-      if (replayMessageMemory) setReplayMessageMemory(null);
-      if (editeMessageMemory) setEditeMessageMemory(null);
+      if (replayMessageMemory) setReplayMessageMemory(channelId, null);
+      if (editeMessageMemory) setEditMessageMemory(channelId, null);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,9 +144,9 @@ export default function SendMessage({ thread }: any) {
   const handleEsc = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        if (replayMessageMemory) setReplayMessageMemory(null);
+        if (replayMessageMemory) setReplayMessageMemory(channelId, null);
         if (editeMessageMemory) {
-          setEditeMessageMemory(null);
+          setEditMessageMemory(channelId, null);
           editor?.commands.clearContent(true);
         }
       }
@@ -182,8 +186,12 @@ export default function SendMessage({ thread }: any) {
 
             <EditorContent className="max-h-52 w-full overflow-auto" editor={editor} dir="auto" />
 
-            <IconButton $size={8} onClick={() => setShowEditorToolbar(!showEditorToolbar)}>
-              <MdFormatColorText size={22} />
+            <IconButton
+              $size={8}
+              className={showEditorToolbar ? "bg-secondary text-secondary-content" : ""}
+              onClick={() => setShowEditorToolbar(!showEditorToolbar)}
+            >
+              <MdFormatColorText size={24} />
             </IconButton>
 
             <IconButton $size={8} onClick={openEmojiPicker}>

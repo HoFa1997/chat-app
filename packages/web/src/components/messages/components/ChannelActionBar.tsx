@@ -3,12 +3,21 @@ import JoinBroadcastChannel from "./JoinBroadcastChannel";
 import JoinGroupChannel from "./JoinGroupChannel";
 import JoinPrivateChannel from "./JoinDirectChannel";
 import JoinDirectChannel from "./JoinPrivateChannel";
-import { useAuthStore, useStore } from "@stores/index";
+import { useStore } from "@stores/index";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 export const ChannelActionBar = () => {
-  const { isUserChannelMember, isUserChannelOwner, isUserChannelAdmin, channelInfo } = useStore(
-    (state: any) => state.workspaceSettings,
-  );
+  const { channelId } = useChannel();
+
+  const channelSettings = useStore((state: any) => state.workspaceSettings.channels.get(channelId));
+  const { isUserChannelMember, isUserChannelOwner, isUserChannelAdmin, channelInfo } =
+    channelSettings || {};
+
+  const channels = useStore((state: any) => state.channels);
+
+  if ((channels.has(channelId) && channels.get(channelId).type === "THREAD") || !channelInfo) {
+    return <SendMessage />;
+  }
 
   // For DIRECT, PRIVATE and default cases
   if (["DIRECT", "PRIVATE"].includes(channelInfo?.type) || !channelInfo?.type) {

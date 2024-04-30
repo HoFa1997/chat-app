@@ -1,19 +1,19 @@
-/* eslint-disable */
-// @ts-nocheck
-
-import { useState, useCallback, useEffect, UIEvent } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { emojiReaction } from "@/api";
 import { useStore } from "@stores/index";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 export const useEmojiBoxHandler = (emojiPikerRef: any, messageContainerRef: any) => {
+  const { channelId } = useChannel();
   const [isEmojiBoxOpen, setIsEmojiBoxOpen] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState(null);
   const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [eventTypes, setEventTypes] = useState(null);
-  const [editor, setEditor] = useState(null);
-  const { userPickingEmoji } = useStore((state) => state.workspaceSettings);
-  const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
+  const [editor, setEditor] = useState<any>(null);
+  const channelSettings = useStore((state) => state.workspaceSettings.channels.get(channelId));
+
+  const { userPickingEmoji } = channelSettings || {};
 
   useEffect(() => {
     const toggelEmojiPickerHandler = (e: any) => {
@@ -61,10 +61,9 @@ export const useEmojiBoxHandler = (emojiPikerRef: any, messageContainerRef: any)
   }, [emojiPikerRef]);
 
   const handleEvent = useCallback(
-    (event: UIEvent) => {
+    (event: any) => {
       if (event.type === "scroll" && userPickingEmoji) return;
       closeEmojiPicker();
-      setWorkspaceSetting("userPickingEmoji", false);
     },
     [userPickingEmoji],
   );
@@ -89,7 +88,6 @@ export const useEmojiBoxHandler = (emojiPikerRef: any, messageContainerRef: any)
 
   const openEmojiPicker = useCallback(() => {
     setIsEmojiBoxOpen(true);
-    setWorkspaceSetting("userPickingEmoji", true);
   }, [isEmojiBoxOpen]);
 
   const closeEmojiPicker = useCallback(() => {

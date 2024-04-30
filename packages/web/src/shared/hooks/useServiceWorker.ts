@@ -7,38 +7,39 @@ const useServiceWorker = () => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/service-worker.js")
-        .then((registration) => console.log("scope is: ", registration.scope));
+        .then((registration) => console.info("scope is: ", registration.scope));
     }
   }, []);
 
   useEffect(() => {
     if (
-      typeof window !== "undefined" && "serviceWorker" in navigator &&
+      typeof window !== "undefined" &&
+      "serviceWorker" in navigator &&
       window.workbox !== undefined
     ) {
       const wb = window.workbox;
 
       // Add event listeners
       const handleInstall = (event) => {
-        console.log(`Event ${event.type} is triggered.`, event);
+        console.info(`Event ${event.type} is triggered.`, event);
       };
 
       const handleControlling = (event) => {
-        console.log(`Event ${event.type} is triggered.`, event);
+        console.info(`Event ${event.type} is triggered.`, event);
       };
 
       const handleActivated = (event) => {
-        console.log(`Event ${event.type} is triggered.`, event);
+        console.info(`Event ${event.type} is triggered.`, event);
       };
 
       const promptNewVersionAvailable = (event) => {
         // Custom logic for prompting new version
-        console.log(`Event ${event.type} is triggered.`, event);
+        console.info(`Event ${event.type} is triggered.`, event);
         // ...
       };
 
       const handleMessage = (event) => {
-        console.log(`Event ${event.type} is triggered.`, event);
+        console.info(`Event ${event.type} is triggered.`, event);
       };
 
       wb.addEventListener("installed", handleInstall);

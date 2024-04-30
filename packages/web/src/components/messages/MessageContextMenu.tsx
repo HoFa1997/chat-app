@@ -1,5 +1,5 @@
-import React, { forwardRef, useMemo } from "react";
-import { deleteMessage, pinMessage, openMessageThread } from "@/api";
+import React, { forwardRef, useMemo, useCallback } from "react";
+import { deleteMessage, pinMessage } from "@/api";
 import {
   BsReplyFill,
   BsForwardFill,
@@ -13,128 +13,143 @@ import toast from "react-hot-toast";
 import { ContextMenu, MenuItem } from "@ui/ContextMenu";
 import { useStore, useAuthStore } from "@stores/index";
 import { BiSolidMessageDetail } from "react-icons/bi";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 export const MessageContextMenu = forwardRef<
   HTMLUListElement,
   { messageData: any; className: string; parrentRef: any }
 >(({ messageData, className, parrentRef }, ref) => {
+  const { channelId, settings } = useChannel();
+  const channelSettings = useStore((state: any) =>
+    state.workspaceSettings.channels.get(messageData.channel_id),
+  );
+
   const openModal = useForwardMessageModalStore((state: any) => state.openModal);
   const addChannelPinnedMessage = useStore((state) => state.addChannelPinnedMessage);
   const removeChannelPinnedMessage = useStore((state) => state.removeChannelPinnedMessage);
-  const { channelId, workspaceBroadcaster, editeMessageMemory } = useStore(
-    (state) => state.workspaceSettings,
-  );
-  const setEditeMessageMemory = useStore((state) => state.setEditeMessageMemory);
+  const { workspaceBroadcaster } = useStore((state) => state.workspaceSettings);
+  const setEditMessageMemory = useStore((state) => state.setEditMessageMemory);
   const setReplayMessageMemory = useStore((state) => state.setReplayMessageMemory);
   const user = useAuthStore((state) => state.profile);
 
-  if (!channelId) return null;
+  const handleReplayMessage = useCallback(() => {
+    if (!messageData) return;
+    setReplayMessageMemory(channelId, messageData);
+    // Trigger editor focus
+    const event = new CustomEvent("editor:focus");
+    document.dispatchEvent(event);
+  }, [channelId, messageData]);
 
-  const handleReplayMessage = () => {
-    if (messageData) {
-      setReplayMessageMemory(messageData);
-      // call editor focus
-      const event = new CustomEvent("editor:focus");
-      document.dispatchEvent(event);
-    }
-  };
-
-  const handelDeleteMessage = async () => {
+  const handleDeleteMessage = useCallback(async () => {
+    if (!messageData) return;
     const { error } = await deleteMessage(messageData.channel_id, messageData.id);
-    if (!error) {
-      toast.success("Message deleted");
-    } else {
+    if (error) {
       toast.error("Message not deleted");
+    } else {
+      toast.success("Message deleted");
     }
-  };
+  }, [messageData]);
 
-  const handlePinMessage = async () => {
+  const handlePinMessage = useCallback(async () => {
+    if (!messageData) return;
     const actionType = messageData.metadata?.pinned ? "unpin" : "pin";
     const { error } = await pinMessage(messageData.channel_id, messageData.id, actionType);
-    if (!error) {
-      toast.success("Message pinned successfully");
+    if (error) {
+      toast.error(`Message not ${actionType}`);
     } else {
-      toast.error("Message not pinned");
+      toast.success(`Message ${actionType} successfully`);
+      actionType === "pin"
+        ? addChannelPinnedMessage(messageData.channel_id, messageData)
+        : removeChannelPinnedMessage(messageData.channel_id, messageData.id);
+
+      await workspaceBroadcaster.send({
+        type: "broadcast",
+        event: "pinnedMessage",
+        payload: { message: messageData, actionType },
+      });
     }
+  }, [messageData]);
 
-    if (!error && actionType === "pin") {
-      addChannelPinnedMessage(messageData.channel_id, messageData);
-    } else {
-      removeChannelPinnedMessage(messageData.channel_id, messageData.id);
-    }
-
-    await workspaceBroadcaster.send({
-      type: "broadcast",
-      event: "pinnedMessage",
-      payload: {
-        message: messageData,
-        actionType,
-      },
-    });
-  };
-
-  const handelEdite = () => {
+  const handleEdit = useCallback(() => {
     if (!messageData) return;
-    setEditeMessageMemory(messageData);
-  };
+    setEditMessageMemory(channelId, messageData);
+  }, [channelId, messageData]);
 
-  const handelThread = () => {
-    console.log("thread", messageData);
+  const handleThread = useCallback(() => {
     if (!messageData) return;
     useStore.getState().setStartThreadMessage(messageData);
-
-    // openMessageThread({ message_id: messageData.id }).then((res) => {
-    //   console.log("thread", res);
-    // });
-  };
+  }, [messageData]);
 
   const isPinned = useMemo(() => {
     return messageData?.metadata?.pinned;
   }, [messageData]);
 
   const messageButtonList = [
-    { title: "Replay", icon: <BsReplyFill size={20} />, onClickFn: handleReplayMessage },
+    {
+      title: "Replay",
+      icon: <BsReplyFill size={20} />,
+      onClickFn: handleReplayMessage,
+      display: settings.contextMenue?.reply ?? true,
+    },
     {
       title: "Forward",
       icon: <BsForwardFill size={20} />,
       onClickFn: () => openModal("forwardMessageModal", messageData),
+      display: settings.contextMenue?.forward ?? true,
     },
     {
       title: isPinned ? "Unpin" : "Pin",
       icon: isPinned ? <BsFillPinAngleFill size={20} /> : <BsFillPinFill size={20} />,
       onClickFn: () => handlePinMessage(),
+      display: settings.contextMenue?.pin ?? true,
     },
-    { title: "Edit", icon: <RiPencilFill size={20} />, onClickFn: () => handelEdite() },
+    {
+      title: "Edit",
+      icon: <RiPencilFill size={20} />,
+      onClickFn: () => handleEdit(),
+      display: settings.contextMenue?.edite ?? true,
+    },
     {
       title: "Delete",
       icon: <BsFillTrashFill size={20} />,
-      onClickFn: () => handelDeleteMessage(),
+      onClickFn: () => handleDeleteMessage(),
+      display: settings.contextMenue?.delete ?? true,
     },
   ];
 
+  // Do not show edit and delete button if user is not the owner of the message
   if (user && messageData.user_id !== user.id) {
     delete messageButtonList[3];
     delete messageButtonList[4];
   }
 
+  if (!channelId) return null;
+
+  // Do not show context menu if user is not a member of the channel
+  if (!channelSettings.isUserChannelMember) return;
+
   return (
     <ContextMenu className={className} parrentRef={parrentRef} ref={ref}>
-      <MenuItem onClick={handelThread}>
-        <a href="#" className="no-underline">
-          <BiSolidMessageDetail size={20} />
-          Reply in Thread
-        </a>
-      </MenuItem>
-
-      <hr />
-      {messageButtonList.map((item) => (
-        <MenuItem key={item.title} onClick={item.onClickFn}>
+      {settings.contextMenue?.replyInThread && (
+        <MenuItem onClick={handleThread} className="border-b pb-1">
           <a href="#" className="no-underline">
-            {item.icon}
-            {item.title}
+            <BiSolidMessageDetail size={20} />
+            Reply in Thread
           </a>
         </MenuItem>
-      ))}
+      )}
+
+      {messageButtonList.map(
+        (item) =>
+          item.display && (
+            <MenuItem key={item.title} onClick={item.onClickFn}>
+              <a href="#" className="no-underline">
+                {item.icon}
+                {item.title}
+              </a>
+            </MenuItem>
+          ),
+      )}
     </ContextMenu>
   );
 });

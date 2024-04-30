@@ -49,7 +49,7 @@ const SignInWithPasswordForm = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
       </label>
-      <button className="btn flex btn-block mt-6" type="submit" disabled={loading}>
+      <button className="btn btn-block mt-6 flex" type="submit" disabled={loading}>
         {loading && <span className="loading loading-spinner mr-auto"></span>}
         Login
       </button>

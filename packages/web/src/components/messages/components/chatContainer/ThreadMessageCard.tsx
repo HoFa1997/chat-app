@@ -1,7 +1,4 @@
-/* eslint-disable */
-// @ts-nocheck
-
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React from "react";
 import { TMessageWithUser } from "@/api";
 import { useUserProfileModalStore } from "../UserProfileModal";
 import { Avatar } from "@/components/ui/Avatar";
@@ -12,8 +9,6 @@ import { isOnlyEmoji } from "@/shared";
 
 type TThreadMessageCardProps = {
   data: TMessageWithUser;
-  toggleEmojiPicker?: any;
-  selectedEmoji?: any;
 };
 
 function ThreadMessageCard({ data }: TThreadMessageCardProps) {
@@ -30,10 +25,10 @@ function ThreadMessageCard({ data }: TThreadMessageCardProps) {
   };
 
   return (
-    <div className={`group w-full chat-start chat msg_card relative`}>
+    <div className="msg_card group chat chat-start relative w-full">
       <Avatar
         src={data?.user_details?.avatar_url}
-        className="w-10 rounded-full cursor-pointer hover:scale-105 transition-all chat-image avatar"
+        className="avatar chat-image w-10 cursor-pointer rounded-full transition-all hover:scale-105"
         style={{
           width: 40,
           height: 40,
@@ -45,14 +40,14 @@ function ThreadMessageCard({ data }: TThreadMessageCardProps) {
       />
 
       {isOnlyEmoji(data?.content) ? (
-        <div className="max-w-[70%] min-w-full mb-4">
-          <MessageHeader data={data} />
+        <div className="w-full">
+          <MessageHeader data={{ ...data, isGroupStart: true }} />
           <MessageContent data={data} />
           <ThreadMessageFooter data={data} />
         </div>
       ) : (
-        <div className={`chat-bubble !mt-0 flex flex-col w-full `}>
-          <MessageHeader data={data} />
+        <div className={`chat-bubble flex w-full flex-col`}>
+          <MessageHeader data={{ ...data, isGroupStart: true }} />
           <MessageContent data={data} />
           <ThreadMessageFooter data={data} />
         </div>

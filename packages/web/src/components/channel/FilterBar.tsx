@@ -40,13 +40,13 @@ const FilterBar = ({ onFilterChange }: any) => {
   return (
     <div
       ref={containerRef}
-      className="scrollable-container scroll-pl-6 snap-proximity snap-x mb-2 flex flex-row space-x-2 overflow-x-auto overflow-y-hidden p-2 pb-3 "
+      className="scrollable-container mb-2 flex snap-x snap-proximity scroll-pl-6 flex-row space-x-2 overflow-x-auto overflow-y-hidden p-2 pb-3 "
     >
       <button
         key="global"
         data-type="global"
         onClick={() => handleClick("global")}
-        className={`btn btn-outline snap-center btn-sm shadow hover:shadow-md ${activeType === "global" ? "btn-active" : ""}`}
+        className={`btn btn-outline btn-sm snap-center shadow hover:shadow-md ${activeType === "global" ? "btn-active" : ""}`}
       >
         Glob
       </button>
@@ -54,7 +54,7 @@ const FilterBar = ({ onFilterChange }: any) => {
         key="all"
         data-type="all"
         onClick={() => handleClick("all")}
-        className={`btn btn-outline snap-center btn-sm shadow hover:shadow-md ${activeType === "all" ? "btn-active" : ""}`}
+        className={`btn btn-outline btn-sm snap-center shadow hover:shadow-md ${activeType === "all" ? "btn-active" : ""}`}
       >
         All
       </button>
@@ -63,7 +63,7 @@ const FilterBar = ({ onFilterChange }: any) => {
           key={type}
           data-type={type}
           onClick={() => handleClick(type)}
-          className={`btn btn-outline snap-center btn-sm shadow hover:shadow-md ${activeType === type ? "btn-active" : ""}`}
+          className={`btn btn-outline btn-sm snap-center shadow hover:shadow-md ${activeType === type ? "btn-active" : ""}`}
         >
           {icon}
           {type}

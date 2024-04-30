@@ -1,9 +1,8 @@
 import { ChannelActionBar } from "../ChannelActionBar";
-import { twMerge } from "tailwind-merge";
 
-export const ActionBar = ({ className }: any) => {
+export const ActionBar = () => {
   return (
-    <div className={twMerge("mt-auto w-full", className)}>
+    <div className="mt-auto w-full border-t">
       <ChannelActionBar />
     </div>
   );

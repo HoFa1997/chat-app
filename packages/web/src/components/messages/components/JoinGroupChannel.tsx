@@ -3,9 +3,11 @@ import { useStore } from "@stores/index";
 import { useAuthStore } from "@stores/index";
 import { join2Channel } from "@/api";
 import { useApi } from "@/shared/hooks/useApi";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 export default function JoinGroupChannel() {
-  const { channelId } = useStore((state: any) => state.workspaceSettings);
+  const { channelId } = useChannel();
+
   const user = useAuthStore((state) => state.profile);
   const { loading, request: request2JoinChannel } = useApi(join2Channel, null, false);
   const setWorkspaceSetting = useStore((state: any) => state.setWorkspaceSetting);
@@ -19,10 +21,6 @@ export default function JoinGroupChannel() {
       const { error, data } = await request2JoinChannel({
         channel_id: channelId,
         member_id: user?.id,
-      });
-
-      console.log({
-        data,
       });
 
       if (error) console.error(error);

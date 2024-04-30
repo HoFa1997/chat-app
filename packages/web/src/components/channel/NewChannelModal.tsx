@@ -61,6 +61,7 @@ export default function NewChannelModal() {
           workspace_id: workspaceId as string,
           ...data,
         });
+        if (error) console.error(error);
         // TODO: after create channle, close the modal also we need a loader here!
         // and then we need to update the channel list,
         // otherwise in the channelId page, we have realtime listener for this
@@ -98,7 +99,12 @@ export default function NewChannelModal() {
                   <div className="label">
                     <span className="label-text">Name</span>
                   </div>
-                  <input {...field} type="text" placeholder="Name" className="input input-bordered w-full " />
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Name"
+                    className="input input-bordered w-full "
+                  />
                   <div className="label">
                     <span className="label-text-alt">{error ? error.message : ""}</span>
                     <span className="label-text-alt min-h-4">

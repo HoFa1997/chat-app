@@ -17,8 +17,7 @@ enableMapSet();
 
 // Define a comprehensive state type that includes all parts of your store
 interface CombinedState
-  extends
-    ReturnType<typeof pinnedMessagesStore>,
+  extends ReturnType<typeof pinnedMessagesStore>,
     ReturnType<typeof workspacesStore>,
     ReturnType<typeof channelsStore>,
     ReturnType<typeof channelMessagesStore>,

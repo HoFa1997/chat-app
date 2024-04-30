@@ -3,10 +3,14 @@ import { useEffect, useState, useCallback } from "react";
 import { useStore, useAuthStore } from "@stores/index";
 import { join2Channel } from "@/api";
 import { useApi } from "@/shared/hooks/useApi";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 export default function JoinBroadcastChannel() {
+  const { channelId } = useChannel();
+
   const [mute, setMute] = useState(false);
-  const { channelId, isUserChannelMember } = useStore((state: any) => state.workspaceSettings);
+  const channelSettings = useStore((state: any) => state.workspaceSettings.channels.get(channelId));
+  const { isUserChannelMember } = channelSettings || {};
   const user = useAuthStore((state) => state.profile);
   const { loading, request: request2JoinChannel } = useApi(join2Channel, null, false);
 
@@ -46,7 +50,8 @@ export default function JoinBroadcastChannel() {
       setMute(muteOrUnmute);
 
       try {
-        const { error, data } = await supabaseClient
+        // TODO: move to api layer
+        const { error } = await supabaseClient
           .from("channel_members")
           .update({
             mute_in_app_notifications: muteOrUnmute,

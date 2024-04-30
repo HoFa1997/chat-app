@@ -2,26 +2,16 @@ import { useEffect } from "react";
 import { useStore } from "@stores/index";
 import { supabaseClient } from "@shared/utils";
 import { useAuthStore } from "@stores/index";
-import { platform } from "os";
+import { dbChannelsListner } from "@/components/messages/hooks/listner";
 
 export const useCatchUserPresences = () => {
   const profile = useAuthStore((state) => state.profile);
   const { workspaceId } = useStore((state) => state.workspaceSettings);
-  const setOrUpdateUserPresence = useStore((state) =>
-    state.setOrUpdateUserPresence
-  );
+  const setOrUpdateUserPresence = useStore((state) => state.setOrUpdateUserPresence);
   const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
-  const removeUserPresence = useStore((state) => state.removeUserPresence);
   const updateChannelRow = useStore((state) => state.updateChannelRow);
 
   const channelMemebrs = (payload: any) => {
-    console.log({
-      // payload,
-      table: payload.table,
-      type: payload.eventType,
-      new: payload.new,
-    });
-
     if (payload.table === "channel_members") {
       updateChannelRow(payload.new.channel_id, payload.new);
     }
@@ -37,16 +27,6 @@ export const useCatchUserPresences = () => {
           broadcast: { self: true },
         },
       })
-      // .on(
-      //   "postgres_changes",
-      //   {
-      //     event: "*",
-      //     schema: "public",
-      //     table: "notifications",
-      //     filter: `receiver_user_id=eq.${profile.id}`,
-      //   },
-      //   channelMemebrs,
-      // )
       .on(
         "postgres_changes",
         {
@@ -56,6 +36,16 @@ export const useCatchUserPresences = () => {
           filter: `member_id=eq.${profile.id}`,
         },
         channelMemebrs,
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "channels",
+          filter: `workspace_id=eq.${workspaceId}`,
+        },
+        dbChannelsListner,
       )
       .on("presence", { event: "sync" }, () => {
         // const newState = messageSubscription.presenceState();

@@ -18,7 +18,6 @@ export default function MessageReaction({ message }: any) {
   const member = useStore((state) => state.channelMembers.get(message.channel_id));
 
   // Allow users who are members of the channel to react to the message.
-  if (user && !member?.get(user?.id)) return null;
 
   const openEmojiPicker = useCallback(
     (clickEvent: any) => {
@@ -29,6 +28,8 @@ export default function MessageReaction({ message }: any) {
     },
     [message],
   );
+
+  if (user && !member?.get(user?.id)) return null;
 
   return (
     <div

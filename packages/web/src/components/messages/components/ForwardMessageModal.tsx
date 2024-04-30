@@ -41,7 +41,11 @@ const ForwardMessageModal = () => {
   if (!modalOpen) return null;
 
   return (
-    <ModalContainer id="forward_message_modal" triggerRef={triggerRef} onCheckboxChange={handleCheckboxChange}>
+    <ModalContainer
+      id="forward_message_modal"
+      triggerRef={triggerRef}
+      onCheckboxChange={handleCheckboxChange}
+    >
       <div>
         <h2 className="mb-4 truncate text-2xl font-extrabold leading-none tracking-tight text-primary antialiased">
           Forward to ...

@@ -9,7 +9,9 @@ interface PinnedMessagesSliderProps {
   pinnedMessagesMap: Map<number, PinnedMessage>;
 }
 
-export default function PinnedMessagesSlider({ pinnedMessagesMap }: PinnedMessagesSliderProps): ReactElement | null {
+export default function PinnedMessagesSlider({
+  pinnedMessagesMap,
+}: PinnedMessagesSliderProps): ReactElement | null {
   const [activeStep, setActiveStep] = useState<number>(0);
   const pinnedMessages: PinnedMessage[] = Array.from(pinnedMessagesMap.values()).reverse();
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
@@ -39,7 +41,11 @@ export default function PinnedMessagesSlider({ pinnedMessagesMap }: PinnedMessag
       <div className="relative  flex h-10 w-full flex-col text-sm">
         <span className="font-bold text-primary-content">Pinned messages</span>
         {pinnedMessages.map((message, index) => (
-          <div key={index} className="truncate text-wrap" style={{ display: activeStep === index ? "block" : "none" }}>
+          <div
+            key={index}
+            className="truncate text-wrap"
+            style={{ display: activeStep === index ? "block" : "none" }}
+          >
             {message.content}
           </div>
         ))}

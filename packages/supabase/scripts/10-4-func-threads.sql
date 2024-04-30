@@ -28,47 +28,67 @@ EXECUTE FUNCTION handle_set_thread_depth();
 -----------------------------------------
 CREATE OR REPLACE FUNCTION create_thread_message(
     p_content TEXT,
-    p_channel_id VARCHAR(36),
-    p_user_id UUID,
     p_html TEXT,
-    p_thread_id VARCHAR(36)
+    p_thread_id UUID,
+    p_workspace_id UUID
 )
-RETURNS VOID AS $$
+RETURNS VOID
+AS $$
 DECLARE
-    owner_exists BOOLEAN;
+    v_channel_exists BOOLEAN;
+    v_is_user_member BOOLEAN;
+    v_is_thread_root BOOLEAN;
+    v_thread_owner_id UUID;
 BEGIN
-    -- Check if the provided thread_id has a thread_owner_id
-    SELECT EXISTS (
-        SELECT 1 FROM public.messages 
-        WHERE id = p_thread_id 
-          AND is_thread_root = TRUE 
-          AND thread_owner_id IS NOT NULL
-    ) INTO owner_exists;
+    -- Check if the channel exists and if the user is a member
+    SELECT
+        EXISTS (
+            SELECT 1
+            FROM public.channels
+            WHERE id = p_thread_id
+        ),
+        EXISTS (
+            SELECT 1
+            FROM public.channel_members
+            WHERE channel_id = p_thread_id
+            AND member_id = auth.uid()
+        )
+    INTO v_channel_exists, v_is_user_member;
 
-    -- If no thread owner exists, set the current user as the thread owner
-    IF NOT owner_exists THEN
-        UPDATE public.messages
-        SET thread_owner_id = auth.uid(), -- Setting current user as the thread owner
-            is_thread_root = TRUE
-        WHERE id = p_thread_id;
+    -- If the channel doesn't exist, create a new one and add the user as an admin
+    IF NOT v_channel_exists THEN
+        INSERT INTO public.channels (id, workspace_id, slug, name, created_by, description, type)
+        VALUES (p_thread_id, p_workspace_id, 'thread-' || uuid_generate_v4(), 'Thread Channel', auth.uid(), 'Automatically created channel for thread', 'THREAD');
+
+        v_is_user_member := TRUE;
+    -- If the user is not a member, add them as a member
+    ELSIF NOT v_is_user_member THEN
+        INSERT INTO public.channel_members (channel_id, member_id, channel_member_role)
+        VALUES (p_thread_id, auth.uid(), 'MEMBER')
+        ON CONFLICT DO NOTHING;
+
+        v_is_user_member := TRUE;
     END IF;
 
-    -- Insert the new message into the messages table
-    INSERT INTO public.messages (
-        content,
-        channel_id,
-        user_id,
-        html,
-        thread_id
-    )
-    VALUES (
-        p_content,
-        p_channel_id,
-        p_user_id,
-        p_html,
-        p_thread_id
-    );
+    -- If the user is a member, update the thread and insert the new message
+    IF v_is_user_member THEN
+        -- Update the message to mark it as a thread root if needed
+        WITH cte_thread_root AS (
+            UPDATE public.messages
+            SET thread_owner_id = COALESCE(thread_owner_id, auth.uid()),
+                is_thread_root = TRUE
+            WHERE id = p_thread_id
+            AND (thread_owner_id IS NULL OR NOT is_thread_root)
+            RETURNING thread_owner_id, is_thread_root
+        )
+        SELECT thread_owner_id, is_thread_root
+        INTO v_thread_owner_id, v_is_thread_root
+        FROM cte_thread_root;
 
+        -- Insert the new message
+        INSERT INTO public.messages (content, channel_id, user_id, html, thread_id)
+        VALUES (p_content, p_thread_id, auth.uid(), p_html, p_thread_id);
+    END IF;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -78,7 +98,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION increment_thread_message_count()
 RETURNS TRIGGER AS $$
 DECLARE
-    root_id VARCHAR;
+    root_id UUID;
     current_metadata JSONB;
 BEGIN
     -- Find the root message ID from the thread_id of the newly inserted message
@@ -163,24 +183,34 @@ EXECUTE FUNCTION decrement_thread_message_count();
 -----------------------------------------
 -----------------------------------------
 
-CREATE OR REPLACE FUNCTION soft_delete_thread_messages()
+-- Create the trigger function
+CREATE OR REPLACE FUNCTION soft_delete_thread_root_messages()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Check if the message is the root of a thread and has been soft-deleted
-    IF NEW.is_thread_root = TRUE AND NEW.deleted_at IS NOT NULL THEN
-        -- Soft delete all messages in the thread
-        UPDATE public.messages
-        SET deleted_at = NEW.deleted_at
-        WHERE thread_id = NEW.thread_id
-          AND id <> NEW.id; -- Exclude the root message as it's already being updated
-    END IF;
+    -- Check if the updated message is a soft-delete and the user is the owner
+    IF NEW.thread_owner_id = auth.uid() THEN
+        -- Delete all messages in the same thread
+        DELETE FROM public.messages WHERE thread_id = NEW.thread_id;
 
+        -- Delete the channel associated with this thread
+        DELETE FROM public.channels WHERE id = NEW.thread_id;
+
+        -- Delete all notifications related to the channel
+        DELETE FROM public.notifications WHERE channel_id = NEW.thread_id;
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_soft_delete_thread_messages
-AFTER UPDATE OF deleted_at ON public.messages
+-- Create the trigger
+CREATE TRIGGER trigger_soft_delete_thread_root_messages
+AFTER UPDATE ON public.messages
 FOR EACH ROW
-WHEN (OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL)
-EXECUTE FUNCTION soft_delete_thread_messages();
+WHEN (OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL )
+EXECUTE PROCEDURE soft_delete_thread_root_messages();
+
+
+
+-----------------------------------------
+-----------------------------------------
+-----------------------------------------

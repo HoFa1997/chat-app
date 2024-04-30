@@ -3,6 +3,7 @@
 alter publication supabase_realtime add table public.users;
 alter publication supabase_realtime add table public.channels;
 alter publication supabase_realtime add table public.messages;
+alter publication supabase_realtime add table public.channel_members;
 
 -- Send "previous data" on change
 -- for tracking row changed in realtime

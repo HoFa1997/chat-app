@@ -53,7 +53,8 @@ CREATE TYPE public.channel_type AS ENUM
     'BROADCAST',  -- BROADCAST: One-way communication channel where selected users can post, but all users can view.
     'ARCHIVE',    -- ARCHIVE: Read-only channel for historical/reference purposes. No new messages can be posted.
     'DIRECT',     -- DIRECT: One-on-one private conversation between two users.
-    'GROUP'       -- GROUP: For a specific set of users, typically used for group discussions or team collaborations.
+    'GROUP',      -- GROUP: For a specific set of users, typically used for group discussions or team collaborations.
+    'THREAD'      -- THREAD: A channel created for a specific thread or conversation, often temporary or focused on a specific topic.
 );
 
 COMMENT ON TYPE public.channel_type IS 'Defines the types of channels available in the application, each with specific accessibility and interaction rules.';

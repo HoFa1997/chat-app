@@ -4,7 +4,6 @@
     "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended",
     "plugin:tailwindcss/recommended",
-    "prettier-plugin-tailwindcss",
     "prettier"
   ],
   "plugins": ["@typescript-eslint", "react","prettier"],
@@ -24,15 +23,17 @@
     }
   },
   "rules": {
+    "@typescript-eslint/ban-ts-comment": "off",
+    "tailwindcss/no-custom-classname": "off",
     "prettier/prettier": ["error"],
     "@typescript-eslint/no-unused-vars": ["error", { "ignoreRestSiblings": true }],
     "@typescript-eslint/no-empty-interface": ["error", { "allowSingleExtends": true }],
-    "@typescript-eslint/explicit-module-boundary-types": ["off"],
-    "@typescript-eslint/no-explicit-any": ["off"],
+    "@typescript-eslint/explicit-module-boundary-types": ["off", { "allowArgumentsExplicitlyTypedAsAny": true }],
+    "@typescript-eslint/no-explicit-any": ["off", { "ignoreRestArgs": true }],
     "@next/next/no-document-import-in-page": "off",
     "no-fallthrough": ["error", { "commentPattern": "falls through" }],
     "no-console": "off",
-    "react-hooks/exhaustive-deps": "warn",
+    "react-hooks/exhaustive-deps": "off",
     "no-restricted-syntax": ["error",
         {
           "selector": "CallExpression[callee.object.name='console'][callee.property.name!=/^(info|error)$/]",

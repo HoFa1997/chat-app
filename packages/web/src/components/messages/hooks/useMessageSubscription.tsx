@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { supabaseClient } from "@shared/utils";
 import { useStore } from "@stores/index";
 import { useAuthStore } from "@stores/index";
-import { dbMessagesListener, dbChannelsListner } from "./listner";
+import { dbMessagesListener } from "./listner";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 // there is not relation join in realtime subscription
 // so we first get the online members and save it to the channel member state store
@@ -22,8 +23,11 @@ import { dbMessagesListener, dbChannelsListner } from "./listner";
 // pinned message, I just put the contnet to the pinned message
 
 export const useMessageSubscription = () => {
+  const { channelId } = useChannel();
+
   const [initialSubscribeLoading, setInitialSubscribeLoading] = useState(true);
-  const { channelId, workspaceId } = useStore((state: any) => state.workspaceSettings);
+  const { workspaceId } = useStore((state: any) => state.workspaceSettings);
+
   const user = useAuthStore((state) => state.profile);
   useEffect(() => {
     if (!channelId || !workspaceId) return;
@@ -31,16 +35,6 @@ export const useMessageSubscription = () => {
     const messageSubscription = supabaseClient
       .channel(`channel:${channelId}`)
       // todo: move to worksapce channel
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "channels",
-          filter: `workspace_id=eq.${workspaceId}`,
-        },
-        dbChannelsListner,
-      )
 
       .on(
         "postgres_changes",

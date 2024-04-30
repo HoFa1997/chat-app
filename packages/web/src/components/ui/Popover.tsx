@@ -118,81 +118,82 @@ interface PopoverTriggerProps {
   asChild?: boolean;
 }
 
-export const PopoverTrigger = React.forwardRef<HTMLElement, React.HTMLProps<HTMLElement> & PopoverTriggerProps>(
-  function PopoverTrigger({ children, asChild = false, ...props }, propRef) {
-    const context = usePopoverContext();
-    const childrenRef = (children as any).ref;
-    const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
+export const PopoverTrigger = React.forwardRef<
+  HTMLElement,
+  React.HTMLProps<HTMLElement> & PopoverTriggerProps
+>(function PopoverTrigger({ children, asChild = false, ...props }, propRef) {
+  const context = usePopoverContext();
+  const childrenRef = (children as any).ref;
+  const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
 
-    // `asChild` allows the user to pass any element as the anchor
-    if (asChild && React.isValidElement(children)) {
-      return React.cloneElement(
-        children,
-        context.getReferenceProps({
-          ref,
-          ...props,
-          ...children.props,
-          "data-state": context.open ? "open" : "closed",
-        }),
-      );
-    }
-
-    return (
-      <button
-        ref={ref}
-        type="button"
-        // The user can style the trigger based on the state
-        data-state={context.open ? "open" : "closed"}
-        {...context.getReferenceProps(props)}
-      >
-        {children}
-      </button>
+  // `asChild` allows the user to pass any element as the anchor
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(
+      children,
+      context.getReferenceProps({
+        ref,
+        ...props,
+        ...children.props,
+        "data-state": context.open ? "open" : "closed",
+      }),
     );
-  },
-);
-
-export const PopoverContent = React.forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>(function PopoverContent(
-  { style, ...props },
-  propRef,
-) {
-  const { context: floatingContext, ...context } = usePopoverContext();
-  const ref = useMergeRefs([context.refs.setFloating, propRef]);
-
-  if (!floatingContext.open) return null;
+  }
 
   return (
-    <FloatingPortal>
-      <FloatingFocusManager context={floatingContext} modal={context.modal}>
-        <div
-          ref={ref}
-          style={{ ...context.floatingStyles, ...style }}
-          aria-labelledby={context.labelId}
-          aria-describedby={context.descriptionId}
-          {...context.getFloatingProps(props)}
-        >
-          {props.children}
-        </div>
-      </FloatingFocusManager>
-    </FloatingPortal>
+    <button
+      ref={ref}
+      type="button"
+      // The user can style the trigger based on the state
+      data-state={context.open ? "open" : "closed"}
+      {...context.getReferenceProps(props)}
+    >
+      {children}
+    </button>
   );
 });
 
-export const PopoverClose = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
-  function PopoverClose(props, ref) {
-    const { setOpen } = usePopoverContext();
+export const PopoverContent = React.forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>(
+  function PopoverContent({ style, ...props }, propRef) {
+    const { context: floatingContext, ...context } = usePopoverContext();
+    const ref = useMergeRefs([context.refs.setFloating, propRef]);
+
+    if (!floatingContext.open) return null;
+
     return (
-      <button
-        type="button"
-        ref={ref}
-        {...props}
-        onClick={(event) => {
-          props.onClick?.(event);
-          setOpen(false);
-        }}
-      />
+      <FloatingPortal>
+        <FloatingFocusManager context={floatingContext} modal={context.modal}>
+          <div
+            ref={ref}
+            style={{ ...context.floatingStyles, ...style }}
+            aria-labelledby={context.labelId}
+            aria-describedby={context.descriptionId}
+            {...context.getFloatingProps(props)}
+          >
+            {props.children}
+          </div>
+        </FloatingFocusManager>
+      </FloatingPortal>
     );
   },
 );
+
+export const PopoverClose = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(function PopoverClose(props, ref) {
+  const { setOpen } = usePopoverContext();
+  return (
+    <button
+      type="button"
+      ref={ref}
+      {...props}
+      onClick={(event) => {
+        props.onClick?.(event);
+        setOpen(false);
+      }}
+    />
+  );
+});
 
 // Usage:
 // import { Popover, PopoverTrigger, PopoverContent } from '@components/ui/Popover'

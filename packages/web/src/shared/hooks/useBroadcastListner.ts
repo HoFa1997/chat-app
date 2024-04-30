@@ -11,34 +11,24 @@ type TTypeIndicator = {
   event: "pinnedMessage";
   type: "typingIndicator";
   payload: {
-    channelId: string;
+    activeChannelId: string;
     user: any;
     type: "startTyping" | "stopTyping";
   };
 };
 
 export const useBroadcastListner = () => {
-  const { workspaceBroadcaster: broadcaster } = useStore((state) =>
-    state.workspaceSettings
-  );
-  const addChannelPinnedMessage = useStore((state) =>
-    state.addChannelPinnedMessage
-  );
-  const removeChannelPinnedMessage = useStore((state) =>
-    state.removeChannelPinnedMessage
-  );
+  const { workspaceBroadcaster: broadcaster } = useStore((state) => state.workspaceSettings);
+  const addChannelPinnedMessage = useStore((state) => state.addChannelPinnedMessage);
+  const removeChannelPinnedMessage = useStore((state) => state.removeChannelPinnedMessage);
 
   const setTypingIndicator = useStore((state) => state.setTypingIndicator);
-  const removeTypingIndicator = useStore((state) =>
-    state.removeTypingIndicator
-  );
+  const removeTypingIndicator = useStore((state) => state.removeTypingIndicator);
 
   useEffect(() => {
     if (!broadcaster) return;
-    broadcaster.on(
-      "broadcast",
-      { event: "pinnedMessage" },
-      ({ payload }: TBroadcastPayload) => {
+    broadcaster
+      .on("broadcast", { event: "pinnedMessage" }, ({ payload }: TBroadcastPayload) => {
         const message = payload.message;
         const type = payload.actionType;
 
@@ -47,14 +37,14 @@ export const useBroadcastListner = () => {
         } else if (type === "unpin") {
           removeChannelPinnedMessage(message.channel_id, message.id);
         }
-      },
-    ).on("broadcast", { event: "typingIndicator" }, (data: TTypeIndicator) => {
-      const payload = data.payload;
-      if (payload.type === "startTyping") {
-        setTypingIndicator(payload.channelId, payload.user);
-      } else if (payload.type === "stopTyping") {
-        removeTypingIndicator(payload.channelId, payload.user);
-      }
-    });
+      })
+      .on("broadcast", { event: "typingIndicator" }, (data: TTypeIndicator) => {
+        const payload = data.payload;
+        if (payload.type === "startTyping") {
+          setTypingIndicator(payload.activeChannelId, payload.user);
+        } else if (payload.type === "stopTyping") {
+          removeTypingIndicator(payload.activeChannelId, payload.user);
+        }
+      });
   }, [broadcaster]);
 };

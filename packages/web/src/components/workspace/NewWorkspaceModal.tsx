@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useForm, SubmitHandler, Controller, set } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { createWorkspace } from "@/api";
 import { WorkspacesSchemaTypes, NewWorkspacesSchema } from "@/shared/schema";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -71,7 +71,10 @@ export default function NewWorkspaceModal() {
   return (
     <>
       <div className="tooltip tooltip-right" data-tip="Create Workspace">
-        <ModalTrigger id="modal-create_workspace" className="btn btn-ghost btn-sm my-2 mt-6 rounded-btn">
+        <ModalTrigger
+          id="modal-create_workspace"
+          className="btn btn-ghost btn-sm my-2 mt-6 rounded-btn"
+        >
           <FiPlus size={22} />
         </ModalTrigger>
       </div>
@@ -88,7 +91,12 @@ export default function NewWorkspaceModal() {
                   <div className="label">
                     <span className="label-text">Name</span>
                   </div>
-                  <input {...field} type="text" placeholder="Name" className="input input-bordered w-full " />
+                  <input
+                    {...field}
+                    type="text"
+                    placeholder="Name"
+                    className="input input-bordered w-full "
+                  />
                   <div className="label">
                     <span className="label-text-alt">{error ? error.message : ""}</span>
                     <span className="label-text-alt">

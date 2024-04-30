@@ -6,7 +6,7 @@ import { useStore } from "@stores/index";
 export const useCheckReadMessage = ({ messageContainerRef, channelId, messages }: any) => {
   const [visibleCount, setVisibleCount] = useState<string[]>([]);
   const dCheckVisibility = useRef<any>(null);
-  const setWorkspaceSetting = useStore((state: any) => state.setWorkspaceSetting);
+  const setWorkspaceChannelSetting = useStore((state: any) => state.setWorkspaceChannelSetting);
 
   const checkVisibility = () => {
     const container = messageContainerRef.current;
@@ -25,12 +25,9 @@ export const useCheckReadMessage = ({ messageContainerRef, channelId, messages }
     //   container,
     //   messageElements,
     // });
-    console.log({
-      messageElements,
-    });
     if (messageElements.at(-1)?.readedAt) return;
 
-    messageElements.forEach((child, index) => {
+    messageElements.forEach((child) => {
       const childMarginTop = parseInt(window.getComputedStyle(child).marginTop, 10);
       const childMarginBottom = parseInt(window.getComputedStyle(child).marginBottom, 10);
 
@@ -91,8 +88,10 @@ export const useCheckReadMessage = ({ messageContainerRef, channelId, messages }
     // console.log({
     //   visibleCount,
     // });
-    const lastMessage = visibleCount.at(-1);
-    const lastReadMessageTimestamp = useStore.getState().workspaceSettings.lastReadMessageTimestamp;
+    const lastMessage = visibleCount.at(-1) as any;
+    const channelSettings = useStore.getState().workspaceSettings.channels.get(channelId);
+    const { lastReadMessageTimestamp } = channelSettings || { lastReadMessageTimestamp: 0 };
+
     // check the creation of the last message
     if (!lastMessage) return;
     // console.log({
@@ -105,20 +104,20 @@ export const useCheckReadMessage = ({ messageContainerRef, channelId, messages }
     // });
     // check if the lastReadMessageTimestamp is greater than the last message creation time
     // if (new Date(lastReadMessageTimestamp) < new Date(lastMessage.createAt)) return;
-    const lastReadTimestamp = new Date(lastReadMessageTimestamp).getTime();
-    const lastVisibleTimestamp = new Date(lastMessage.createAt).getTime();
+    const lastReadTimestamp = new Date(lastReadMessageTimestamp || 0).getTime();
+    const lastVisibleTimestamp = new Date(lastMessage?.createAt).getTime();
 
     // check if the last read message is greater than the last visible message
     if (lastReadTimestamp >= lastVisibleTimestamp) return;
-    console.log({
-      lastReadTimestamp,
-      lastVisibleTimestamp,
-      r: lastReadTimestamp - lastVisibleTimestamp,
-      d: lastReadTimestamp <= lastVisibleTimestamp,
-      lastMessage,
-    });
+    // console.log({
+    //   lastReadTimestamp,
+    //   lastVisibleTimestamp,
+    //   r: lastReadTimestamp - lastVisibleTimestamp,
+    //   d: lastReadTimestamp <= lastVisibleTimestamp,
+    //   lastMessage,
+    // });
 
-    setWorkspaceSetting("lastReadMessageTimestamp", lastMessage.createAt);
+    setWorkspaceChannelSetting(channelId, "lastReadMessageTimestamp", lastMessage.createAt);
     markReadMessages({ channelId, lastMessage: lastMessage.id }).then();
   }, [visibleCount]);
 };

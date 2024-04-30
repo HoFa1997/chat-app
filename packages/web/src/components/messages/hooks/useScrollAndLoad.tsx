@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useStore } from "@stores/index";
-
+import { useChannel } from "@/shared/context/ChannelProvider";
 const SCROLL_TIMEOUT_DELAY = 100;
 
 // If the type of messages is different, adjust the Map type accordingly.
@@ -9,15 +9,16 @@ export const useScrollAndLoad = (
   messageContainerRef: any,
   msgLength: number,
 ) => {
+  const { channelId } = useChannel();
+
   const [loading, setLoading] = useState<boolean>(msgLength === 0 ? false : true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const { channelId, userPickingEmoji, unreadMessage } = useStore(
-    (state) => state.workspaceSettings,
-  );
+  const channelSettings = useStore((state) => state.workspaceSettings.channels.get(channelId));
+  const { userPickingEmoji, unreadMessage, lastReadMessageId } = channelSettings || {};
+
   const messagesByChannel = useStore((state: any) => state.messagesByChannel);
   const messages = messagesByChannel.get(channelId);
-  const lastReadMessageId = useStore((state: any) => state.workspaceSettings.lastReadMessageId);
 
   const scrollToBottom = useCallback(
     (options: ScrollIntoViewOptions = {}) => {
@@ -48,9 +49,6 @@ export const useScrollAndLoad = (
         }
       } else {
         messageContainerRef?.current?.lastChild.scrollIntoView(false);
-        console.log({
-          d: messageContainerRef?.current?.lastChild,
-        });
       }
     },
     [messageContainerRef, unreadMessage, lastReadMessageId],

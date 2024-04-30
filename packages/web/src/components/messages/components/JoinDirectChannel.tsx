@@ -1,8 +1,9 @@
-import { useStore } from "@stores/index";
 import { useAuthStore } from "@stores/index";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 export default function JoinDirectChannel() {
-  const { channelId } = useStore((state: any) => state.workspaceSettings);
+  const { channelId } = useChannel();
+
   const user = useAuthStore((state) => state.profile);
 
   if (!user || !channelId) return null;
@@ -10,7 +11,7 @@ export default function JoinDirectChannel() {
   return (
     <div className="flex w-full flex-col items-center justify-center p-2">
       <div className="btn btn-block">
-        It's a Direct channel, One-on-one private conversation between two users.
+        It&apos;s a Direct channel, One-on-one private conversation between two users.
       </div>
     </div>
   );

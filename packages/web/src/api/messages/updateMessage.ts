@@ -3,7 +3,11 @@ import { Database } from "@/types/supabase";
 
 type TMessage = Database["public"]["Tables"]["messages"]["Row"];
 
-export const updateMessage = async (content: TMessage["content"], html: TMessage["html"], id: TMessage["id"]) =>
+export const updateMessage = async (
+  content: TMessage["content"],
+  html: TMessage["html"],
+  id: TMessage["id"],
+) =>
   await supabaseClient
     .from("messages")
     .update({

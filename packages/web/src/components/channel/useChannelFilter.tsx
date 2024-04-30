@@ -15,7 +15,8 @@ const sortChannelsByLastActivity = (channels: TChannel[]) => {
 export const useChannelFilter = () => {
   const router = useRouter();
   const user = useAuthStore((state) => state.profile);
-  const setWorkspaceSettings = useStore((state) => state.setWorkspaceSettings);
+  const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
+  const setWorkspaceChannelSetting = useStore((state) => state.setWorkspaceChannelSetting);
   const [filteredChannels, setFilteredChannels] = useState<any>([]);
   const channels = useStore((state) => state.channels);
   const channelId = router.query.channelId as string;
@@ -27,11 +28,9 @@ export const useChannelFilter = () => {
     const selectedChannel = channels.get(channelId);
     if (!selectedChannel) return;
     const isUserChannelOwner = selectedChannel.created_by === user.id;
-    setWorkspaceSettings({
-      channelId: channelId,
-      isUserChannelOwner,
-      channelInfo: selectedChannel,
-    });
+    setWorkspaceSetting("activeChannelId", channelId);
+    setWorkspaceChannelSetting(channelId, "isUserChannelOwner", isUserChannelOwner);
+    setWorkspaceChannelSetting(channelId, "channelInfo", selectedChannel);
   }, [user, channels, channelId]);
 
   // set and sort channels

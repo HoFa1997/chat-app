@@ -13,7 +13,13 @@ export const ModalContainer = React.forwardRef<HTMLInputElement, CheckboxModalPr
     return (
       <div {...restProps} ref={ref}>
         {/* Assign the ref to the checkbox input */}
-        <input type="checkbox" id={id} className="modal-toggle" ref={triggerRef} onChange={onCheckboxChange} />
+        <input
+          type="checkbox"
+          id={id}
+          className="modal-toggle"
+          ref={triggerRef}
+          onChange={onCheckboxChange}
+        />
 
         <div className="modal" role="dialog">
           <div className="modal-box">{children}</div>

@@ -6,7 +6,10 @@ export const emojiReaction = async (message: any, newReaction: string) => {
 
   if (!user) return;
 
-  const updatedMessage = { ...message, reactions: message.reactions ? { ...message.reactions } : {} };
+  const updatedMessage = {
+    ...message,
+    reactions: message.reactions ? { ...message.reactions } : {},
+  };
 
   const findReaction = updatedMessage.reactions && updatedMessage.reactions[newReaction];
 
@@ -31,7 +34,9 @@ export const emojiReaction = async (message: any, newReaction: string) => {
     }
   } else {
     // Handle the case for a new reaction
-    updatedMessage.reactions[newReaction] = [{ user_id: user.id, created_at: new Date().toISOString() }];
+    updatedMessage.reactions[newReaction] = [
+      { user_id: user.id, created_at: new Date().toISOString() },
+    ];
   }
 
   return await supabaseClient
@@ -48,7 +53,10 @@ export const removeReaction = async (message: any, reaction: string) => {
 
   if (!user) return;
 
-  const updatedMessage = { ...message, reactions: message.reactions ? { ...message.reactions } : {} };
+  const updatedMessage = {
+    ...message,
+    reactions: message.reactions ? { ...message.reactions } : {},
+  };
 
   const findReaction = updatedMessage.reactions && updatedMessage.reactions[reaction];
 

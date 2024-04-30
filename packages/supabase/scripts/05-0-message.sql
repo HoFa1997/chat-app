@@ -2,7 +2,7 @@
 -- Description: Stores all messages exchanged in the application. This includes various types of messages like text, image, video, or audio. 
 -- The table also tracks message status (edited, deleted) and associations (user, channel, replies, and forwardings).
 CREATE TABLE public.messages (
-    id                     VARCHAR(36) DEFAULT uuid_generate_v4() NOT NULL PRIMARY KEY,
+    id                     UUID DEFAULT uuid_generate_v4() NOT NULL PRIMARY KEY,
     created_at             TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL, -- Creation timestamp of the message.
     updated_at             TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL, -- Last update timestamp of the message.
     deleted_at             TIMESTAMP WITH TIME ZONE, -- Timestamp for when the message was marked as deleted.
@@ -11,18 +11,18 @@ CREATE TABLE public.messages (
     html                   TEXT CHECK (length(html) <= 3000), -- The actual HTML content of the message.
     medias                 JSONB, -- Stores URLs to media (images, videos, etc.) associated with the message.
     user_id                UUID NOT NULL REFERENCES public.users, -- The ID of the user who sent the message.
-    channel_id             VARCHAR(36) NOT NULL REFERENCES public.channels ON DELETE SET NULL, -- The ID of the channel where the message was sent.
+    channel_id             UUID NOT NULL REFERENCES public.channels ON DELETE SET NULL, -- The ID of the channel where the message was sent.
     reactions              JSONB, -- JSONB field storing user reactions to the message.
     type                   message_type, -- Enumerated type of the message (text, image, video, etc.).
     metadata               JSONB, -- Additional metadata about the message in JSONB format.
-    reply_to_message_id    VARCHAR(36) REFERENCES public.messages(id) ON DELETE SET NULL, -- The ID of the message this message is replying to, if any.
+    reply_to_message_id    UUID REFERENCES public.messages(id) ON DELETE SET NULL, -- The ID of the message this message is replying to, if any.
     replied_message_preview TEXT, -- Preview text of the message being replied to.
-    origin_message_id      VARCHAR(36) REFERENCES public.messages(id) ON DELETE SET NULL, -- ID of the original message if this is a forwarded message.
-    thread_id              VARCHAR(36) REFERENCES public.messages(id) ON DELETE SET NULL, -- ID of the thread this message belongs to.
+    origin_message_id      UUID REFERENCES public.messages(id) ON DELETE SET NULL, -- ID of the original message if this is a forwarded message.
+    thread_id              UUID REFERENCES public.messages(id) ON DELETE SET NULL, -- ID of the thread this message belongs to.
     thread_depth           INT DEFAULT 0, -- Depth of the message in the thread.
     is_thread_root         BOOLEAN DEFAULT false, -- Indicates if the message is the root of a thread.
     thread_owner_id        UUID REFERENCES public.users ON DELETE SET NULL, -- ID of the user who owns/opens the thread.
-    readed_at              TIMESTAMP WITH TIME ZONE, -- Timestamp for when the message was read by a user.
+    readed_at              TIMESTAMP WITH TIME ZONE -- Timestamp for when the message was read by a user.
 );
 
 COMMENT ON TABLE public.messages IS 'Contains individual messages sent by users, including their content, type, and associated metadata.';

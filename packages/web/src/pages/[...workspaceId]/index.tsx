@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { useStore } from "@stores/index";
-import { getChannels, getChannelsByWorkspaceAndUserids } from "@/api";
+import { getChannelsByWorkspaceAndUserids } from "@/api";
 import MainLayout from "@/components/layouts/MainLayout";
 import { createPagesServerClient } from "@supabase/auth-helpers-nextjs";
-import MessageContainer from "@/components/messages/MessageContainer";
 import { UserProfileModal } from "@/components/messages/components/UserProfileModal";
 import ForwardMessageModal from "@/components/messages/components/ForwardMessageModal";
-import { supabaseClient } from "@shared/utils";
+import { ChatPanelContainer } from "@/components/messages/ChatPanelContainer";
+import { ChannelSelectionPrompt } from "@/components/prompts";
 
 type TWorkspacePageProp = {
   workspaceId: string;
@@ -31,15 +31,16 @@ export default function WorkspacesPage({ workspaceId, channelId, channels }: TWo
   // clear replay message and edite message state when channel change
   useEffect(() => {
     if (!channelId) return;
-    useStore.getState().setForwardMessageMemory(null);
-    useStore.getState().setEditeMessageMemory(null);
-    useStore.getState().setReplayMessageMemory(null);
-    setWorkspaceSetting("channelId", channelId);
+    useStore.getState().setForwardMessageMemory(channelId, null);
+    useStore.getState().setEditMessageMemory(channelId, null);
+    useStore.getState().setReplayMessageMemory(channelId, null);
+    useStore.getState().setStartThreadMessage(null);
+    setWorkspaceSetting("activeChannelId", channelId);
   }, [channelId]);
 
   return (
     <MainLayout showChannelList={true}>
-      {channelId ? <MessageContainer /> : <span></span>}
+      {channelId ? <ChatPanelContainer /> : <ChannelSelectionPrompt />}
       <UserProfileModal />
       <ForwardMessageModal />
     </MainLayout>

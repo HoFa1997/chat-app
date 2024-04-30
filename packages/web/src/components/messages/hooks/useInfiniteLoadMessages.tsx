@@ -2,6 +2,7 @@ import { useState, useEffect, MutableRefObject } from "react";
 import { groupedMessages } from "@utils/index";
 import { useStore } from "@stores/index";
 import { fetchMessagesPaginated } from "@/api";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 const PAGE_SIZE = 20;
 
@@ -18,14 +19,14 @@ const adjustScrollPositionAfterLoadingMessages = (
 export const useInfiniteLoadMessages = (
   messageContainerRef: MutableRefObject<HTMLElement | null>,
 ) => {
+  const { channelId } = useChannel();
+
   const [hasMoreMessages, setHasMoreMessages] = useState<boolean>(true);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
-  const {
-    channelId,
-    scrollPage: currentPage,
-    scrollPageOffset,
-  } = useStore((state: any) => state.workspaceSettings);
+  const channelSettings = useStore((state: any) => state.workspaceSettings.channels.get(channelId));
+  const { scrollPage: currentPage, scrollPageOffset } = channelSettings || {};
+
   const setWorkspaceSetting = useStore((state: any) => state.setWorkspaceSetting);
   const replaceMessages = useStore((state: any) => state.replaceMessages);
   const messagesByChannel = useStore((state: any) => state.messagesByChannel);
@@ -49,13 +50,6 @@ export const useInfiniteLoadMessages = (
       setIsLoadingMore(false);
       return;
     }
-
-    console.log({
-      pageMessages,
-      input_channel_id: channelId,
-      page: currentPage,
-      page_size: scrollPageOffset,
-    });
 
     if (pageMessages?.messages && pageMessages?.messages?.length > 0) {
       // Convert pageMessages.messages to a Map

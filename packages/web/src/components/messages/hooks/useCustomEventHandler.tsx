@@ -1,12 +1,15 @@
 import { useEffect, MutableRefObject, Dispatch, SetStateAction } from "react";
 import { useStore } from "@stores/index";
+import { useChannel } from "@/shared/context/ChannelProvider";
+
 export const useCustomEventHandler = (
   channelUsersPresence: Map<string, any>,
   setChannelUsersPresence: Dispatch<SetStateAction<Map<string, any>>>,
   messageContainerRef: MutableRefObject<HTMLElement | null>,
   messagesEndRef: MutableRefObject<HTMLElement | null>,
 ) => {
-  const { channelId } = useStore((state: any) => state.workspaceSettings);
+  const { channelId } = useChannel();
+
   const messagesByChannel = useStore((state: any) => state.messagesByChannel);
   const messages = messagesByChannel.get(channelId);
 
@@ -16,11 +19,16 @@ export const useCustomEventHandler = (
       const { newUser } = e.detail;
       // check if the user is already in the channelUsersPresence
       if (channelUsersPresence.has(newUser.id)) return;
-      setChannelUsersPresence((prevChannelUsersPresence) => new Map(prevChannelUsersPresence).set(newUser.id, newUser));
+      setChannelUsersPresence((prevChannelUsersPresence) =>
+        new Map(prevChannelUsersPresence).set(newUser.id, newUser),
+      );
     };
     document.addEventListener("update:channel:usersPresence", handleUpdateChannelUsersPresence);
     return () => {
-      document.removeEventListener("update:channel:usersPresence", handleUpdateChannelUsersPresence);
+      document.removeEventListener(
+        "update:channel:usersPresence",
+        handleUpdateChannelUsersPresence,
+      );
     };
   }, [channelUsersPresence]);
 

@@ -7,9 +7,7 @@ export type TChannel = Database["public"]["Tables"]["channels"]["Row"] & {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getChannels = async (
-  workspaceId: string,
-): Promise<PostgrestResponse<any>> => {
+export const getChannels = async (workspaceId: string): Promise<PostgrestResponse<any>> => {
   return supabaseClient
     .from("channels")
     .select("*")
@@ -33,10 +31,7 @@ export const getChannelsByWorkspaceAndUserids = async (
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getChannelById = async (
-  channelId: string,
-  workspaceId: string,
-): Promise<PostgrestResponse<any>> => {
+export const getChannelById = async (channelId: string): Promise<PostgrestResponse<any>> => {
   return (
     supabaseClient
       .from("channels")

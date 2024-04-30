@@ -3,6 +3,7 @@ import MessageCard from "./MessageCard";
 import { format, isSameDay, parseISO } from "date-fns";
 import { useStore } from "@stores/index";
 import { useCheckReadMessage } from "../../hooks";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 interface MessagesDisplayProps {
   messageContainerRef: React.RefObject<HTMLDivElement>;
@@ -38,10 +39,10 @@ const LoadingSpinner = () => (
 );
 
 const SystemNotifyChip = ({ message }: any) => {
-  const cardRef = useRef(null);
+  const cardRef = useRef<any>(null);
 
   useEffect(() => {
-    console.log(message);
+    // console.log(message);
     // we need for check message readed or not
     // Attach the message.id to the cardRef directly
     if (cardRef.current) {
@@ -52,27 +53,32 @@ const SystemNotifyChip = ({ message }: any) => {
   }, [message]);
 
   return (
-    <div className="chat msg_card my-4 flex justify-center pb-1" ref={cardRef}>
+    <div className="msg_card chat my-4 flex justify-center pb-1" ref={cardRef}>
       <div className="badge badge-secondary">{message.content}</div>
     </div>
   );
 };
 
 const generateMessageElements = (
+  channelId: string,
   messages: Map<string, any>,
   isScrollingUp: boolean,
   messagesEndRef: React.RefObject<HTMLDivElement>,
   toggleEmojiPicker: any,
   selectedEmoji: string,
+  displaySystemNotifyChip: boolean,
 ) => {
   const messagesArray = Array.from(messages.values());
-  const lastReadMessageId = useStore.getState().workspaceSettings.lastReadMessageId;
-  const totalMsgSincLastRead = useStore.getState().workspaceSettings.totalMsgSincLastRead || 0;
+  const channelSettings = useStore.getState().workspaceSettings.channels.get(channelId);
+  const { lastReadMessageId, totalMsgSincLastRead } = channelSettings || {
+    lastReadMessageId: "",
+    totalMsgSincLastRead: 0,
+  };
 
   return messagesArray.flatMap((message, index, array) => {
     const elements = [];
 
-    if (lastReadMessageId === message.id && totalMsgSincLastRead >= 6) {
+    if (lastReadMessageId === message.id && (totalMsgSincLastRead ?? 0) >= 6) {
       elements.push(
         <div key={index + "2"} className="divider my-2 w-full p-4">
           Unread messages
@@ -91,7 +97,8 @@ const generateMessageElements = (
     }
 
     if (message.type === "notification") {
-      elements.push(<SystemNotifyChip key={message.id} message={message} />);
+      if (displaySystemNotifyChip)
+        elements.push(<SystemNotifyChip key={message.id} message={message} />);
     } else {
       elements.push(
         <MessageCard
@@ -115,10 +122,33 @@ export const MessagesDisplay: React.FC<MessagesDisplayProps> = ({
   selectedEmoji,
   isLoadingMore,
 }) => {
+  const {
+    channelId,
+    settings: { displaySystemNotifyChip = true },
+  } = useChannel();
+
   const [isScrollingUp, setIsScrollingUp] = useState(false);
   const lastScrollTop = useRef(0);
-  const { channelId } = useStore((state: any) => state.workspaceSettings);
   const messages = useStore((state: any) => state.messagesByChannel.get(channelId));
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollTop = messageContainerRef.current?.scrollTop || 0;
+      // Set the state based on the scroll direction
+      setIsScrollingUp(currentScrollTop < lastScrollTop.current);
+      // Update the last scroll position
+      lastScrollTop.current = currentScrollTop;
+    };
+
+    const currentRef = messageContainerRef.current;
+    // Add the scroll event listener
+    currentRef?.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      // Clean up the event listener
+      currentRef?.removeEventListener("scroll", handleScroll);
+    };
+  }, [messageContainerRef.current, messages]);
 
   // mark as read message
   useCheckReadMessage({ messageContainerRef, channelId, messages });
@@ -130,16 +160,18 @@ export const MessagesDisplay: React.FC<MessagesDisplayProps> = ({
   return (
     <>
       <div
-        className="relative msg_wrapper flex w-full grow flex-col overflow-y-auto px-10 pt-1"
+        className="msg_wrapper relative flex w-full grow flex-col overflow-y-auto px-4 pt-1"
         ref={messageContainerRef}
       >
         {isLoadingMore && <LoadingSpinner />}
         {generateMessageElements(
+          channelId,
           messages,
           isScrollingUp,
           messagesEndRef,
           toggleEmojiPicker,
           selectedEmoji,
+          displaySystemNotifyChip,
         )}
       </div>
     </>

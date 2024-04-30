@@ -8,10 +8,7 @@ interface UpdateUserStatusRequestBody {
   status: string;
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const supabase = createPagesServerClient({ req, res });
 
   if (req.method === "POST") {
@@ -29,16 +26,9 @@ export default async function handler(
   }
 }
 
-async function updateSupabaseUserStatus(
-  userId: string,
-  status: string,
-  supabase: any,
-) {
+async function updateSupabaseUserStatus(userId: string, status: string, supabase: any) {
   try {
-    const { error } = await supabase
-      .from("users")
-      .update({ status: status })
-      .eq("id", userId);
+    const { error } = await supabase.from("users").update({ status: status }).eq("id", userId);
 
     if (error) {
       throw error;

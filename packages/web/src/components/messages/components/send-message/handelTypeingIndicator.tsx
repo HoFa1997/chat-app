@@ -12,7 +12,7 @@ export enum TypingIndicatorType {
 let hasStartedTyping = false;
 
 const displayTypingIndicator = (type: TypingIndicatorType) => {
-  const { workspaceBroadcaster, channelId } = useStore.getState().workspaceSettings;
+  const { workspaceBroadcaster, activeChannelId } = useStore.getState().workspaceSettings;
   const profile = useAuthStore.getState().profile;
   const displayName = useAuthStore.getState().displayName;
 
@@ -23,7 +23,7 @@ const displayTypingIndicator = (type: TypingIndicatorType) => {
       event: "typingIndicator",
       payload: {
         type,
-        channelId,
+        activeChannelId,
         user: {
           id: profile?.id,
           displayName,

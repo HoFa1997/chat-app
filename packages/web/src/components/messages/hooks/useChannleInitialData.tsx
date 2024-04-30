@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useStore, useAuthStore } from "@stores/index";
 import { groupedMessages } from "@utils/index";
 import { fetchChannelInitialData } from "@/api";
-import { set } from "lodash";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 interface UseChannelInitialData {
   initialMessagesLoading: boolean;
@@ -10,12 +10,13 @@ interface UseChannelInitialData {
 }
 
 export const useChannelInitialData = (setError: (error: any) => void): UseChannelInitialData => {
+  const { channelId } = useChannel();
+
   const [initialMessagesLoading, setInitialMessagesLoading] = useState<boolean>(true);
   const [msgLength, setMsgLength] = useState<number>(0);
   const bulkSetChannelPinnedMessages = useStore((state: any) => state.bulkSetChannelPinnedMessages);
   const bulkSetMessages = useStore((state) => state.bulkSetMessages);
-  const channelId = useStore((state) => state.workspaceSettings.channelId as string);
-  const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
+  const setWorkspaceChannelSetting = useStore((state) => state.setWorkspaceChannelSetting);
   const setLastMessage = useStore((state) => state.setLastMessage);
   const addChannelMember = useStore((state) => state.addChannelMember);
 
@@ -25,22 +26,27 @@ export const useChannelInitialData = (setError: (error: any) => void): UseChanne
       message_limit: 20,
     });
 
-    console.log({
-      channelData,
-    });
-
     if (channelError) throw new Error(channelError.message);
 
-    setWorkspaceSetting(
+    setWorkspaceChannelSetting(
+      channelId,
       "scrollPageOffset",
       channelData?.total_messages_since_last_read >= 20
         ? channelData?.total_messages_since_last_read
         : 20,
     );
-    setWorkspaceSetting("unreadMessage", channelData?.unread_message);
-    setWorkspaceSetting("lastReadMessageId", channelData?.last_read_message_id);
-    setWorkspaceSetting("lastReadMessageTimestamp", channelData?.last_read_message_timestamp);
-    setWorkspaceSetting("totalMsgSincLastRead", channelData?.total_messages_since_last_read);
+    setWorkspaceChannelSetting(channelId, "unreadMessage", channelData?.unread_message);
+    setWorkspaceChannelSetting(channelId, "lastReadMessageId", channelData?.last_read_message_id);
+    setWorkspaceChannelSetting(
+      channelId,
+      "lastReadMessageTimestamp",
+      channelData?.last_read_message_timestamp,
+    );
+    setWorkspaceChannelSetting(
+      channelId,
+      "totalMsgSincLastRead",
+      channelData?.total_messages_since_last_read,
+    );
 
     updateChannelState(channelData);
   };
@@ -73,10 +79,14 @@ export const useChannelInitialData = (setError: (error: any) => void): UseChanne
       });
     }
 
-    setWorkspaceSetting("isUserChannelMember", channelData?.is_user_channel_member || false);
+    setWorkspaceChannelSetting(
+      channelId,
+      "isUserChannelMember",
+      channelData?.is_user_channel_member || false,
+    );
 
     if (channelData.channel_info) {
-      setWorkspaceSetting("channelInfo", channelData.channel_info);
+      setWorkspaceChannelSetting(channelId, "channelInfo", channelData.channel_info);
     }
 
     if (channelData.pinned_messages) {

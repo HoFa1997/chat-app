@@ -28,19 +28,18 @@ export const useHandleUserStatus = () => {
   };
 
   // Debounced updateUserStatus function
-  const debouncedUpdateUserStatus = useMemo(
-    () => debounce(updateUserStatus, 3000),
-    [],
-  );
+  const debouncedUpdateUserStatus = useMemo(() => debounce(updateUserStatus, 3000), []);
 
   // Handlers
-  const handleOnline = useCallback(() => debouncedUpdateUserStatus(ONLINE), [
-    debouncedUpdateUserStatus,
-  ]);
+  const handleOnline = useCallback(
+    () => debouncedUpdateUserStatus(ONLINE),
+    [debouncedUpdateUserStatus],
+  );
 
-  const handleOffline = useCallback(() => debouncedUpdateUserStatus(OFFLINE), [
-    debouncedUpdateUserStatus,
-  ]);
+  const handleOffline = useCallback(
+    () => debouncedUpdateUserStatus(OFFLINE),
+    [debouncedUpdateUserStatus],
+  );
 
   const handleUnload = () => {
     if ("serviceWorker" in navigator && "SyncManager" in window) {
@@ -68,7 +67,6 @@ export const useHandleUserStatus = () => {
     window.addEventListener("offline", handleOffline);
     window.addEventListener("beforeunload", handleOffline);
     document.addEventListener("visibilitychange", () => {
-      console.log({ visibilityState: document.visibilityState });
       document.visibilityState === "visible" ? handleOnline() : handleOffline();
     });
 
@@ -80,9 +78,7 @@ export const useHandleUserStatus = () => {
       window.removeEventListener("beforeunload", handleUnload);
 
       document.removeEventListener("visibilitychange", () => {
-        document.visibilityState === "visible"
-          ? handleOnline()
-          : handleOffline();
+        document.visibilityState === "visible" ? handleOnline() : handleOffline();
       });
       // @ts-ignore
       debouncedUpdateUserStatus.cancel();

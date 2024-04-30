@@ -1,7 +1,4 @@
-/* eslint-disable */
-// @ts-nocheck
-
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { TMessageWithUser } from "@/api";
 import { MessageContextMenu } from "../../MessageContextMenu";
 import MessageReaction from "../../MessageReaction";
@@ -13,6 +10,7 @@ import MessageHeader from "./MessageHeader";
 import MessageContent from "./MessageContent";
 import { isOnlyEmoji } from "@/shared";
 import { useStore } from "@stores/index";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 type TMessageCardProps = {
   data: TMessageWithUser;
@@ -21,12 +19,13 @@ type TMessageCardProps = {
 };
 
 function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardProps, ref: any) {
+  const { settings } = useChannel();
   const user = useAuthStore.use.profile();
   const setReplayMessageMemory = useStore((state) => state.setReplayMessageMemory);
   const openModal = useUserProfileModalStore((state) => state.openModal);
   const modalOpen = useUserProfileModalStore((state) => state.modalOpen);
   const closeModal = useUserProfileModalStore((state) => state.closeModal);
-  const cardRef = useRef(null);
+  const cardRef = useRef<any>(null);
 
   useEffect(() => {
     if (ref) {
@@ -49,7 +48,8 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
   };
 
   const handleDoubleClick = useCallback(() => {
-    setReplayMessageMemory(data);
+    if (!settings.contextMenue?.reply) return;
+    setReplayMessageMemory(data.channel_id, data);
     // Triggering editor focus if needed
     const event = new CustomEvent("editor:focus");
     document.dispatchEvent(event);
@@ -59,25 +59,17 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
     return data.isGroupEnd;
   }, [data.isGroupEnd]);
 
-  const isGroupStart = useMemo(() => {
-    return data.isGroupStart;
-  }, [data.isGroupStart]);
-
-  const isNewGroupById = useMemo(() => {
-    return data.isNewGroupById;
-  }, [data.isNewGroupById]);
-
   return (
     <div
       className={`group ${
-        data?.user_details?.id === user?.id ? "chat-end ml-auto owner" : "chat-start mr-auto"
-      } chat msg_card relative  min-w-[30%] w-fit max-w-[90%] ${isGroupEnd ? "chat_group-end !mb-2" : "chat_group-start"}`}
+        data?.user_details?.id === user?.id ? "owner chat-end ml-auto" : "chat-start mr-auto"
+      } msg_card chat relative  w-fit min-w-[200px] max-w-[90%] ${isGroupEnd ? "chat_group-end !mb-2" : "chat_group-start"}`}
       ref={cardRef}
       onDoubleClick={handleDoubleClick}
     >
       <Avatar
         src={data?.user_details?.avatar_url}
-        className="w-10 rounded-full cursor-pointer hover:scale-105 transition-all chat-image avatar"
+        className="avatar chat-image w-10 cursor-pointer rounded-full transition-all hover:scale-105"
         style={{
           width: 40,
           height: 40,
@@ -90,14 +82,14 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
       />
 
       {isOnlyEmoji(data?.content) ? (
-        <div className="max-w-[70%] min-w-full mb-4">
+        <div className="mb-4 min-w-full max-w-[70%]">
           <MessageHeader data={data} />
           <MessageContent data={data} />
           <MessageFooter data={data} />
         </div>
       ) : (
         <div
-          className={`chat-bubble !mt-0 flex flex-col w-full ${
+          className={`chat-bubble !mt-0 flex w-full flex-col ${
             isGroupEnd ? "bubble_group-end" : "bubble_group-start !rounded-ee-xl !rounded-es-xl"
           }`}
         >
@@ -116,7 +108,7 @@ function MessageCard({ data, toggleEmojiPicker, selectedEmoji }: TMessageCardPro
       <MessageContextMenu
         parrentRef={cardRef}
         messageData={data}
-        className="m-0 z-20 menu p-2 outline-none shadow bg-base-100 rounded-lg w-48"
+        className="menu z-20 m-0 w-48 rounded-lg bg-base-100 p-2 shadow outline-none"
       />
     </div>
   );

@@ -1,14 +1,20 @@
 import { useStore } from "@stores/index";
 import { Avatar } from "@/components/ui/Avatar";
+import { useChannel } from "@/shared/context/ChannelProvider";
 
 export const MessageHeader = () => {
-  const { channelId } = useStore((state: any) => state.workspaceSettings);
+  const { channelId } = useChannel();
+
   const channel = useStore((state: any) => state.channels.get(channelId));
 
   return (
-    <div className="flex w-full flex-row items-center justify-start bg-base-200 p-4">
-      <div className="h-10 w-10">
-        <Avatar className="m-0 rounded-full ring-2 ring-base-300 ring-offset-2" id={channelId} collection="shapes" />
+    <div className="flex w-full flex-row items-center justify-start border-b bg-base-200 p-4">
+      <div className="size-10">
+        <Avatar
+          className="m-0 rounded-full ring-2 ring-base-300 ring-offset-2"
+          id={channelId}
+          collection="shapes"
+        />
       </div>
 
       <div className="ml-3 flex flex-col">
