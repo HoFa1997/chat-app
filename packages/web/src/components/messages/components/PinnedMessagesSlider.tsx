@@ -29,7 +29,7 @@ export default function PinnedMessagesSlider({
         {pinnedMessages.map((_, index) => (
           <button
             key={index}
-            ref={el => {
+            ref={(el) => {
               buttonsRef.current[index] = el;
             }}
             className={`mb-1 flex-1 rounded-full p-[2px] py-2 transition-colors duration-200 ease-out ${

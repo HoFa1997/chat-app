@@ -23,7 +23,7 @@ export const ChatPanelContainer = () => {
   if (!activeChannelId) return null;
 
   return (
-    <div className="flex size-full flex-row">
+    <div className="flex size-full w-full flex-row">
       {/* Main channel */}
       <div ref={panelRef} style={{ width: `${leftWidth}%`, display: "flex" }}>
         <ChannelProvider initChannelId={activeChannelId || ""}>
@@ -45,7 +45,7 @@ export const ChatPanelContainer = () => {
           >
             <ThreadHeader />
             <ThreadMessageCard data={startThreadMessage} />
-            <ChatRoom className="h-auto overflow-auto border-t pt-1" />
+            <ChatRoom className="border-t pt-1" />
           </ChannelProvider>
         </div>
       )}
