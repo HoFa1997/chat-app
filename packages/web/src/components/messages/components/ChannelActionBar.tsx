@@ -15,7 +15,11 @@ export const ChannelActionBar = () => {
 
   const channels = useStore((state: any) => state.channels);
 
-  if ((channels.has(channelId) && channels.get(channelId).type === "THREAD") || !channelInfo) {
+  if (
+    (channels.has(channelId) && channels.get(channelId).type === "THREAD") ||
+    !channelInfo ||
+    channelInfo.type === "THREAD"
+  ) {
     return <SendMessage />;
   }
 

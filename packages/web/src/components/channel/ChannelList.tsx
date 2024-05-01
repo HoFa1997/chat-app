@@ -48,7 +48,7 @@ export default function ChannelList({ loading = false }) {
           <ul className="channleList menu m-0 h-auto rounded-box bg-base-200 p-0">
             {filteredChannels?.map(
               (item: any, index: number) =>
-                item && <ChannelItem key={item.id + index} data={item} />,
+                item && item.type !== "THREAD" && <ChannelItem key={item.id + index} data={item} />,
             )}
           </ul>
         </div>

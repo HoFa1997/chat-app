@@ -70,7 +70,11 @@ export async function getServerSideProps(context: any) {
       );
 
       //@ts-ignore
-      channels = workspaceChannels.data.map((x) => ({ ...x, ...x.workspace })) || []; //data || [];
+      // TODO: need db function to get all channels by workspaceId and not thread
+      channels =
+        workspaceChannels.data
+          .filter((x) => x.workspace.type !== "THREAD")
+          .map((x) => ({ ...x, ...x.workspace })) || []; //data || [];
     }
 
     return {

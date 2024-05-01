@@ -12,6 +12,7 @@ export const getChannels = async (workspaceId: string): Promise<PostgrestRespons
     .from("channels")
     .select("*")
     .eq("workspace_id", workspaceId)
+    .neq("type", "THREAD")
     .order("last_activity_at", { ascending: false })
     .returns<TChannel[]>()
     .throwOnError();
