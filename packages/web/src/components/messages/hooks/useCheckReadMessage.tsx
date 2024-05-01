@@ -118,6 +118,8 @@ export const useCheckReadMessage = ({ messageContainerRef, channelId, messages }
     // });
 
     setWorkspaceChannelSetting(channelId, "lastReadMessageTimestamp", lastMessage.createAt);
+
+    if (lastMessage.id === "fake_id") return;
     markReadMessages({ channelId, lastMessage: lastMessage.id }).then();
   }, [visibleCount]);
 };
