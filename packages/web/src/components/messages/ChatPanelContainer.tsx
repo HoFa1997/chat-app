@@ -23,29 +23,34 @@ export const ChatPanelContainer = () => {
   if (!activeChannelId) return null;
 
   return (
-    <div className="flex size-full w-full flex-row">
+    <div className="box-border flex size-full w-full flex-row">
       {/* Main channel */}
       <div ref={panelRef} style={{ width: `${leftWidth}%`, display: "flex" }}>
         <ChannelProvider initChannelId={activeChannelId || ""}>
           <ChatRoom className="">
-            <div
-              className="resize-handle absolute right-0 top-0 h-full w-1 cursor-ew-resize select-none bg-base-300 transition-all hover:bg-base-100"
-              onMouseDown={onMouseDown}
-            />
+            {startThreadMessage && (
+              <div
+                className="resize-handle absolute right-0 top-0 h-full w-1 cursor-ew-resize select-none border-l bg-base-300 transition-all hover:bg-base-100"
+                onMouseDown={onMouseDown}
+              />
+            )}
           </ChatRoom>
         </ChannelProvider>
       </div>
 
       {/* Thread channel */}
       {startThreadMessage && (
-        <div className="flex flex-col " style={{ width: `${100 - leftWidth}%` }}>
+        <div
+          className=" box-border flex h-full flex-col items-start  "
+          style={{ width: `${100 - leftWidth}%` }}
+        >
           <ChannelProvider
             initChannelId={startThreadMessage.id}
             initSettings={ThreadChannelSettings}
           >
             <ThreadHeader />
             <ThreadMessageCard data={startThreadMessage} />
-            <ChatRoom className="border-t pt-1" />
+            <ChatRoom className="flex h-full flex-col overflow-auto " />
           </ChannelProvider>
         </div>
       )}

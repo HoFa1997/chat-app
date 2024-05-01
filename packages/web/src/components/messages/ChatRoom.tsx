@@ -71,8 +71,8 @@ export const ChatRoom = forwardRef(
       return <ChannelLoadingPrompt loading={true} />;
 
     return (
-      <div className={`flex size-full ${className}`} ref={ref}>
-        <MessageWrapper style={style} className="w-full flex-col justify-start pr-1">
+      <div className={`flex size-full flex-col overflow-y-auto ${className}`} ref={ref}>
+        <MessageWrapper style={style} className="flex-1 flex-col overflow-hidden pr-1">
           {displayChannelBar && <MessageHeader />}
           <PinnedMessagesDisplay loading={loading} />
           <LoadingOverlay loading={loading} />
