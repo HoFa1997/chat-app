@@ -17,10 +17,6 @@ export const groupedMessages = (messages: Message[]) =>
     const prevMessage = array.at(index - 1);
     const nextMessage = array.at(index + 1);
 
-    console.log({
-      message,
-    });
-
     const isGroupStart =
       index === 0 ||
       message?.user_id !== prevMessage?.user_id ||
