@@ -313,7 +313,7 @@ BEGIN
 
     -- Add both users as members to the new channel
     INSERT INTO public.channel_members (channel_id, member_id, joined_at)
-    VALUES (new_channel->>'id', user_id, now());
+    VALUES (CAST(new_channel->>'id' AS UUID), user_id, now());  -- Corrected type cast here
 
     RETURN new_channel;
 END;
