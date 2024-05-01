@@ -1,6 +1,22 @@
 # Supabase Slack Clone 🚀
 
-Welcome to the Supabase Slack Clone project! This open-source initiative is all about creating a feature-rich chat application inspired by Slack. Dive into a world powered by Next.js for the frontend and Supabase for the backend, designed for developers and by developers.
+Welcome to the Supabase Slack Clone project! This open-source initiative is dedicated to creating a feature-rich chat application inspired by Slack, utilizing Next.js for the frontend and Supabase for the backend. This project is part of the [docsplus project](https://github.com/docs-plus/docs.plus), demonstrating integrated solutions and collaborative features.
+
+## Why Build Another Chat App?
+
+Our primary aim is to explore and demonstrate the capabilities of Supabase, showcasing the potential of this platform as a backend service. This project serves as a real-world test to evaluate the power of PostgreSQL through Supabase's interface, addressing numerous challenges along the way.
+
+### Challenges and Innovations
+
+Throughout the development, we encountered several limitations with Supabase's real-time features. However, these obstacles led us to devise innovative solutions that not only work around these hurdles but also enhance our application's functionality.
+
+### Focus on Performance
+
+Performance is a key concern for us. We strive to ensure that our application runs efficiently with minimal server resources. One of the decisions we made to boost performance was to disable Row Level Security (RLS), as it introduced latency in requests. This choice was made to prioritize responsiveness and speed, making our chat application swift and lightweight.
+
+This initiative is an extension of the broader [docsplus project](https://github.com/docs-plus/docs.plus), which provides a suite of tools for real-time collaboration and information management. By connecting these projects, we aim to enrich the functionality and demonstrate the seamless integration possible with Supabase and other open-source technologies.
+
+Join us in building the ultimate chat application—enhancing communication through collaborative development while pushing the limits of what Supabase can do!
 
 ## 🌟 Features Checklist
 
