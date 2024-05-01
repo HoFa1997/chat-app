@@ -227,3 +227,26 @@ CREATE TRIGGER trg_decrement_member_count
 AFTER DELETE ON public.channel_members
 FOR EACH ROW
 EXECUTE FUNCTION decrement_member_count();
+
+
+--------------------------------------------
+--------------------------------------------
+CREATE OR REPLACE FUNCTION prevent_duplicate_channel_member()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Check if a record already exists with the same channel_id and member_id
+    IF EXISTS (
+        SELECT 1 FROM public.channel_members
+        WHERE channel_id = NEW.channel_id AND member_id = NEW.member_id
+    ) THEN
+        -- If exists, raise an exception
+        RAISE EXCEPTION 'This user is already a member of the channel.';
+    END IF;
+    -- If not, allow the insertion
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_duplicate_member
+BEFORE INSERT ON public.channel_members
+FOR EACH ROW EXECUTE FUNCTION prevent_duplicate_channel_member();
