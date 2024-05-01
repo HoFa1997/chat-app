@@ -1,6 +1,7 @@
 import React from "react";
 import { CgMailReply } from "react-icons/cg";
-import { TbPinnedFilled } from "react-icons/tb";
+import { TbPinned } from "react-icons/tb";
+
 import ReactionsCard from "./ReactionsCard";
 import { IoCheckmarkDoneSharp, IoTimeOutline, IoCheckmarkSharp } from "react-icons/io5";
 import { BiSolidMessageDetail } from "react-icons/bi";
@@ -24,7 +25,7 @@ const ReplyIndicator = ({ count }: { count: number | undefined }) =>
   ) : null;
 
 const PinIndicator = ({ isPinned }: { isPinned?: boolean }) =>
-  isPinned ? <TbPinnedFilled className=" size-4 rotate-45 text-gray-300" /> : null;
+  isPinned ? <TbPinned className=" size-4 rotate-45 text-gray-300" /> : null;
 
 const EditedIndicator = ({ isEdited }: { isEdited?: boolean }) =>
   isEdited ? <span className="text-xs text-gray-300 text-opacity-50">edited</span> : null;

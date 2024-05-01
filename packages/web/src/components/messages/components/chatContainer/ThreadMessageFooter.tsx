@@ -1,5 +1,5 @@
 import React from "react";
-import { TbPinnedFilled } from "react-icons/tb";
+import { TbPinned } from "react-icons/tb";
 import ReactionsCard from "./ReactionsCard";
 import { IoCheckmarkSharp } from "react-icons/io5";
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
@@ -15,7 +15,7 @@ const formatDate = (dateString: string) => {
 };
 
 const PinIndicator = ({ isPinned }: { isPinned?: boolean }) =>
-  isPinned ? <TbPinnedFilled className=" size-4 rotate-45 text-gray-300" /> : null;
+  isPinned ? <TbPinned className=" size-4 rotate-45 text-gray-300" /> : null;
 
 const EditedIndicator = ({ isEdited }: { isEdited?: boolean }) =>
   isEdited ? <span className="text-xs text-gray-300 text-opacity-50">edited</span> : null;
