@@ -15,7 +15,6 @@ const sortChannelsByLastActivity = (channels: TChannel[]) => {
 export const useChannelFilter = () => {
   const router = useRouter();
   const user = useAuthStore((state) => state.profile);
-  const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
   const setWorkspaceChannelSetting = useStore((state) => state.setWorkspaceChannelSetting);
   const [filteredChannels, setFilteredChannels] = useState<any>([]);
   const channels = useStore((state) => state.channels);
@@ -28,7 +27,7 @@ export const useChannelFilter = () => {
     const selectedChannel = channels.get(channelId);
     if (!selectedChannel) return;
     const isUserChannelOwner = selectedChannel.created_by === user.id;
-    setWorkspaceSetting("activeChannelId", channelId);
+
     setWorkspaceChannelSetting(channelId, "isUserChannelOwner", isUserChannelOwner);
     setWorkspaceChannelSetting(channelId, "channelInfo", selectedChannel);
   }, [user, channels, channelId]);
@@ -37,7 +36,10 @@ export const useChannelFilter = () => {
   useEffect(() => {
     if (activeType === "global") return;
     if (channels && channels.size > 0) {
-      const sortedChannels = sortChannelsByLastActivity(Array.from(channels.values()));
+      const sortedChannels = sortChannelsByLastActivity(
+        Array.from(channels.values()).filter((x) => x.type && x.type !== "THREAD"),
+      );
+
       setFilteredChannels(sortedChannels);
     } else {
       setFilteredChannels([]);
@@ -62,5 +64,5 @@ export const useChannelFilter = () => {
     }
   };
 
-  return { filteredChannels, handleFilterChange, channels };
+  return { filteredChannels, handleFilterChange, channels, activeType };
 };

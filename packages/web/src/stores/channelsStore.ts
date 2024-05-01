@@ -39,11 +39,13 @@ const channelsStore = immer<IChannelStore>((set) => ({
 
   updateChannelRow: (channelId, channelData) => {
     set((state) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      const channel = state.channels.get(channelId);
+      if (!channel) return;
+
       state.channels.set(channelId, {
-        ...state.channels.get(channelId),
+        ...channel,
         ...channelData,
+        id: channel.id,
       });
     });
   },

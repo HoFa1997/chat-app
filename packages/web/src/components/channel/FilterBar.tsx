@@ -42,11 +42,19 @@ const FilterBar = ({ onFilterChange }: any) => {
       ref={containerRef}
       className="scrollable-container mb-2 flex snap-x snap-proximity scroll-pl-6 flex-row space-x-2 overflow-x-auto overflow-y-hidden p-2 pb-3 "
     >
+      {/* <button
+          key="threads"
+          data-type="threads"
+          onClick={() => handleClick("threads")}
+          className={`btn btn-outline btn-sm  shadow hover:shadow-md ${activeType === "threads" ? "btn-active" : ""}`}
+        >
+          Threads
+        </button> */}
       <button
         key="global"
         data-type="global"
         onClick={() => handleClick("global")}
-        className={`btn btn-outline btn-sm snap-center shadow hover:shadow-md ${activeType === "global" ? "btn-active" : ""}`}
+        className={`btn btn-outline btn-sm  shadow hover:shadow-md ${activeType === "global" ? "btn-active" : ""}`}
       >
         Glob
       </button>
