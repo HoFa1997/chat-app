@@ -173,7 +173,6 @@ BEGIN
         WHERE channel_id = p_channel_id
           AND user_id != auth.uid()
           AND created_at <= target_timestamp
-          AND thread_id IS NULL
           AND readed_at IS NULL;
 
         IF messages_to_mark_count > 0 THEN
@@ -183,7 +182,6 @@ BEGIN
             WHERE channel_id = p_channel_id
               AND user_id != auth.uid()
               AND created_at <= target_timestamp
-              AND thread_id IS NULL
               AND readed_at IS NULL;
 
             -- Mark the notification as read
@@ -254,7 +252,6 @@ BEGIN
         LEFT JOIN public.users u ON m.user_id = u.id
         WHERE m.channel_id = input_channel_id 
             AND m.deleted_at IS NULL 
-            AND m.thread_id IS NULL
         ORDER BY m.created_at DESC 
         LIMIT page_size OFFSET message_offset
     ) t;
