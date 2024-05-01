@@ -15,6 +15,7 @@ import { EditeMessageIndicator } from "./EditeMessageIndicator";
 import { useTiptapEditor } from "./Editor";
 import { chunkHtmlContent } from "@/shared/utils/chunkHtmlContent";
 import { useChannel } from "@/shared/context/ChannelProvider";
+import { messageInsert } from "../../hooks/listner/helpers";
 
 type BtnIcon = React.ComponentProps<"button"> & { $active?: boolean; $size?: number };
 
@@ -106,6 +107,21 @@ export default function SendMessage() {
         } else if (editeMessageMemory) {
           editeRequestMessage(text, html, messageId);
         } else {
+          // first display fake message, then send the message
+          // in insert message, we will remove the fake message
+          const fakemessage = {
+            new: {
+              id: "fake_id",
+              content: text,
+              html: html,
+              user_details: user,
+              channel_id: channelId,
+              user_id: user.id,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+          };
+          messageInsert(fakemessage);
           postRequestMessage(text, channelId, user.id, html, messageId);
         }
         return;

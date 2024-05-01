@@ -9,9 +9,12 @@ const getChannelMessages = (channelId: string): any => {
 export const messageInsert = (payload: any) => {
   const channelId = payload.new.channel_id;
 
+  const removeMessage = useStore.getState().removeMessage;
   const setOrUpdateMessage = useStore.getState().setOrUpdateMessage;
   const setLastMessage = useStore.getState().setLastMessage;
   const usersPresence = useStore.getState().usersPresence;
+
+  removeMessage(channelId, "fake_id");
 
   if (!channelId) return;
 

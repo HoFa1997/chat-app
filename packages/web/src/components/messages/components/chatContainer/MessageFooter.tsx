@@ -2,8 +2,7 @@ import React from "react";
 import { CgMailReply } from "react-icons/cg";
 import { TbPinnedFilled } from "react-icons/tb";
 import ReactionsCard from "./ReactionsCard";
-import { IoCheckmarkSharp } from "react-icons/io5";
-import { IoCheckmarkDoneSharp } from "react-icons/io5";
+import { IoCheckmarkDoneSharp, IoTimeOutline, IoCheckmarkSharp } from "react-icons/io5";
 import { BiSolidMessageDetail } from "react-icons/bi";
 import { TMessageWithUser } from "@/api";
 
@@ -30,11 +29,20 @@ const PinIndicator = ({ isPinned }: { isPinned?: boolean }) =>
 const EditedIndicator = ({ isEdited }: { isEdited?: boolean }) =>
   isEdited ? <span className="text-xs text-gray-300 text-opacity-50">edited</span> : null;
 
-const Timestamp = ({ time, readed_at }: { time: string; readed_at: string | null }) => {
+const Timestamp = ({
+  time,
+  readed_at,
+  id = null,
+}: {
+  time: string;
+  readed_at: string | null;
+  id: string | null;
+}) => {
   return (
     <div className="flex space-x-1 rounded bg-base-100/10 px-1">
       <time className="whitespace-nowrap text-xs opacity-50">{time}</time>
-      <div>
+      {id === "fake_id" && <IoTimeOutline className="size-4 text-gray-300" />}
+      <div className={id !== "fake_id" ? "block" : "hidden"}>
         {!readed_at ? <IoCheckmarkSharp className="size-4 text-gray-300" /> : null}
         {readed_at ? <IoCheckmarkDoneSharp className="size-4 text-gray-300" /> : null}
       </div>
@@ -63,7 +71,7 @@ const MessageFooter: React.FC<{ data: TMessageWithUser }> = ({ data }) => {
           <ReplyIndicator count={countRepliedMessages} />
           <PinIndicator isPinned={data.metadata?.pinned} />
           <EditedIndicator isEdited={!!data.edited_at} />
-          <Timestamp time={createdAt} readed_at={data.readed_at} />
+          <Timestamp time={createdAt} readed_at={data.readed_at} id={data.id} />
         </div>
         {data.is_thread_root && (
           <ThreadIndicator count={data.metadata?.thread?.message_count ?? null} />
