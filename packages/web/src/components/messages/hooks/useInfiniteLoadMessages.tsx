@@ -27,9 +27,10 @@ export const useInfiniteLoadMessages = (
   const channelSettings = useStore((state: any) => state.workspaceSettings.channels.get(channelId));
   const { scrollPage: currentPage, scrollPageOffset } = channelSettings || {};
 
-  const setWorkspaceSetting = useStore((state: any) => state.setWorkspaceSetting);
   const replaceMessages = useStore((state: any) => state.replaceMessages);
   const messagesByChannel = useStore((state: any) => state.messagesByChannel);
+  const setWorkspaceChannelSetting = useStore((state: any) => state.setWorkspaceChannelSetting);
+
   const messages = messagesByChannel.get(channelId);
 
   const loadMoreMessages = async () => {
@@ -64,8 +65,8 @@ export const useInfiniteLoadMessages = (
       const updatedMessages: Map<string, any> = new Map([...newMessagesMap, ...messages]);
 
       replaceMessages(channelId, updatedMessages);
-      setWorkspaceSetting("scrollPage", currentPage + 1);
-      setWorkspaceSetting("scrollPageOffset", scrollPageOffset + PAGE_SIZE);
+      setWorkspaceChannelSetting(channelId, "scrollPage", currentPage + 1);
+      setWorkspaceChannelSetting(channelId, "scrollPageOffset", scrollPageOffset + PAGE_SIZE);
 
       adjustScrollPositionAfterLoadingMessages(messageContainerRef, currentTopElement);
       setIsLoadingMore(false);

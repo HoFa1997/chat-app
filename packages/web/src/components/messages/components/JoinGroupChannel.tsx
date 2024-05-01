@@ -10,9 +10,9 @@ export default function JoinGroupChannel() {
 
   const user = useAuthStore((state) => state.profile);
   const { loading, request: request2JoinChannel } = useApi(join2Channel, null, false);
-  const setWorkspaceSetting = useStore((state: any) => state.setWorkspaceSetting);
   const setOrUpdateChannel = useStore((state) => state.setOrUpdateChannel);
   const channel = useStore((state) => state.channels.get(channelId));
+  const setWorkspaceChannelSetting = useStore((state: any) => state.setWorkspaceChannelSetting);
 
   // TODO: move to api layer
   const joinToChannel = useCallback(async () => {
@@ -24,7 +24,7 @@ export default function JoinGroupChannel() {
       });
 
       if (error) console.error(error);
-      setWorkspaceSetting("isUserChannelMember", true);
+      setWorkspaceChannelSetting(channelId, "isUserChannelMember", true);
       setOrUpdateChannel(channelId, {
         ...data.channel,
         member_count: (channel?.member_count ?? 0) + 1,

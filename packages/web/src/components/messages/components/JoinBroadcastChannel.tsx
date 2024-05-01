@@ -15,9 +15,9 @@ export default function JoinBroadcastChannel() {
   const { loading, request: request2JoinChannel } = useApi(join2Channel, null, false);
 
   const channelMemberInfo = useStore((state) => state.channelMembers.get(channelId));
-  const setWorkspaceSetting = useStore((state: any) => state.setWorkspaceSetting);
   const setOrUpdateChannel = useStore((state) => state.setOrUpdateChannel);
   const channel = useStore((state) => state.channels.get(channelId));
+  const setWorkspaceChannelSetting = useStore((state: any) => state.setWorkspaceChannelSetting);
 
   useEffect(() => {
     if (!channelMemberInfo || !user) return;
@@ -34,7 +34,7 @@ export default function JoinBroadcastChannel() {
       });
       if (error) console.error(error);
 
-      setWorkspaceSetting("isUserChannelMember", true);
+      setWorkspaceChannelSetting(channelId, "isUserChannelMember", true);
       setOrUpdateChannel(channelId, {
         ...data.channel,
         member_count: (channel?.member_count ?? 0) + 1,
