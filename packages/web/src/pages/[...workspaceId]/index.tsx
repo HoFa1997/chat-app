@@ -69,11 +69,13 @@ export async function getServerSideProps(context: any) {
         session.user.id,
       );
 
+      if (workspaceChannels.error) throw workspaceChannels.error;
+
       //@ts-ignore
       // TODO: need db function to get all channels by workspaceId and not thread
       channels =
         workspaceChannels.data
-          .filter((x) => x.workspace.type !== "THREAD")
+          .filter((x) => x.workspace?.type && x.workspace?.type !== "THREAD")
           .map((x) => ({ ...x, ...x.workspace })) || []; //data || [];
     }
 
