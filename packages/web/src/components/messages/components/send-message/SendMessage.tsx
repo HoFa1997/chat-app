@@ -34,6 +34,7 @@ export default function SendMessage() {
   const setEditMessageMemory = useStore((state) => state.setEditMessageMemory);
   const setReplayMessageMemory = useStore((state) => state.setReplayMessageMemory);
   const startThreadMessage = useStore((state) => state.startThreadMessage);
+  const channels = useStore((state) => state.channels);
 
   const user = useAuthStore((state: any) => state.profile);
   const { workspaceId } = useStore((state: any) => state.workspaceSettings);
@@ -95,9 +96,29 @@ export default function SendMessage() {
     try {
       editor?.commands.clearContent(true);
 
+      // first display fake message, then send the message
+      // in insert message, we will remove the fake message
+      const currentDate = new Date().toISOString();
+      const fakemessage = {
+        new: {
+          id: "fake_id",
+          content: text,
+          html: html,
+          user_details: user,
+          channel_id: channelId,
+          user_id: user.id,
+          created_at: currentDate,
+          updated_at: currentDate,
+        },
+      };
+
       if (htmlChunks.length === 0) {
         if (!messageId && startThreadMessage && startThreadMessage.id === channelId) {
           const threadId = startThreadMessage.id;
+          fakemessage.new.channel_id = threadId;
+          if (channels.has(threadId)) {
+            messageInsert(fakemessage);
+          }
           postRequestThreadMessage({
             p_content: text,
             p_html: html,
@@ -107,20 +128,6 @@ export default function SendMessage() {
         } else if (editeMessageMemory) {
           editeRequestMessage(text, html, messageId);
         } else {
-          // first display fake message, then send the message
-          // in insert message, we will remove the fake message
-          const fakemessage = {
-            new: {
-              id: "fake_id",
-              content: text,
-              html: html,
-              user_details: user,
-              channel_id: channelId,
-              user_id: user.id,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-          };
           messageInsert(fakemessage);
           postRequestMessage(text, channelId, user.id, html, messageId);
         }
