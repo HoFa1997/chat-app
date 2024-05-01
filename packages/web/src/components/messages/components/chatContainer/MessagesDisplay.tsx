@@ -27,7 +27,7 @@ const DateChip: React.FC<{ date: string; isScrollingUp: boolean }> = ({ date, is
 );
 
 const NoMessagesDisplay = () => (
-  <div className="flex h-dvh items-center justify-center">
+  <div className="flex h-full items-center justify-center">
     <div className="badge badge-neutral">No messages yet!</div>
   </div>
 );
