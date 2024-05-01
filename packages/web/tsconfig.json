@@ -20,7 +20,7 @@
       "@ui/*": ["./src/components/ui/*"],
       "@utils/*": ["./src/shared/utils/*"],
       "@shared/*": ["./src/shared/*"],
-      "@stores/*": ["./src/stores/*"],
+      "@stores/*": ["./src/stores/*"]
     },
     "plugins": [
       {
@@ -28,6 +28,12 @@
       }
     ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/pages/layout.tsxasdasd"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/pages/layout.tsxasdasd"
+  ],
   "exclude": ["node_modules"]
 }
