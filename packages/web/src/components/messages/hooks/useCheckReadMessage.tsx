@@ -21,10 +21,6 @@ export const useCheckReadMessage = ({ messageContainerRef, channelId, messages }
     const messageElements: HTMLElement[] = Array.from(container.querySelectorAll(".chat.msg_card"));
     // if the last message has readedAt, then all the messages are readed, so no need to check
     // @ts-ignore
-    // console.log({
-    //   container,
-    //   messageElements,
-    // });
     if (messageElements.at(-1)?.readedAt) return;
 
     messageElements.forEach((child) => {
@@ -85,37 +81,17 @@ export const useCheckReadMessage = ({ messageContainerRef, channelId, messages }
   }, [messageContainerRef.current]);
 
   useEffect(() => {
-    // console.log({
-    //   visibleCount,
-    // });
     const lastMessage = visibleCount.at(-1) as any;
     const channelSettings = useStore.getState().workspaceSettings.channels.get(channelId);
     const { lastReadMessageTimestamp } = channelSettings || { lastReadMessageTimestamp: 0 };
 
     // check the creation of the last message
     if (!lastMessage) return;
-    // console.log({
-    //   visibleCount,
-    //   channelId,
-    //   lastMessage,
-    //   lastReadMessageTimestamp,
-    //   createAt: lastMessage.createAt,
-    //   d: new Date(lastReadMessageTimestamp) < new Date(lastMessage.createAt),
-    // });
-    // check if the lastReadMessageTimestamp is greater than the last message creation time
-    // if (new Date(lastReadMessageTimestamp) < new Date(lastMessage.createAt)) return;
     const lastReadTimestamp = new Date(lastReadMessageTimestamp || 0).getTime();
     const lastVisibleTimestamp = new Date(lastMessage?.createAt).getTime();
 
     // check if the last read message is greater than the last visible message
     if (lastReadTimestamp >= lastVisibleTimestamp) return;
-    // console.log({
-    //   lastReadTimestamp,
-    //   lastVisibleTimestamp,
-    //   r: lastReadTimestamp - lastVisibleTimestamp,
-    //   d: lastReadTimestamp <= lastVisibleTimestamp,
-    //   lastMessage,
-    // });
 
     setWorkspaceChannelSetting(channelId, "lastReadMessageTimestamp", lastMessage.createAt);
 
