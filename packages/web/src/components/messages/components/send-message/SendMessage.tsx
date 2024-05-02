@@ -39,7 +39,7 @@ export default function SendMessage() {
   const user = useAuthStore((state: any) => state.profile);
   const { workspaceId } = useStore((state: any) => state.workspaceSettings);
   const channelSettings = useStore((state: any) => state.workspaceSettings.channels.get(channelId));
-  const { replayMessageMemory, editeMessageMemory } = channelSettings || {};
+  const { replayMessageMemory, editMessageMemory } = channelSettings || {};
 
   const setOrUpdateUserPresence = useStore((state: any) => state.setOrUpdateUserPresence);
   const usersPresence = useStore((state: any) => state.usersPresence);
@@ -64,18 +64,18 @@ export default function SendMessage() {
 
   useEffect(() => {
     if (!editor) return;
-    if (editeMessageMemory?.channel_id !== channelId) return;
+    if (editMessageMemory?.channel_id !== channelId) return;
 
     editor
       .chain()
-      .insertContent(editeMessageMemory?.html || editeMessageMemory?.content || "", {
+      .insertContent(editMessageMemory?.html || editMessageMemory?.content || "", {
         parseOptions: {
           preserveWhitespace: false,
         },
       })
       .focus("end")
       .run();
-  }, [editor, editeMessageMemory]);
+  }, [editor, editMessageMemory]);
 
   const submit = useCallback(async () => {
     if (!html || !text || loading) return;
@@ -86,12 +86,12 @@ export default function SendMessage() {
       if (!usersPresence.has(user.id)) setOrUpdateUserPresence(user.id, user);
     }
 
-    if (editeMessageMemory?.id) {
-      const user = editeMessageMemory.user_details;
+    if (editMessageMemory?.id) {
+      const user = editMessageMemory.user_details;
       if (!usersPresence.has(user.id)) setOrUpdateUserPresence(user.id, user);
     }
 
-    const messageId = editeMessageMemory?.id || replayMessageMemory?.id || null;
+    const messageId = editMessageMemory?.id || replayMessageMemory?.id || null;
 
     try {
       editor?.commands.clearContent(true);
@@ -125,7 +125,7 @@ export default function SendMessage() {
             p_thread_id: threadId,
             p_workspace_id: workspaceId,
           });
-        } else if (editeMessageMemory) {
+        } else if (editMessageMemory) {
           editeRequestMessage(text, html, messageId);
         } else {
           messageInsert(fakemessage);
@@ -137,7 +137,7 @@ export default function SendMessage() {
       // INFO: order to send message is important
       for (const [index, htmlChunk] of htmlChunks.entries()) {
         const textChunk = textChunks[index];
-        if (editeMessageMemory) {
+        if (editMessageMemory) {
           editeRequestMessage(textChunk, htmlChunk, messageId);
         } else {
           postRequestMessage(textChunk, channelId, user.id, htmlChunk, messageId);
@@ -150,7 +150,7 @@ export default function SendMessage() {
       document.dispatchEvent(new CustomEvent("messages:container:scroll:down"));
       // if it has reply or forward message, clear it
       if (replayMessageMemory) setReplayMessageMemory(channelId, null);
-      if (editeMessageMemory) setEditMessageMemory(channelId, null);
+      if (editMessageMemory) setEditMessageMemory(channelId, null);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -168,13 +168,13 @@ export default function SendMessage() {
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         if (replayMessageMemory) setReplayMessageMemory(channelId, null);
-        if (editeMessageMemory) {
+        if (editMessageMemory) {
           setEditMessageMemory(channelId, null);
           editor?.commands.clearContent(true);
         }
       }
     },
-    [replayMessageMemory, editeMessageMemory],
+    [replayMessageMemory, editMessageMemory],
   );
 
   useEffect(() => {
