@@ -28,7 +28,7 @@ export const ChannelItem = ({ data, ...props }: { data: TChannel }) => {
       <div className={`m-0 p-2 ${channelId === data.id && "active"}`}>
         <div className="mr-2 size-10">
           <Avatar
-            className="m-0 rounded-full ring-2 ring-base-300 ring-offset-2"
+            className="m-0 size-10 rounded-full ring-2 ring-base-300 ring-offset-2"
             id={data.id}
             collection="shapes"
           />
