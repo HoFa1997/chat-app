@@ -10,12 +10,16 @@ export const useCatchUserPresences = () => {
   const setOrUpdateUserPresence = useStore((state) => state.setOrUpdateUserPresence);
   const setWorkspaceSetting = useStore((state) => state.setWorkspaceSetting);
   const updateChannelRow = useStore((state) => state.updateChannelRow);
+  const addChannelMember = useStore((state) => state.addChannelMember);
+  const channelMembers = useStore((state) => state.channelMembers);
 
   const channelMemebrs = (payload: any) => {
     if (payload.table === "channel_members") {
       updateChannelRow(payload.new.channel_id, payload.new);
+      if (!channelMembers.has(payload.new.channel_id)) {
+        addChannelMember(payload.new.channel_id, { ...payload.new, id: payload.new.member_id });
+      }
     }
-    // useAuthStore.getState().setChannelMembers(newChannelMember);
   };
 
   useEffect(() => {

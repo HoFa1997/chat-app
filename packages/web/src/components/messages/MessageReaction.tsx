@@ -14,7 +14,7 @@ const IconButton = twx.button<BtnIcon>((prop) =>
 );
 
 export default function MessageReaction({ message }: any) {
-  const user = useAuthStore.use.profile();
+  const user = useAuthStore((state: any) => state.profile);
   const member = useStore((state) => state.channelMembers.get(message.channel_id));
 
   // Allow users who are members of the channel to react to the message.
