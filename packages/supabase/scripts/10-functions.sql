@@ -267,6 +267,7 @@ $$ LANGUAGE plpgsql;
 
 -------------------------------
 -------------------------------
+--- It's like a server function, and we do not concern ourselves with performance issues!
 CREATE OR REPLACE FUNCTION create_direct_message_channel(
     workspace_uid UUID,
     user_id UUID
@@ -276,9 +277,11 @@ DECLARE
     display_name TEXT;
     full_name TEXT;
     email TEXT;
-    new_channel JSONB;  -- Declaring as JSONB
-    existing_channel JSONB;  -- Declaring as JSONB
-    current_user_id UUID := auth.uid(); -- Store the current user ID
+    new_channel JSONB;
+    existing_channel JSONB;
+    current_user_id UUID := auth.uid();
+    new_channel_id UUID := uuid_generate_v4();
+    is_member BOOLEAN;
 BEGIN
     -- Get the name of the user
     SELECT users.username, users.full_name, users.display_name, users.email
@@ -293,8 +296,7 @@ BEGIN
     WHERE ch.type = 'DIRECT'
     AND ch.workspace_id = workspace_uid
     AND EXISTS (
-        SELECT 1
-        FROM public.channel_members cm
+        SELECT 1 FROM public.channel_members cm
         WHERE cm.channel_id = ch.id
         AND cm.member_id IN (current_user_id, user_id)
         GROUP BY cm.channel_id
@@ -307,13 +309,29 @@ BEGIN
     END IF;
 
     -- Otherwise, create a new channel
-    INSERT INTO public.channels (workspace_id, type, name, slug, created_by)
-    VALUES (workspace_uid, 'DIRECT', user_name, uuid_generate_v4(), current_user_id)
+    INSERT INTO public.channels (id, workspace_id, type, name, slug, created_by)
+    VALUES (new_channel_id, workspace_uid, 'DIRECT', user_name, uuid_generate_v4(), current_user_id)
     RETURNING to_jsonb(public.channels.*) INTO new_channel;
 
-    -- Add both users as members to the new channel
-    INSERT INTO public.channel_members (channel_id, member_id, joined_at)
-    VALUES (CAST(new_channel->>'id' AS UUID), user_id, now());  -- Corrected type cast here
+    -- Check if the current user is already a member of the new channel
+    SELECT EXISTS (
+        SELECT 1 FROM public.channel_members WHERE channel_id = new_channel_id AND member_id = current_user_id
+    ) INTO is_member;
+
+    IF NOT is_member THEN
+        INSERT INTO public.channel_members (channel_id, member_id, joined_at)
+        VALUES (new_channel_id, current_user_id, now());
+    END IF;
+
+    -- Check if the other user is already a member of the new channel
+    SELECT EXISTS (
+        SELECT 1 FROM public.channel_members WHERE channel_id = new_channel_id AND member_id = user_id
+    ) INTO is_member;
+
+    IF NOT is_member THEN
+        INSERT INTO public.channel_members (channel_id, member_id, joined_at)
+        VALUES (new_channel_id, user_id, now());
+    END IF;
 
     RETURN new_channel;
 END;
