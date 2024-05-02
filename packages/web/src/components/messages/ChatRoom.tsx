@@ -64,6 +64,7 @@ export const ChatRoom = forwardRef(
       messagesEndRef,
     );
 
+    // pagination
     const { isLoadingMore } = useInfiniteLoadMessages(messageContainerRef);
 
     if (error) return <ChannelErrorPropmpt />;
