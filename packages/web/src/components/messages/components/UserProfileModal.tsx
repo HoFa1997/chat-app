@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { Avatar } from "@/components/ui/Avatar";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoCloseOutline } from "react-icons/io5";
 import { FaRegUser } from "react-icons/fa";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
@@ -23,6 +23,7 @@ export const UserProfileModal = () => {
   const triggerRef = useRef<HTMLInputElement | null>(null);
   const profile = useAuthStore((state) => state.profile);
   const { workspaceId } = useStore((state) => state.workspaceSettings);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // check the checkbox
@@ -38,19 +39,29 @@ export const UserProfileModal = () => {
   };
 
   const handelSendDirectMessage = () => {
+    if (!workspaceId) return console.error("Workspace ID is missing");
+    setLoading(true);
     creatDirectMessageChannel({
-      workspace_uid: workspaceId || "",
+      workspace_uid: workspaceId,
       user_id: modalData.id,
-    }).then((res) => {
-      if (res.data) {
+    })
+      .then((res) => {
+        if (res.error) {
+          console.error(res.error);
+          return;
+        }
+
+        if (!res.data) return;
+
         const newChannel = res.data;
         useStore.getState().setOrUpdateChannel(newChannel.id, newChannel);
 
         Router.push(`/${workspaceId}/${newChannel.id}`);
         closeModal();
-      }
-      if (res.error) console.error(res.error);
-    });
+      })
+      .then(() => {
+        setLoading(false);
+      });
   };
 
   if (!modalOpen) {
@@ -126,7 +137,12 @@ export const UserProfileModal = () => {
           <>
             <div className="divider"></div>
             <div>
-              <button className="btn btn-block" onClick={handelSendDirectMessage}>
+              <button
+                className="btn btn-block"
+                onClick={handelSendDirectMessage}
+                disabled={loading}
+              >
+                {loading && <span className="loading loading-spinner mr-auto"></span>}
                 Send Message
               </button>
             </div>
